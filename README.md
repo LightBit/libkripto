@@ -1,12 +1,14 @@
 # Kripto
 *Simple and flexible cryptographic library written in ISO C99.*
 
-Due to lack of time, lack of interest and technical difficulties
-project is abandoned.
+**Due to lack of time, lack of interest and technical difficulties
+project is abandoned.**
+
+**IT IS NOT TESTED**
 
 There is no documentation, however API is really simple.
 
-Run build.sh to compile. Makefile doesn't work (outdated).
+Run build.sh to compile.
 
 ### Supported features:
 #### Block ciphers
@@ -123,6 +125,9 @@ Run build.sh to compile. Makefile doesn't work (outdated).
 #### Authenticated modes
 * GCM
 * OCB
+* TAE
+* McOE
+* COPA
 * CCM
 * CWC
 * IAPM
