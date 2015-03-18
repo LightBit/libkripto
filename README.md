@@ -94,10 +94,6 @@ Run build.sh to compile.
 * Skein512
 * Skein1024
 
-#### Authenticated stream ciphers
-* Keccak1600
-* Keccak800
-
 #### Other
 * PKCS7
 * PBKDF2
