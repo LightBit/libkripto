@@ -22,7 +22,6 @@
 #include <kripto/object/stream.h>
 
 #include <kripto/stream/rc4.h>
-#include <kripto/stream/rc4i.h>
 
 struct kripto_stream
 {
@@ -32,14 +31,11 @@ struct kripto_stream
 	uint8_t j;
 };
 
-static void improved_setup
+static void rc4_setup
 (
 	kripto_stream *s,
 	const void *key,
-	unsigned int key_len,
-	const void *iv,
-	unsigned int iv_len,
-	unsigned int rounds
+	unsigned int key_len
 )
 {
 	unsigned int i;
@@ -50,11 +46,10 @@ static void improved_setup
 
 	for(i = 0; i < 256; i++) s->p[i] = i;
 
-	/* key */
 	if(key && key_len)
 	{
 		j = 0;
-		for(i = 0; i < rounds; i++)
+		for(i = 0; i < 256; i++)
 		{
 			s->j = s->j + s->p[s->i] + CU8(key)[j++];
 			if(j == key_len) j = 0;
@@ -67,41 +62,7 @@ static void improved_setup
 		}
 	}
 
-	/* iv */
-	if(iv && iv_len)
-	{
-		j = 0;
-		for(i = 0; i < rounds; i++)
-		{
-			s->j = s->j + s->p[s->i] + CU8(iv)[j++];
-			if(j == iv_len) j = 0;
-
-			t = s->p[s->i];
-			s->p[s->i] = s->p[s->j];
-			s->p[s->j] = t;
-
-			s->i++;
-		}
-
-		/* key */
-		if(key && key_len)
-		{
-			j = 0;
-			for(i = 0; i < rounds; i++)
-			{
-				s->j = s->j + s->p[s->i] + CU8(key)[j++];
-				if(j == key_len) j = 0;
-
-				t = s->p[s->i];
-				s->p[s->i] = s->p[s->j];
-				s->p[s->j] = t;
-
-				s->i++;
-			}
-		}
-	}
-
-	s->i = s->j; /* original RC4: s->i = s->j = 0; */
+	s->i = s->j = 0;
 }
 
 static inline uint8_t rc4(kripto_stream *s)
@@ -145,28 +106,6 @@ static void rc4_prng
 		U8(out)[i] = rc4(s);
 }
 
-static kripto_stream *rc4i_recreate
-(
-	kripto_stream *s,
-	unsigned int r,
-	const void *key,
-	unsigned int key_len,
-	const void *iv,
-	unsigned int iv_len
-)
-{
-	unsigned int i;
-
-	if(!r) r = 512;
-
-	improved_setup(s, key, key_len, iv, iv_len, r);
-
-	/* drop */
-	for(i = 0; i < r; i++) (void)rc4(s);
-
-	return s;
-}
-
 static kripto_stream *rc4_recreate
 (
 	kripto_stream *s,
@@ -179,37 +118,14 @@ static kripto_stream *rc4_recreate
 {
 	unsigned int i;
 
-	improved_setup(s, key, key_len, iv, iv_len, 256);
+	rc4_setup(s, key, key_len);
+	(void)iv;
+	(void)iv_len;
 
 	s->i = s->j = 0;
 
 	/* drop ? */
 	for(i = 0; i < r; i++) (void)rc4(s);
-
-	return s;
-}
-
-static kripto_stream *rc4i_create
-(
-	const kripto_stream_desc *desc,
-	unsigned int r,
-	const void *key,
-	unsigned int key_len,
-	const void *iv,
-	unsigned int iv_len
-)
-{
-	kripto_stream *s;
-
-	(void)desc;
-
-	s = malloc(sizeof(kripto_stream));
-	if(!s) return 0;
-
-	s->obj.desc = kripto_stream_rc4i;
-	s->obj.multof = 1;
-
-	(void)rc4i_recreate(s, r, key, key_len, iv, iv_len);
 
 	return s;
 }
@@ -245,7 +161,6 @@ static void rc4_destroy(kripto_stream *s)
 	free(s);
 }
 
-/* RC4 */
 static const struct kripto_stream_desc rc4_desc =
 {
 	&rc4_create,
@@ -259,18 +174,3 @@ static const struct kripto_stream_desc rc4_desc =
 };
 
 const kripto_stream_desc *const kripto_stream_rc4 = &rc4_desc;
-
-/* RC4i */
-static const struct kripto_stream_desc rc4i =
-{
-	&rc4i_create,
-	&rc4i_recreate,
-	&rc4_crypt,
-	&rc4_crypt,
-	&rc4_prng,
-	&rc4_destroy,
-	256, /* max key */
-	256 /* max iv */
-};
-
-const kripto_stream_desc *const kripto_stream_rc4i = &rc4i;

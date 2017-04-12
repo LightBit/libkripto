@@ -2,6 +2,8 @@
 
 CFLAGS="lib/libkripto.a -std=c99 -pedantic -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wshadow -I include/ -D_ANSI_SOURCE -D_ISOC99_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 $CFLAGS"
 
+find test/ -name "*.c" -exec cc {} $CFLAGS -o t \; -exec t \;
+
 #cc test/authstream/keccak1600.c $CFLAGS -o t
 #./t
 
@@ -20,8 +22,6 @@ CFLAGS="lib/libkripto.a -std=c99 -pedantic -Wall -Wextra -Wstrict-prototypes -Wm
 #cc test/block/khazad.c $CFLAGS -o t
 #./t
 
-#find test/ -name "*.c" -exec gcc {} $CFLAGS -o t \; -exec t \;
-
 #cc test/block/xtea.c $CFLAGS -o t
 #./t
 
@@ -31,8 +31,8 @@ CFLAGS="lib/libkripto.a -std=c99 -pedantic -Wall -Wextra -Wstrict-prototypes -Wm
 #cc test/block/serpent.c $CFLAGS -o t
 #./t
 
-cc test/block/mars.c $CFLAGS -o t
-./t
+#cc test/block/mars.c $CFLAGS -o t
+#./t
 
 #cc test/block/threefish256.c -DVERBOSE $CFLAGS -o t
 #./t
@@ -55,12 +55,6 @@ cc test/block/mars.c $CFLAGS -o t
 #./t
 
 #cc test/stream/chacha.c $CFLAGS -o t
-#./t
-
-#cc test/stream/rc4i.c $CFLAGS -o t
-#./t
-
-#cc test/stream/rc4.c $CFLAGS -o t
 #./t
 
 #cc test/stream/salsa20.c $CFLAGS -o t
