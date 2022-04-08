@@ -966,24 +966,28 @@ static uint32_t h
 			t[1] = s0[t[1]] ^ key[((6 + off) << 2) + 1];
 			t[2] = s0[t[2]] ^ key[((6 + off) << 2) + 2];
 			t[3] = s1[t[3]] ^ key[((6 + off) << 2) + 3];
+			/* fall through */
 
 		case 3:
 			t[0] = s1[t[0]] ^ key[(4 + off) << 2];
 			t[1] = s1[t[1]] ^ key[((4 + off) << 2) + 1];
 			t[2] = s0[t[2]] ^ key[((4 + off) << 2) + 2];
 			t[3] = s0[t[3]] ^ key[((4 + off) << 2) + 3];
+			/* fall through */
 
 		case 2:
 			t[0] = s0[t[0]] ^ key[(2 + off) << 2];
 			t[1] = s1[t[1]] ^ key[((2 + off) << 2) + 1];
 			t[2] = s0[t[2]] ^ key[((2 + off) << 2) + 2];
 			t[3] = s1[t[3]] ^ key[((2 + off) << 2) + 3];
+			/* fall through */
 
 		case 1:
 			t[0] = s1[s0[t[0]] ^ key[off << 2]];
 			t[1] = s0[s0[t[1]] ^ key[(off << 2) + 1]];
 			t[2] = s1[s1[t[2]] ^ key[(off << 2) + 2]];
 			t[3] = s0[s1[t[3]] ^ key[(off << 2) + 3]];
+			/* fall through */
 	}
 
 	return MDS(t);
@@ -1037,24 +1041,28 @@ static void twofish_setup
 				s->s1[x] = s0[(uint8_t)s->s1[x]] ^ S[y++];
 				s->s2[x] = s0[(uint8_t)s->s2[x]] ^ S[y++];
 				s->s3[x] = s1[(uint8_t)s->s3[x]] ^ S[y++];
+				/* fall through */
 
 			case 3:
 				s->s0[x] = s1[(uint8_t)s->s0[x]] ^ S[y++];
 				s->s1[x] = s1[(uint8_t)s->s1[x]] ^ S[y++];
 				s->s2[x] = s0[(uint8_t)s->s2[x]] ^ S[y++];
 				s->s3[x] = s0[(uint8_t)s->s3[x]] ^ S[y++];
+				/* fall through */
 
 			case 2:
 				s->s0[x] = s0[(uint8_t)s->s0[x]] ^ S[y++];
 				s->s1[x] = s1[(uint8_t)s->s1[x]] ^ S[y++];
 				s->s2[x] = s0[(uint8_t)s->s2[x]] ^ S[y++];
 				s->s3[x] = s1[(uint8_t)s->s3[x]] ^ S[y++];
+				/* fall through */
 
 			case 1:
 				s->s0[x] = mds0[s1[s0[(uint8_t)s->s0[x]] ^ S[y++]]];
 				s->s1[x] = mds1[s0[s0[(uint8_t)s->s1[x]] ^ S[y++]]];
 				s->s2[x] = mds2[s1[s1[(uint8_t)s->s2[x]] ^ S[y++]]];
 				s->s3[x] = mds3[s0[s1[(uint8_t)s->s3[x]] ^ S[y++]]];
+				/* fall through */
 		}
 	}
 
