@@ -38,16 +38,7 @@ struct kripto_hash
 	int o;
 };
 
-#define CH(X0, X1, X2) (X2 ^ (X0 & (X1 ^ X2)))
-#define MAJ(X0, X1, X2) ((X0 & X1) | (X2 & (X0 | X1)))
-
-#define S0(X) (ROR32_07(X) ^ ROR32_18(X) ^ ((X) >> 3))
-#define S1(X) (ROR32_17(X) ^ ROR32_19(X) ^ ((X) >> 10))
-
-#define E0(X) (ROR32_02(X) ^ ROR32_13(X) ^ ROR32_22(X))
-#define E1(X) (ROR32_06(X) ^ ROR32_11(X) ^ ROR32_25(X))
-
-static const uint32_t k[128] =
+static const uint32_t RC[128] =
 {
 	0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
 	0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
@@ -123,6 +114,29 @@ static kripto_hash *sha2_256_recreate
 	return s;
 }
 
+#define CH(X0, X1, X2) (X2 ^ (X0 & (X1 ^ X2)))
+#define MAJ(X0, X1, X2) ((X0 & X1) | (X2 & (X0 | X1)))
+
+#define S0(X) (ROR32_07(X) ^ ROR32_18(X) ^ ((X) >> 3))
+#define S1(X) (ROR32_17(X) ^ ROR32_19(X) ^ ((X) >> 10))
+
+#define E0(X) (ROR32_02(X) ^ ROR32_13(X) ^ ROR32_22(X))
+#define E1(X) (ROR32_06(X) ^ ROR32_11(X) ^ ROR32_25(X))
+
+#define ROUND(A, B, C, D, E, F, G, H, RC, RK) \
+{ \
+	H += E1(E) + CH(E, F, G) + RC + RK; \
+	D += H; \
+	H += E0(A) + MAJ(A, B, C); \
+}
+
+#define KI(K, I) \
+( \
+	K[I & 15] += S0(K[(I + 1) & 15]) \
+		+ K[(I + 9) & 15] \
+		+ S1(K[(I + 14) & 15]) \
+)
+
 static void sha2_256_process(kripto_hash *s, const uint8_t *data)
 {
 	uint32_t a = s->h[0];
@@ -133,48 +147,57 @@ static void sha2_256_process(kripto_hash *s, const uint8_t *data)
 	uint32_t f = s->h[5];
 	uint32_t g = s->h[6];
 	uint32_t h = s->h[7];
-	uint32_t t;
-	uint32_t w[128];
+	uint32_t k[16];
 	unsigned int i;
 
-	w[0] = LOAD32B(data);
-	w[1] = LOAD32B(data + 4);
-	w[2] = LOAD32B(data + 8);
-	w[3] = LOAD32B(data + 12);
-	w[4] = LOAD32B(data + 16);
-	w[5] = LOAD32B(data + 20);
-	w[6] = LOAD32B(data + 24);
-	w[7] = LOAD32B(data + 28);
-	w[8] = LOAD32B(data + 32);
-	w[9] = LOAD32B(data + 36);
-	w[10] = LOAD32B(data + 40);
-	w[11] = LOAD32B(data + 44);
-	w[12] = LOAD32B(data + 48);
-	w[13] = LOAD32B(data + 52);
-	w[14] = LOAD32B(data + 56);
-	w[15] = LOAD32B(data + 60);
+	k[ 0] = LOAD32B(data     );
+	k[ 1] = LOAD32B(data +  4);
+	k[ 2] = LOAD32B(data +  8);
+	k[ 3] = LOAD32B(data + 12);
+	k[ 4] = LOAD32B(data + 16);
+	k[ 5] = LOAD32B(data + 20);
+	k[ 6] = LOAD32B(data + 24);
+	k[ 7] = LOAD32B(data + 28);
+	k[ 8] = LOAD32B(data + 32);
+	k[ 9] = LOAD32B(data + 36);
+	k[10] = LOAD32B(data + 40);
+	k[11] = LOAD32B(data + 44);
+	k[12] = LOAD32B(data + 48);
+	k[13] = LOAD32B(data + 52);
+	k[14] = LOAD32B(data + 56);
+	k[15] = LOAD32B(data + 60);
 
-	for(i = 16; i < s->r; i++)
-		w[i] = w[i - 16] + S0(w[i - 15]) +  w[i - 7] + S1(w[i - 2]);
+	ROUND(a, b, c, d, e, f, g, h, RC[ 0], k[ 0]);
+	ROUND(h, a, b, c, d, e, f, g, RC[ 1], k[ 1]);
+	ROUND(g, h, a, b, c, d, e, f, RC[ 2], k[ 2]);
+	ROUND(f, g, h, a, b, c, d, e, RC[ 3], k[ 3]);
+	ROUND(e, f, g, h, a, b, c, d, RC[ 4], k[ 4]);
+	ROUND(d, e, f, g, h, a, b, c, RC[ 5], k[ 5]);
+	ROUND(c, d, e, f, g, h, a, b, RC[ 6], k[ 6]);
+	ROUND(b, c, d, e, f, g, h, a, RC[ 7], k[ 7]);
+	
+	ROUND(a, b, c, d, e, f, g, h, RC[ 8], k[ 8]);
+	ROUND(h, a, b, c, d, e, f, g, RC[ 9], k[ 9]);
+	ROUND(g, h, a, b, c, d, e, f, RC[10], k[10]);
+	ROUND(f, g, h, a, b, c, d, e, RC[11], k[11]);
+	ROUND(e, f, g, h, a, b, c, d, RC[12], k[12]);
+	ROUND(d, e, f, g, h, a, b, c, RC[13], k[13]);
+	ROUND(c, d, e, f, g, h, a, b, RC[14], k[14]);
+	ROUND(b, c, d, e, f, g, h, a, RC[15], k[15]);
 
-	for(i = 0; i < s->r; i++)
+	for(i = 16; i < s->r;)
 	{
-		h += E1(e) + CH(e, f, g) + k[i] + w[i];
-		d += h;
-		h += E0(a) + MAJ(a, b, c);
-
-		t = h;
-		h = g;
-		g = f;
-		f = e;
-		e = d;
-		d = c;
-		c = b;
-		b = a;
-		a = t;
+		ROUND(a, b, c, d, e, f, g, h, RC[i], KI(k, i)); i++;
+		ROUND(h, a, b, c, d, e, f, g, RC[i], KI(k, i)); i++;
+		ROUND(g, h, a, b, c, d, e, f, RC[i], KI(k, i)); i++;
+		ROUND(f, g, h, a, b, c, d, e, RC[i], KI(k, i)); i++;
+		ROUND(e, f, g, h, a, b, c, d, RC[i], KI(k, i)); i++;
+		ROUND(d, e, f, g, h, a, b, c, RC[i], KI(k, i)); i++;
+		ROUND(c, d, e, f, g, h, a, b, RC[i], KI(k, i)); i++;
+		ROUND(b, c, d, e, f, g, h, a, RC[i], KI(k, i)); i++;
 	}
 
-	kripto_memwipe(w, s->r << 2);
+	kripto_memwipe(k, 16);
 
 	s->h[0] += a;
 	s->h[1] += b;
