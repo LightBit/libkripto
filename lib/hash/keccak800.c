@@ -286,7 +286,7 @@ static kripto_hash *keccak800_recreate
 
 	s->rate = 100 - (len << 1);
 
-	memset(s->s, 0, 200);
+	memset(s->s, 0, 100);
 
 	return s;
 }
