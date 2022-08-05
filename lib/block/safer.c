@@ -1,14 +1,16 @@
 /*
- * Written in 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 /* based on Richard De Moliner's implementation */
@@ -351,7 +353,7 @@ static kripto_block *safer_recreate
 		else r = 6;
 	}
 
-	if(sizeof(kripto_block) + (r << 4) + 8)
+	if(sizeof(kripto_block) + (r << 4) + 8 > s->size)
 	{
 		safer_destroy(s);
 		s = safer_create(r, key, key_len);
@@ -407,7 +409,7 @@ static kripto_block *safer_sk_recreate
 		else r = 8;
 	}
 
-	if(sizeof(kripto_block) + (r << 4) + 8)
+	if(sizeof(kripto_block) + (r << 4) + 8 > s->size)
 	{
 		safer_destroy(s);
 		s = safer_sk_create(r, key, key_len);

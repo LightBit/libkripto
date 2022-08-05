@@ -1,14 +1,16 @@
 /*
- * Written in 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 /*
@@ -776,15 +778,15 @@ static const uint64_t rc[10] =
 };
 
 #define G(X0, X1, X2, X3, X4, X5, X6, X7)	\
-(											\
-	T0[(uint8_t)(X0 >> 56)] ^				\
-	T1[(uint8_t)(X1 >> 48)] ^				\
-	T2[(uint8_t)(X2 >> 40)] ^				\
-	T3[(uint8_t)(X3 >> 32)] ^				\
-	T4[(uint8_t)(X4 >> 24)] ^				\
-	T5[(uint8_t)(X5 >> 16)] ^				\
-	T6[(uint8_t)(X6 >> 8)] ^				\
-	T7[(uint8_t)(X7)]						\
+(						\
+	T0[(uint8_t)(X0 >> 56)] ^		\
+	T1[(uint8_t)(X1 >> 48)] ^		\
+	T2[(uint8_t)(X2 >> 40)] ^		\
+	T3[(uint8_t)(X3 >> 32)] ^		\
+	T4[(uint8_t)(X4 >> 24)] ^		\
+	T5[(uint8_t)(X5 >> 16)] ^		\
+	T6[(uint8_t)(X6 >> 8)] ^		\
+	T7[(uint8_t)(X7)]			\
 )
 
 static void whirlpool_process(kripto_hash *s, const void *data)

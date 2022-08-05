@@ -1,14 +1,16 @@
 /*
- * Written in 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <stdint.h>
@@ -565,51 +567,51 @@ static const uint64_t s3[256] =
 };
 
 #define R(a, b, c, x, mul)			\
-{									\
-	c ^= x;							\
-									\
-	a -= s0[(uint8_t)c]				\
+{						\
+	c ^= x;					\
+						\
+	a -= s0[(uint8_t)c]			\
 		^ s1[(uint8_t)(c >> 16)]	\
 		^ s2[(uint8_t)(c >> 32)]	\
 		^ s3[(uint8_t)(c >> 48)];	\
-									\
+						\
 	b += s3[(uint8_t)(c >> 8)]		\
 		^ s2[(uint8_t)(c >> 24)]	\
 		^ s1[(uint8_t)(c >> 40)]	\
 		^ s0[(uint8_t)(c >> 56)];	\
-									\
-	b *= mul;						\
+						\
+	b *= mul;				\
 }
 
 #define PASS(a, b, c, mul)	\
-{							\
-	R(a, b, c, x0, mul)		\
-	R(b, c, a, x1, mul)		\
-	R(c, a, b, x2, mul)		\
-	R(a, b, c, x3, mul)		\
-	R(b, c, a, x4, mul)		\
-	R(c, a, b, x5, mul)		\
-	R(a, b, c, x6, mul)		\
-	R(b, c, a, x7, mul)		\
+{				\
+	R(a, b, c, x0, mul)	\
+	R(b, c, a, x1, mul)	\
+	R(c, a, b, x2, mul)	\
+	R(a, b, c, x3, mul)	\
+	R(b, c, a, x4, mul)	\
+	R(c, a, b, x5, mul)	\
+	R(a, b, c, x6, mul)	\
+	R(b, c, a, x7, mul)	\
 }
 
-#define KS							\
-{									\
+#define KS				\
+{					\
 	x0 -= x7 ^ 0xA5A5A5A5A5A5A5A5;	\
-	x1 ^= x0;						\
-	x2 += x1;						\
-	x3 -= x2 ^ ((~x1) << 19);		\
-	x4 ^= x3;						\
-	x5 += x4;						\
-	x6 -= x5 ^ ((~x4) >> 23);		\
-	x7 ^= x6;						\
-	x0 += x7;						\
-	x1 -= x0 ^ ((~x7) << 19);		\
-	x2 ^= x1;						\
-	x3 += x2;						\
-	x4 -= x3 ^ ((~x2) >> 23);		\
-	x5 ^= x4;						\
-	x6 += x5;						\
+	x1 ^= x0;			\
+	x2 += x1;			\
+	x3 -= x2 ^ ((~x1) << 19);	\
+	x4 ^= x3;			\
+	x5 += x4;			\
+	x6 -= x5 ^ ((~x4) >> 23);	\
+	x7 ^= x6;			\
+	x0 += x7;			\
+	x1 -= x0 ^ ((~x7) << 19);	\
+	x2 ^= x1;			\
+	x3 += x2;			\
+	x4 -= x3 ^ ((~x2) >> 23);	\
+	x5 ^= x4;			\
+	x6 += x5;			\
 	x7 -= x6 ^ 0x0123456789ABCDEF;	\
 }
 

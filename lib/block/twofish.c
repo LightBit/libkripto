@@ -1,14 +1,16 @@
 /*
- * Written in 2012 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2012 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 /* Derived from Tom St Denis public domain source */
@@ -929,8 +931,8 @@ static const uint32_t rs7[256] =
 	0x492EDDD9, 0x4A373847, 0x4F1C5AA8, 0x4C05BF36
 };
 
-#define MDS(x)													\
-(																\
+#define MDS(x)								\
+(									\
 	mds0[(x)[0]] ^ mds1[(x)[1]] ^ mds2[(x)[2]] ^ mds3[(x)[3]]	\
 )
 
@@ -1073,15 +1075,15 @@ static void twofish_setup
 	kripto_memwipe(&B, sizeof(uint32_t));
 }
 
-#define G0(x, s)									\
-(													\
+#define G0(x, s)					\
+(							\
 	s->s0[(x) & 0xFF] ^ s->s1[((x) >> 8) & 0xFF] ^	\
 	s->s2[((x) >> 16) & 0xFF] ^ s->s3[(x) >> 24]	\
 )
 
-#define G1(x, s)											\
-(															\
-	s->s0[(x) >> 24] ^ s->s1[(x) & 0xFF] ^					\
+#define G1(x, s)						\
+(								\
+	s->s0[(x) >> 24] ^ s->s1[(x) & 0xFF] ^			\
 	s->s2[((x) >> 8) & 0xFF] ^ s->s3[((x) >> 16) & 0xFF]	\
 )
 

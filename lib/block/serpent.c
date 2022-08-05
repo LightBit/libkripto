@@ -1,14 +1,16 @@
 /*
- * Written in 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 /* The S-box functions by Dag Arne Osvik */
@@ -40,183 +42,183 @@ struct kripto_block
 
 /* 38F1A65BED42709C */
 #define S0(A, B, C, D, T)	\
-{							\
-	T  = D;					\
-	D |= A;					\
-	A ^= T;					\
-	T ^= C;					\
-	T =~ T;					\
-	D ^= B;					\
-	B &= A;					\
-	B ^= T;					\
-	C ^= A;					\
-	A ^= D;					\
-	T |= A;					\
-	A ^= C;					\
-	C &= B;					\
-	D ^= C;					\
-	B =~ B;					\
-	C ^= T;					\
-	B ^= C;					\
+{				\
+	T  = D;			\
+	D |= A;			\
+	A ^= T;			\
+	T ^= C;			\
+	T =~ T;			\
+	D ^= B;			\
+	B &= A;			\
+	B ^= T;			\
+	C ^= A;			\
+	A ^= D;			\
+	T |= A;			\
+	A ^= C;			\
+	C &= B;			\
+	D ^= C;			\
+	B =~ B;			\
+	C ^= T;			\
+	B ^= C;			\
 }
 
 /* FC27905A1BE86D34 */
 #define S1(A, B, C, D, T)	\
-{							\
-	T  = B;					\
-	B ^= A;					\
-	A ^= D;					\
-	D =~ D;					\
-	T &= B;					\
-	A |= B;					\
-	D ^= C;					\
-	A ^= D;					\
-	B ^= D;					\
-	D ^= T;					\
-	B |= T;					\
-	T ^= C;					\
-	C &= A;					\
-	C ^= B;					\
-	B |= A;					\
-	A =~ A;					\
-	A ^= C;					\
-	T ^= B;					\
+{				\
+	T  = B;			\
+	B ^= A;			\
+	A ^= D;			\
+	D =~ D;			\
+	T &= B;			\
+	A |= B;			\
+	D ^= C;			\
+	A ^= D;			\
+	B ^= D;			\
+	D ^= T;			\
+	B |= T;			\
+	T ^= C;			\
+	C &= A;			\
+	C ^= B;			\
+	B |= A;			\
+	A =~ A;			\
+	A ^= C;			\
+	T ^= B;			\
 }
 
 /* 86793CAFD1E40B52 */
 #define S2(A, B, C, D, T)	\
-{							\
-	D =~ D;					\
-	B ^= A;					\
-	T  = A;					\
-	A &= C;					\
-	A ^= D;					\
-	D |= T;					\
-	C ^= B;					\
-	D ^= B;					\
-	B &= A;					\
-	A ^= C;					\
-	C &= D;					\
-	D |= B;					\
-	A =~ A;					\
-	D ^= A;					\
-	T ^= A;					\
-	A ^= C;					\
-	B |= C;					\
+{				\
+	D =~ D;			\
+	B ^= A;			\
+	T  = A;			\
+	A &= C;			\
+	A ^= D;			\
+	D |= T;			\
+	C ^= B;			\
+	D ^= B;			\
+	B &= A;			\
+	A ^= C;			\
+	C &= D;			\
+	D |= B;			\
+	A =~ A;			\
+	D ^= A;			\
+	T ^= A;			\
+	A ^= C;			\
+	B |= C;			\
 }
 
 /* 0FB8C963D124A75E */
 #define S3(A, B, C, D, T)	\
-{							\
-	T  = B;					\
-	B ^= D;					\
-	D |= A;					\
-	T &= A;					\
-	A ^= C;					\
-	C ^= B;					\
-	B &= D;					\
-	C ^= D;					\
-	A |= T;					\
-	T ^= D;					\
-	B ^= A;					\
-	A &= D;					\
-	D &= T;					\
-	D ^= C;					\
-	T |= B;					\
-	C &= B;					\
-	T ^= D;					\
-	A ^= D;					\
-	D ^= C;					\
+{				\
+	T  = B;			\
+	B ^= D;			\
+	D |= A;			\
+	T &= A;			\
+	A ^= C;			\
+	C ^= B;			\
+	B &= D;			\
+	C ^= D;			\
+	A |= T;			\
+	T ^= D;			\
+	B ^= A;			\
+	A &= D;			\
+	D &= T;			\
+	D ^= C;			\
+	T |= B;			\
+	C &= B;			\
+	T ^= D;			\
+	A ^= D;			\
+	D ^= C;			\
 }
 
 /* 1F83C0B6254A9E7D */
 #define S4(A, B, C, D, T)	\
-{							\
-	T  = D;					\
-	D &= A;					\
-	A ^= T;					\
-	D ^= C;					\
-	C |= T;					\
-	A ^= B;					\
-	T ^= D;					\
-	C |= A;					\
-	C ^= B;					\
-	B &= A;					\
-	B ^= T;					\
-	T &= C;					\
-	C ^= D;					\
-	T ^= A;					\
-	D |= B;					\
-	B =~ B;					\
-	D ^= A;					\
+{				\
+	T  = D;			\
+	D &= A;			\
+	A ^= T;			\
+	D ^= C;			\
+	C |= T;			\
+	A ^= B;			\
+	T ^= D;			\
+	C |= A;			\
+	C ^= B;			\
+	B &= A;			\
+	B ^= T;			\
+	T &= C;			\
+	C ^= D;			\
+	T ^= A;			\
+	D |= B;			\
+	B =~ B;			\
+	D ^= A;			\
 }
 
 /* F52B4A9C03E8D671 */
 #define S5(A, B, C, D, T)	\
-{							\
-	T  = B;					\
-	B |= A;					\
-	C ^= B;					\
-	D =~ D;					\
-	T ^= A;					\
-	A ^= C;					\
-	B &= T;					\
-	T |= D;					\
-	T ^= A;					\
-	A &= D;					\
-	B ^= D;					\
-	D ^= C;					\
-	A ^= B;					\
-	C &= T;					\
-	B ^= C;					\
-	C &= A;					\
-	D ^= C;					\
+{				\
+	T  = B;			\
+	B |= A;			\
+	C ^= B;			\
+	D =~ D;			\
+	T ^= A;			\
+	A ^= C;			\
+	B &= T;			\
+	T |= D;			\
+	T ^= A;			\
+	A &= D;			\
+	B ^= D;			\
+	D ^= C;			\
+	A ^= B;			\
+	C &= T;			\
+	B ^= C;			\
+	C &= A;			\
+	D ^= C;			\
 }
 
 /* 72C5846BE91FD3A0 */
 #define S6(A, B, C, D, T)	\
-{							\
-	T  = B;					\
-	D ^= A;					\
-	B ^= C;					\
-	C ^= A;					\
-	A &= D;					\
-	B |= D;					\
-	T =~ T;					\
-	A ^= B;					\
-	B ^= C;					\
-	D ^= T;					\
-	T ^= A;					\
-	C &= A;					\
-	T ^= B;					\
-	C ^= D;					\
-	D &= B;					\
-	D ^= A;					\
-	B ^= C;					\
+{				\
+	T  = B;			\
+	D ^= A;			\
+	B ^= C;			\
+	C ^= A;			\
+	A &= D;			\
+	B |= D;			\
+	T =~ T;			\
+	A ^= B;			\
+	B ^= C;			\
+	D ^= T;			\
+	T ^= A;			\
+	C &= A;			\
+	T ^= B;			\
+	C ^= D;			\
+	D &= B;			\
+	D ^= A;			\
+	B ^= C;			\
 }
 
 /* 1DF0E82B74CA9356 */
 #define S7(A, B, C, D, T)	\
-{							\
-	B =~ B;					\
-	T  = B;					\
-	A =~ A;					\
-	B &= C;					\
-	B ^= D;					\
-	D |= T;					\
-	T ^= C;					\
-	C ^= D;					\
-	D ^= A;					\
-	A |= B;					\
-	C &= A;					\
-	A ^= T;					\
-	T ^= D;					\
-	D &= A;					\
-	T ^= B;					\
-	C ^= T;					\
-	D ^= B;					\
-	T |= A;					\
-	T ^= B;					\
+{				\
+	B =~ B;			\
+	T  = B;			\
+	A =~ A;			\
+	B &= C;			\
+	B ^= D;			\
+	D |= T;			\
+	T ^= C;			\
+	C ^= D;			\
+	D ^= A;			\
+	A |= B;			\
+	C &= A;			\
+	A ^= T;			\
+	T ^= D;			\
+	D &= A;			\
+	T ^= B;			\
+	C ^= T;			\
+	D ^= B;			\
+	T |= A;			\
+	T ^= B;			\
 }
 
 
@@ -224,237 +226,237 @@ struct kripto_block
 
 /* D3B0A65C1E47F982 */
 #define IS0(A, B, C, D, T)	\
-{							\
-	T  = D;					\
-	B ^= A;					\
-	D |= B;					\
-	T ^= B;					\
-	A =~ A;					\
-	C ^= D;					\
-	D ^= A;					\
-	A &= B;					\
-	A ^= C;					\
-	C &= D;					\
-	D ^= T;					\
-	C ^= D;					\
-	B ^= D;					\
-	D &= A;					\
-	B ^= A;					\
-	A ^= C;					\
-	T ^= D;					\
+{				\
+	T  = D;			\
+	B ^= A;			\
+	D |= B;			\
+	T ^= B;			\
+	A =~ A;			\
+	C ^= D;			\
+	D ^= A;			\
+	A &= B;			\
+	A ^= C;			\
+	C &= D;			\
+	D ^= T;			\
+	C ^= D;			\
+	B ^= D;			\
+	D &= A;			\
+	B ^= A;			\
+	A ^= C;			\
+	T ^= D;			\
 }
 
 /* 582EF6C3B4791DA0 */
 #define IS1(A, B, C, D, T)	\
-{							\
-	B ^= D;					\
-	T  = A;					\
-	A ^= C;					\
-	C =~ C;					\
-	T |= B;					\
-	T ^= D;					\
-	D &= B;					\
-	B ^= C;					\
-	C &= T;					\
-	T ^= B;					\
-	B |= D;					\
-	D ^= A;					\
-	C ^= A;					\
-	A |= T;					\
-	C ^= T;					\
-	B ^= A;					\
-	T ^= B;					\
+{				\
+	B ^= D;			\
+	T  = A;			\
+	A ^= C;			\
+	C =~ C;			\
+	T |= B;			\
+	T ^= D;			\
+	D &= B;			\
+	B ^= C;			\
+	C &= T;			\
+	T ^= B;			\
+	B |= D;			\
+	D ^= A;			\
+	C ^= A;			\
+	A |= T;			\
+	C ^= T;			\
+	B ^= A;			\
+	T ^= B;			\
 }
 
 /* C9F4BE12036D58A7 */
 #define IS2(A, B, C, D, T)	\
-{							\
-	C ^= B;					\
-	T  = D;					\
-	D =~ D;					\
-	D |= C;					\
-	C ^= T;					\
-	T ^= A;					\
-	D ^= B;					\
-	B |= C;					\
-	C ^= A;					\
-	B ^= T;					\
-	T |= D;					\
-	C ^= D;					\
-	T ^= C;					\
-	C &= B;					\
-	C ^= D;					\
-	D ^= T;					\
-	T ^= A;					\
+{				\
+	C ^= B;			\
+	T  = D;			\
+	D =~ D;			\
+	D |= C;			\
+	C ^= T;			\
+	T ^= A;			\
+	D ^= B;			\
+	B |= C;			\
+	C ^= A;			\
+	B ^= T;			\
+	T |= D;			\
+	C ^= D;			\
+	T ^= C;			\
+	C &= B;			\
+	C ^= D;			\
+	D ^= T;			\
+	T ^= A;			\
 }
 
 /* 09A7BE6D35C248F1 */
 #define IS3(A, B, C, D, T)	\
-{							\
-	C ^= B;					\
-	T  = B;					\
-	B &= C;					\
-	B ^= A;					\
-	A |= T;					\
-	T ^= D;					\
-	A ^= D;					\
-	D |= B;					\
-	B ^= C;					\
-	B ^= D;					\
-	A ^= C;					\
-	C ^= D;					\
-	D &= B;					\
-	B ^= A;					\
-	A &= C;					\
-	T ^= D;					\
-	D ^= A;					\
-	A ^= B;					\
+{				\
+	C ^= B;			\
+	T  = B;			\
+	B &= C;			\
+	B ^= A;			\
+	A |= T;			\
+	T ^= D;			\
+	A ^= D;			\
+	D |= B;			\
+	B ^= C;			\
+	B ^= D;			\
+	A ^= C;			\
+	C ^= D;			\
+	D &= B;			\
+	B ^= A;			\
+	A &= C;			\
+	T ^= D;			\
+	D ^= A;			\
+	A ^= B;			\
 }
 
 /* 5083A97E2CB64FD1 */
 #define IS4(A, B, C, D, T)	\
-{							\
-	C ^= D;					\
-	T  = A;					\
-	A &= B;					\
-	A ^= C;					\
-	C |= D;					\
-	T =~ T;					\
-	B ^= A;					\
-	A ^= C;					\
-	C &= T;					\
-	C ^= A;					\
-	A |= T;					\
-	A ^= D;					\
-	D &= C;					\
-	T ^= D;					\
-	D ^= B;					\
-	B &= A;					\
-	T ^= B;					\
-	A ^= D;					\
+{				\
+	C ^= D;			\
+	T  = A;			\
+	A &= B;			\
+	A ^= C;			\
+	C |= D;			\
+	T =~ T;			\
+	B ^= A;			\
+	A ^= C;			\
+	C &= T;			\
+	C ^= A;			\
+	A |= T;			\
+	A ^= D;			\
+	D &= C;			\
+	T ^= D;			\
+	D ^= B;			\
+	B &= A;			\
+	T ^= B;			\
+	A ^= D;			\
 }
 
 /* 8F2941DEB6537CA0 */
 #define IS5(A, B, C, D, T)	\
-{							\
-	T  = B;					\
-	B |= C;					\
-	C ^= T;					\
-	B ^= D;					\
-	D &= T;					\
-	C ^= D;					\
-	D |= A;					\
-	A =~ A;					\
-	D ^= C;					\
-	C |= A;					\
-	T ^= B;					\
-	C ^= T;					\
-	T &= A;					\
-	A ^= B;					\
-	B ^= D;					\
-	A &= C;					\
-	C ^= D;					\
-	A ^= C;					\
-	C ^= T;					\
-	T ^= D;					\
+{				\
+	T  = B;			\
+	B |= C;			\
+	C ^= T;			\
+	B ^= D;			\
+	D &= T;			\
+	C ^= D;			\
+	D |= A;			\
+	A =~ A;			\
+	D ^= C;			\
+	C |= A;			\
+	T ^= B;			\
+	C ^= T;			\
+	T &= A;			\
+	A ^= B;			\
+	B ^= D;			\
+	A &= C;			\
+	C ^= D;			\
+	A ^= C;			\
+	C ^= T;			\
+	T ^= D;			\
 }
 
 /* FA1D536049E72C8B */
 #define IS6(A, B, C, D, T)	\
-{							\
-	A ^= C;					\
-	T  = A;					\
-	A &= D;					\
-	C ^= D;					\
-	A ^= C;					\
-	D ^= B;					\
-	C |= T;					\
-	C ^= D;					\
-	D &= A;					\
-	A =~ A;					\
-	D ^= B;					\
-	B &= C;					\
-	T ^= A;					\
-	D ^= T;					\
-	T ^= C;					\
-	A ^= B;					\
-	C ^= A;					\
+{				\
+	A ^= C;			\
+	T  = A;			\
+	A &= D;			\
+	C ^= D;			\
+	A ^= C;			\
+	D ^= B;			\
+	C |= T;			\
+	C ^= D;			\
+	D &= A;			\
+	A =~ A;			\
+	D ^= B;			\
+	B &= C;			\
+	T ^= A;			\
+	D ^= T;			\
+	T ^= C;			\
+	A ^= B;			\
+	C ^= A;			\
 }
 
 /* 306D9EF85CB7A142 */
 #define IS7(A, B, C, D, T)	\
-{							\
-	T  = D;					\
-	D &= A;					\
-	A ^= C;					\
-	C |= T;					\
-	T ^= B;					\
-	A =~ A;					\
-	B |= D;					\
-	T ^= A;					\
-	A &= C;					\
-	A ^= B;					\
-	B &= C;					\
-	D ^= C;					\
-	T ^= D;					\
-	C &= D;					\
-	D |= A;					\
-	B ^= T;					\
-	D ^= T;					\
-	T &= A;					\
-	T ^= C;					\
+{				\
+	T  = D;			\
+	D &= A;			\
+	A ^= C;			\
+	C |= T;			\
+	T ^= B;			\
+	A =~ A;			\
+	B |= D;			\
+	T ^= A;			\
+	A &= C;			\
+	A ^= B;			\
+	B &= C;			\
+	D ^= C;			\
+	T ^= D;			\
+	C &= D;			\
+	D |= A;			\
+	B ^= T;			\
+	D ^= T;			\
+	T &= A;			\
+	T ^= C;			\
 }
 
-#define LT(A, B, C, D)	\
-{						\
+#define LT(A, B, C, D)		\
+{				\
 	A = ROL32_13(A);	\
 	C = ROL32_03(C);	\
 	D ^= C ^ (A << 3);	\
-	B ^= A ^ C;			\
+	B ^= A ^ C;		\
 	D = ROL32_07(D);	\
 	B = ROL32_01(B);	\
-	A ^= B ^ D;			\
+	A ^= B ^ D;		\
 	C ^= D ^ (B << 7);	\
 	A = ROL32_05(A);	\
 	C = ROL32_22(C);	\
 }
 
-#define ILT(A, B, C, D)	\
-{						\
+#define ILT(A, B, C, D)		\
+{				\
 	C = ROR32_22(C);	\
 	A = ROR32_05(A);	\
 	C ^= D ^ (B << 7);	\
-	A ^= B ^ D;			\
+	A ^= B ^ D;		\
 	D = ROR32_07(D);	\
 	B = ROR32_01(B);	\
 	D ^= C ^ (A << 3);	\
-	B ^= A ^ C;			\
+	B ^= A ^ C;		\
 	C = ROR32_03(C);	\
 	A = ROR32_13(A);	\
 }
 
 #define K(A, B, C, D, K)	\
-{							\
-	(A) ^= (K)[0];			\
-	(B) ^= (K)[1];			\
-	(C) ^= (K)[2];			\
-	(D) ^= (K)[3];			\
+{				\
+	(A) ^= (K)[0];		\
+	(B) ^= (K)[1];		\
+	(C) ^= (K)[2];		\
+	(D) ^= (K)[3];		\
 }
 
 #define LOAD_K(A, B, C, D, K)	\
-{								\
-	(A) = (K)[0];				\
-	(B) = (K)[1];				\
-	(C) = (K)[2];				\
-	(D) = (K)[3];				\
+{				\
+	(A) = (K)[0];		\
+	(B) = (K)[1];		\
+	(C) = (K)[2];		\
+	(D) = (K)[3];		\
 }
 
 #define STOR_K(A, B, C, D, K)	\
-{								\
-	(K)[0] = (A);				\
-	(K)[1] = (B);				\
-	(K)[2] = (C);				\
-	(K)[3] = (D);				\
+{				\
+	(K)[0] = (A);		\
+	(K)[1] = (B);		\
+	(K)[2] = (C);		\
+	(K)[3] = (D);		\
 }
 
 static void serpent_encrypt

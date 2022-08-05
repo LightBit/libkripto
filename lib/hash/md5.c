@@ -1,14 +1,16 @@
-﻿/*
- * Written in 2013 by Gregor Pintar <grpintar@gmail.com>
+/*
+ * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <stdint.h>
@@ -70,23 +72,23 @@ static const uint8_t rot[64] =
 #define F2(B, C, D) (B ^ C ^ D)
 #define F3(B, C, D) (C ^ (B | (~D)))
 
-#define G0(A, B, C, D, I)									\
-{															\
+#define G0(A, B, C, D, I)					\
+{								\
 	A = B + ROL32(A + F0(B, C, D) + k[I] + m[I], rot[I]);	\
 }
 
-#define G1(A, B, C, D, I)													\
-{																			\
+#define G1(A, B, C, D, I)							\
+{										\
 	A = B + ROL32(A + F1(B, C, D) + k[I] + m[(I * 5 + 1) & 15], rot[I]);	\
 }
 
-#define G2(A, B, C, D, I)													\
-{																			\
+#define G2(A, B, C, D, I)							\
+{										\
 	A = B + ROL32(A + F2(B, C, D) + k[I] + m[(I * 3 + 5) & 15], rot[I]);	\
 }
 
-#define G3(A, B, C, D, I)												\
-{																		\
+#define G3(A, B, C, D, I)							\
+{										\
 	A = B + ROL32(A + F3(B, C, D) + k[I] + m[(I * 7) & 15], rot[I]);	\
 }
 

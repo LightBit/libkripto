@@ -1,14 +1,16 @@
 /*
- * Written in 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <stdint.h>
@@ -102,17 +104,17 @@ static kripto_hash *blake256_recreate
 	return s;
 }
 
-#define G(A, B, C, D, M, S0, S1)				\
-{												\
-	A += B + ((M)[(S0)] ^ k[(S1)]);				\
-	D = ROR32_16(D ^ A);						\
-	C += D;										\
-	B = ROR32_12(B ^ C);						\
-												\
-	A += B + ((M)[(S1)] ^ k[(S0)]);				\
-	D = ROR32_08(D ^ A);						\
-	C += D;										\
-	B = ROR32_07(B ^ C);						\
+#define G(A, B, C, D, M, S0, S1)	\
+{					\
+	A += B + ((M)[(S0)] ^ k[(S1)]);	\
+	D = ROR32_16(D ^ A);		\
+	C += D;				\
+	B = ROR32_12(B ^ C);		\
+					\
+	A += B + ((M)[(S1)] ^ k[(S0)]);	\
+	D = ROR32_08(D ^ A);		\
+	C += D;				\
+	B = ROR32_07(B ^ C);		\
 }
 
 static void blake256_process(kripto_hash *s, const uint8_t *data)

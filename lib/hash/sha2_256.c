@@ -1,14 +1,16 @@
-﻿/*
- * Written in 2013 by Gregor Pintar <grpintar@gmail.com>
+/*
+ * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
  *
- * To the extent possible under law, the author(s) have dedicated
- * all copyright and related and neighboring rights to this software
- * to the public domain worldwide.
- * 
- * This software is distributed without any warranty.
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted.
  *
- * You should have received a copy of the CC0 Public Domain Dedication.
- * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <stdint.h>
@@ -123,18 +125,18 @@ static kripto_hash *sha2_256_recreate
 #define E0(X) (ROR32_02(X) ^ ROR32_13(X) ^ ROR32_22(X))
 #define E1(X) (ROR32_06(X) ^ ROR32_11(X) ^ ROR32_25(X))
 
-#define ROUND(A, B, C, D, E, F, G, H, RC, RK) \
-{ \
-	H += E1(E) + CH(E, F, G) + RC + RK; \
-	D += H; \
-	H += E0(A) + MAJ(A, B, C); \
+#define ROUND(A, B, C, D, E, F, G, H, RC, RK)	\
+{ 						\
+	H += E1(E) + CH(E, F, G) + RC + RK;	\
+	D += H;					\
+	H += E0(A) + MAJ(A, B, C);		\
 }
 
-#define KI(K, I) \
-( \
-	K[I & 15] += S0(K[(I + 1) & 15]) \
-		+ K[(I + 9) & 15] \
-		+ S1(K[(I + 14) & 15]) \
+#define KI(K, I)				\
+(						\
+	K[I & 15] += S0(K[(I + 1) & 15])	\
+		+ K[(I + 9) & 15]		\
+		+ S1(K[(I + 14) & 15])		\
 )
 
 static void sha2_256_process(kripto_hash *s, const uint8_t *data)
