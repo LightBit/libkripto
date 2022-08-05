@@ -1,8 +1,7 @@
-# Kripto
+# libkripto
 *Simple and flexible cryptographic library written in ISO C99.*
 
-**Due to lack of time, lack of interest and technical difficulties
-project is abandoned.**
+**Due to lack of time and interest project is abandoned.**
 
 **IT IS NOT TESTED**
 
@@ -12,92 +11,93 @@ Run build.sh to compile.
 
 ### Supported features:
 #### Block ciphers
-* Rijndael128 (AES)
-* Rijndael256
-* Serpent
-* Twofish
-* RC6
-* Camellia
-* ARIA
-* Threefish256
-* Threefish512
-* Threefish1024
-* Noekeon
 * 3-Way
+* ARIA
 * Anubis
-* KHAZAD
-* SEED
 * Blowfish
-* GOST
-* TEA
-* XTEA
-* Skipjack
-* Speck128
-* Speck64
-* Speck32
-* Simon128
-* Simon64
-* Simon32
+* CAST5
+* Camellia
 * DES (TDES)
+* GOST
 * IDEA
+* KHAZAD
 * MARS
+* Noekeon
+* RC2
 * RC5
 * RC5/64
-* RC2
-* CAST5
+* RC6
+* Rijndael128 (AES)
+* Rijndael256
 * SAFER
+* SAFER++
+* SEED
+* Serpent
+* Simon128
+* Simon32
+* Simon64
+* Skipjack
+* Speck128
+* Speck32
+* Speck64
+* TEA
+* Threefish1024
+* Threefish256
+* Threefish512
+* Twofish
+* XTEA
 
 #### Block cipher modes
-* CTR
 * CBC
 * CFB
-* OFB
+* CTR
 * ECB
+* OFB
 
 #### Authenticated modes
-* EAX2
 * EAX
+* EAX2
 
 #### Stream ciphers
-* Salsa20 (XSalsa20)
 * ChaCha (XChaCha)
-* RC4
 * Keccak1600
 * Keccak800
+* RC4
+* Salsa20 (XSalsa20)
+* Skein1024
 * Skein256
 * Skein512
-* Skein1024
 
 #### Hash functions
-* SHA2
-* SHA1
-* Keccak1600
-* Keccak800
-* Skein256
-* Skein512
-* Skein1024
 * BLAKE-256
 * BLAKE-512
-* BLAKE2s
 * BLAKE2b
-* WHIRPOOL
-* Tiger
+* BLAKE2s
+* Keccak1600
+* Keccak800
 * MD5
+* SHA1
+* SHA2
+* Skein1024
+* Skein256
+* Skein512
+* Tiger
+* WHIRPOOL
 
 #### Message authentication codes
 * HMAC
-* OMAC (CMAC1)
-* XCBC
 * Keccak1600
 * Keccak800
+* OMAC (CMAC1)
+* Skein1024
 * Skein256
 * Skein512
-* Skein1024
+* XCBC
 
 #### Other
-* PKCS7
 * PBKDF2
+* PKCS7
+* Memory wipe
+* Random number generator
 * scrypt
-* random
-* memwipe
 
