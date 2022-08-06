@@ -424,9 +424,7 @@ static kripto_block *mars_create
 	unsigned int key_len
 )
 {
-	kripto_block *s;
-
-	s = malloc(sizeof(kripto_block));
+	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_mars;

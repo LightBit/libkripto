@@ -129,7 +129,7 @@ static kripto_block *rc5_64_create
 
 	if(!r) r = 16;
 
-	s = malloc(sizeof(kripto_block) + ((r + 1) << 4));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 4));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rc5_64;
@@ -137,7 +137,7 @@ static kripto_block *rc5_64_create
 	s->r = r;
 	s->k = (uint64_t *)((uint8_t *)s + sizeof(kripto_block));
 
-	rc5_64_setup(s, key, key_len);
+	rc5_64_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -166,7 +166,7 @@ static kripto_block *rc5_64_recreate
 	else
 	{
 		s->r = r;
-		rc5_64_setup(s, key, key_len);
+		rc5_64_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

@@ -170,7 +170,7 @@ static kripto_block *rc6_create
 
 	if(!r) r = 20;
 
-	s = malloc(sizeof(kripto_block) + (RC6_K_LEN(r) << 2));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + (RC6_K_LEN(r) << 2));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rc6;
@@ -178,7 +178,7 @@ static kripto_block *rc6_create
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
-	rc6_setup(s, key, key_len);
+	rc6_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -207,7 +207,7 @@ static kripto_block *rc6_recreate
 	else
 	{
 		s->rounds = r;
-		rc6_setup(s, key, key_len);
+		rc6_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

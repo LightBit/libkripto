@@ -293,7 +293,7 @@ static kripto_block *gost_create
 
 	if(!r) r = 32;
 
-	s = malloc(sizeof(kripto_block) + (r << 2));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_gost;
@@ -301,7 +301,7 @@ static kripto_block *gost_create
 	s->k = (uint32_t *)(((uint8_t *)s) + sizeof(kripto_block));
 	s->rounds = r;
 
-	gost_setup(s, key, key_len);
+	gost_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -330,7 +330,7 @@ static kripto_block *gost_recreate
 	else
 	{
 		s->rounds = r;
-		gost_setup(s, key, key_len);
+		gost_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

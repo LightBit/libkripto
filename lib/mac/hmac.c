@@ -122,9 +122,7 @@ static kripto_mac *hmac_create
 	unsigned int tag_len
 )
 {
-	kripto_mac *s;
-
-	s = malloc(sizeof(kripto_mac) + kripto_hash_blocksize(EXT(desc)->hash));
+	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac) + kripto_hash_blocksize(EXT(desc)->hash));
 	if(!s) return 0;
 
 	s->key = (uint8_t *)s + sizeof(kripto_mac);
@@ -178,9 +176,7 @@ static kripto_mac *hmac_recreate
 
 kripto_mac_desc *kripto_mac_hmac(const kripto_hash_desc *hash)
 {
-	struct ext *s;
-
-	s = malloc(sizeof(struct ext));
+	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
 
 	s->hash = hash;

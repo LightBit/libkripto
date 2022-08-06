@@ -42,8 +42,8 @@ struct kripto_mac
 	uint8_t tweak[16];
 };
 
-#define POS_ADD(TWEAK, ADD)	\
-{							\
+#define POS_ADD(TWEAK, ADD)		\
+{					\
 	TWEAK[0] += ADD;		\
 	if(!TWEAK[0])			\
 	if(!++TWEAK[1])			\
@@ -56,10 +56,10 @@ struct kripto_mac
 	if(!++TWEAK[8])			\
 	if(!++TWEAK[9])			\
 	if(!++TWEAK[10])		\
-	{						\
+	{				\
 		TWEAK[11]++;		\
 		assert(TWEAK[11]);	\
-	}						\
+	}				\
 }
 
 static void skein256_process(kripto_mac *s) 
@@ -198,12 +198,10 @@ static kripto_mac *skein256_create
 	unsigned int tag_len
 )
 {
-	kripto_mac *s;
+	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_mac));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_mac_skein256;
 

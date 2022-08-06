@@ -134,10 +134,10 @@ static kripto_ae *eax_create
 	(void)tag_len;
 
 	len = kripto_block_size(EXT(desc)->block);
-	buf = malloc(len);
+	buf = (uint8_t *)malloc(len);
 	if(!buf) goto err0;
 
-	s = malloc(sizeof(kripto_ae) + len);
+	s = (kripto_ae *)malloc(sizeof(kripto_ae) + len);
 	if(!s) goto err1;
 
 	s->obj.desc = desc;
@@ -206,7 +206,7 @@ static kripto_ae *eax_recreate
 
 	(void)tag_len;
 
-	buf = malloc(s->len);
+	buf = (uint8_t *)malloc(s->len);
 	if(!buf) goto err0;
 
 	/* OMAC IV (nonce) */
@@ -250,9 +250,7 @@ err0:
 
 kripto_ae_desc *kripto_ae_eax(const kripto_block_desc *block)
 {
-	struct ext *s;
-
-	s = malloc(sizeof(struct ext));
+	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
 
 	s->block = block;

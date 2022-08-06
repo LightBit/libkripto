@@ -181,12 +181,15 @@ static kripto_stream *salsa20_recreate
 	unsigned int i;
 	unsigned int j = 0;
 	unsigned int n = 0;
-	uint8_t constant[16] = "expand 00-byte k";
+	uint32_t constant[4] =
+	{
+		0x61707865,				// "expa"
+		0x3020646E + ((key_len / 10) << 24),	// "nd 0"
+		0x79622D30 + (key_len % 10),		// "0-by"
+		0x6B206574				// "te k"
+	};
 
-	constant[7] += key_len / 10;
-	constant[8] += key_len % 10;
-
-	s->x[0] = LOAD32L(constant);
+	s->x[0] = constant[0];
 
 	for(i = 1; i < 5; i++)
 	{
@@ -205,14 +208,14 @@ static kripto_stream *salsa20_recreate
 		if(j == key_len) j = 0;
 	}
 
-	s->x[5] = LOAD32L(constant + 4);
+	s->x[5] = constant[1];
 
 	/* IV */
 	s->x[6] = s->x[7] = s->x[8] = s->x[9] = 0;
 	for(i = 24; i < 40 && n < iv_len; i++, n++)
 			s->x[i >> 2] = (s->x[i >> 2] >> 8) | (CU8(iv)[n] << 24);
 
-	s->x[10] = LOAD32L(constant + 8);
+	s->x[10] = constant[2];
 
 	for(i = 11; i < 15; i++)
 	{
@@ -231,7 +234,7 @@ static kripto_stream *salsa20_recreate
 		if(j == key_len) j = 0;
 	}
 
-	s->x[15] = LOAD32L(constant + 12);
+	s->x[15] = constant[3];
 
 	s->r = r;
 	if(!s->r) s->r = 20;
@@ -253,10 +256,10 @@ static kripto_stream *salsa20_recreate
 			QR(s->x[15], s->x[12], s->x[13], s->x[14]);
 		}
 
-		s->x[1] = s->x[0]; s->x[0] = LOAD32L(constant);
-		s->x[2] = s->x[5]; s->x[5] = LOAD32L(constant + 4);
-		s->x[3] = s->x[10]; s->x[10] = LOAD32L(constant + 8);
-		s->x[4] = s->x[15]; s->x[15] = LOAD32L(constant + 12);
+		s->x[1] = s->x[0]; s->x[0] = constant[0];
+		s->x[2] = s->x[5]; s->x[5] = constant[1];
+		s->x[3] = s->x[10]; s->x[10] = constant[2];
+		s->x[4] = s->x[15]; s->x[15] = constant[3];
 
 		s->x[11] = s->x[6]; s->x[6] = 0;
 		s->x[12] = s->x[7]; s->x[7] = 0;
@@ -283,12 +286,10 @@ static kripto_stream *salsa20_create
 	unsigned int iv_len
 )
 {
-	kripto_stream *s;
+	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_stream));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_stream_salsa20;
 	s->obj.multof = 1;

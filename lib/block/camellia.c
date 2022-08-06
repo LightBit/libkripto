@@ -665,7 +665,7 @@ static kripto_block *camellia_recreate
 	if(key_len > 16) s->rounds = 24;
 	else s->rounds = 18;
 
-	camellia_setup(s, key, key_len);
+	camellia_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -677,12 +677,10 @@ static kripto_block *camellia_create
 	unsigned int key_len
 )
 {
-	kripto_block *s;
+	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
+	if(!s) return 0;
 
 	(void)r;
-
-	s = malloc(sizeof(kripto_block));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_block_camellia;
 

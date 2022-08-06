@@ -45,37 +45,37 @@ static const uint8_t rc[34] =
 };
 
 #define THETA(X0, X1, X2, X3, K0, K1, K2, K3)	\
-{												\
-	T = X0 ^ X2;								\
-	T ^= ROL32_08(T) ^ ROR32_08(T);				\
-	X1 ^= T;									\
-	X3 ^= T;									\
-	X0 ^= K0; X1 ^= K1; X2 ^= K2; X3 ^= K3;		\
-	T = X1 ^ X3;								\
-	T ^= ROL32_08(T) ^ ROR32_08(T);				\
-	X0 ^= T;									\
-	X2 ^= T;									\
-}
-
-#define GAMMA(X0, X1, X2, X3)	\
-{								\
-	X1 ^= ~(X3 | X2);			\
-	X0 ^= X2 & X1;				\
-	T = X3; X3 = X0; X0 = T;	\
-	X2 ^= X0 ^ X1 ^ X3;			\
-	X1 ^= ~(X3 | X2);			\
-	X0 ^= X2 & X1;				\
-}
-
-#define PI1(X1, X2, X3)	\
 {						\
+	T = X0 ^ X2;				\
+	T ^= ROL32_08(T) ^ ROR32_08(T);		\
+	X1 ^= T;				\
+	X3 ^= T;				\
+	X0 ^= K0; X1 ^= K1; X2 ^= K2; X3 ^= K3;	\
+	T = X1 ^ X3;				\
+	T ^= ROL32_08(T) ^ ROR32_08(T);		\
+	X0 ^= T;				\
+	X2 ^= T;				\
+}
+
+#define GAMMA(X0, X1, X2, X3)		\
+{					\
+	X1 ^= ~(X3 | X2);		\
+	X0 ^= X2 & X1;			\
+	T = X3; X3 = X0; X0 = T;	\
+	X2 ^= X0 ^ X1 ^ X3;		\
+	X1 ^= ~(X3 | X2);		\
+	X0 ^= X2 & X1;			\
+}
+
+#define PI1(X1, X2, X3)		\
+{				\
 	X1 = ROL32_01(X1);	\
 	X2 = ROL32_05(X2);	\
 	X3 = ROL32_02(X3);	\
 }
 
-#define PI2(X1, X2, X3)	\
-{						\
+#define PI2(X1, X2, X3)		\
+{				\
 	X1 = ROR32_01(X1);	\
 	X2 = ROR32_05(X2);	\
 	X3 = ROR32_02(X3);	\
@@ -186,15 +186,13 @@ static kripto_block *noekeon_create
 	unsigned int key_len
 )
 {
-	kripto_block *s;
-
-	s = malloc(sizeof(kripto_block));
+	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_noekeon;
 	s->rounds = r;
 
-	noekeon_setup(s, key, key_len);
+	noekeon_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -208,7 +206,7 @@ static kripto_block *noekeon_recreate
 )
 {
 	s->rounds = r;
-	noekeon_setup(s, key, key_len);
+	noekeon_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }

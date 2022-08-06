@@ -738,7 +738,7 @@ static kripto_block *anubis_create
 		if(r < 12) r = 12;
 	}
 
-	s = malloc(sizeof(kripto_block) + ((r + 1) << 5));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_anubis;
@@ -747,7 +747,7 @@ static kripto_block *anubis_create
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 2);
 
-	anubis_setup(s, key, key_len);
+	anubis_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -780,7 +780,7 @@ static kripto_block *anubis_recreate
 	else
 	{
 		s->rounds = r;
-		anubis_setup(s, key, key_len);
+		anubis_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

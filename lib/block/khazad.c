@@ -718,7 +718,7 @@ static kripto_block *khazad_create
 
 	if(!r) r = 8;
 
-	s = malloc(sizeof(kripto_block) + ((r + 1) << 4));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 4));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_khazad;
@@ -727,7 +727,7 @@ static kripto_block *khazad_create
 	s->k = (uint64_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + r + 1;
 
-	khazad_setup(s, key, key_len);
+	khazad_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -756,7 +756,7 @@ static kripto_block *khazad_recreate
 	else
 	{
 		s->r = r;
-		khazad_setup(s, key, key_len);
+		khazad_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

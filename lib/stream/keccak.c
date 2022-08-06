@@ -105,12 +105,10 @@ static kripto_stream *keccak1600_create
 	unsigned int iv_len
 )
 {
-	kripto_stream *s;
+	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_stream));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_stream_keccak1600;
 	s->obj.multof = 1;
@@ -153,12 +151,10 @@ static kripto_stream *keccak800_create
 	unsigned int iv_len
 )
 {
-	kripto_stream *s;
+	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_stream));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_stream_keccak800;
 	s->obj.multof = 1;

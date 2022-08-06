@@ -493,16 +493,14 @@ static kripto_block *des_create
 	unsigned int key_len
 )
 {
-	kripto_block *s;
+	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
+	if(!s) return 0;
 
 	(void)r;
 
-	s = malloc(sizeof(kripto_block));
-	if(!s) return 0;
-
 	s->obj.desc = kripto_block_des;
 
-	des_setup(s, key, key_len);
+	des_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -523,7 +521,7 @@ static kripto_block *des_recreate
 {
 	(void)r;
 
-	des_setup(s, key, key_len);
+	des_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }

@@ -20,7 +20,7 @@
 
 void kripto_memwipe(void *dst, size_t len)
 {
-	volatile uint8_t *x = dst;
+	volatile uint8_t *x = (volatile uint8_t *)dst;
 
 	while(len--) *x++ = '\0';
 }

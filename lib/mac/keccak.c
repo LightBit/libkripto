@@ -75,12 +75,10 @@ static kripto_mac *keccak1600_create
 	unsigned int tag_len
 )
 {
-	kripto_mac *s;
+	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_mac));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_mac_keccak1600;
 
@@ -105,12 +103,10 @@ static kripto_mac *keccak800_create
 	unsigned int tag_len
 )
 {
-	kripto_mac *s;
+	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_mac));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_mac_keccak800;
 

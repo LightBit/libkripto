@@ -307,12 +307,12 @@ static const uint32_t pi[1060] =
 	0xC5114D0E, 0xBC4CEE16, 0x034D8A39, 0x20E47882
 };
 
-#define F(X)						\
-(									\
-	((s->s0[(X) >> 24]				\
+#define F(X)				\
+(					\
+	((s->s0[(X) >> 24]		\
 	+ s->s1[(uint8_t)((X) >> 16)])	\
 	^ s->s2[(uint8_t)((X) >> 8)])	\
-	+ s->s3[(uint8_t)(X)]			\
+	+ s->s3[(uint8_t)(X)]		\
 )
 
 static void blowfish_encrypt
@@ -490,7 +490,7 @@ static kripto_block *blowfish_create
 
 	if(!r) r = 16;
 
-	s = malloc(sizeof(kripto_block) + ((r + 2) << 2));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 2) << 2));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_blowfish;
@@ -498,7 +498,7 @@ static kripto_block *blowfish_create
 	s->rounds = r;
 	s->p = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
-	blowfish_setup(s, key, key_len);
+	blowfish_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -519,7 +519,7 @@ static kripto_block *blowfish_recreate
 {
 	if(!r) r = 16;
 
-	if(sizeof(kripto_block) + ((r + 2) << 2))
+	if(sizeof(kripto_block) + ((r + 2) << 2) > s->size)
 	{
 		blowfish_destroy(s);
 		s = blowfish_create(r, key, key_len);
@@ -528,7 +528,7 @@ static kripto_block *blowfish_recreate
 	{
 		s->rounds = r;
 
-		blowfish_setup(s, key, key_len);
+		blowfish_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

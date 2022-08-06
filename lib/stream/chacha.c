@@ -180,15 +180,18 @@ static kripto_stream *chacha_recreate
 {
 	unsigned int i;
 	unsigned int j = 0;
-	uint8_t constant[16] = "expand 00-byte k";
+	uint32_t constant[4] =
+	{
+		0x61707865,				// "expa"
+		0x3020646E + ((key_len / 10) << 24),	// "nd 0"
+		0x79622D30 + (key_len % 10),		// "0-by"
+		0x6B206574				// "te k"
+	};
 
-	constant[7] += key_len / 10;
-	constant[8] += key_len % 10;
-
-	s->x[0] = LOAD32L(constant);
-	s->x[1] = LOAD32L(constant + 4);
-	s->x[2] = LOAD32L(constant + 8);
-	s->x[3] = LOAD32L(constant + 12);
+	s->x[0] = constant[0];
+	s->x[1] = constant[1];
+	s->x[2] = constant[2];
+	s->x[3] = constant[3];
 
 	for(i = 4; i < 12; i++)
 	{
@@ -236,10 +239,10 @@ static kripto_stream *chacha_recreate
 			QR(s->x[3], s->x[4], s->x[9], s->x[14]);
 		}
 
-		s->x[4] = s->x[0]; s->x[0] = LOAD32L(constant);
-		s->x[5] = s->x[1]; s->x[1] = LOAD32L(constant + 4);
-		s->x[6] = s->x[2]; s->x[2] = LOAD32L(constant + 8);
-		s->x[7] = s->x[3]; s->x[3] = LOAD32L(constant + 12);
+		s->x[4] = s->x[0]; s->x[0] = constant[0];
+		s->x[5] = s->x[1]; s->x[1] = constant[1];
+		s->x[6] = s->x[2]; s->x[2] = constant[2];
+		s->x[7] = s->x[3]; s->x[3] = constant[3];
 
 		s->x[8] = s->x[12]; s->x[12] = 0;
 		s->x[9] = s->x[13]; s->x[13] = 0;
@@ -265,12 +268,10 @@ static kripto_stream *chacha_create
 	unsigned int iv_len
 )
 {
-	kripto_stream *s;
+	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_stream));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_stream_chacha;
 	s->obj.multof = 1;

@@ -17,8 +17,7 @@ CWD=$(pwd)
 CC=${CC:-"cc"}
 AR=${AR:-"ar"}
 STRIP=${STRIP:-"strip"}
-CFLAGS="-std=c99 -pedantic -Wall -Wextra -Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wshadow -fstack-protector-all -I $CWD/include/ -fPIC -D_ANSI_SOURCE -D_ISOC99_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 $CFLAGS"
-# -Wc++-compat
+CFLAGS="-std=c99 -pedantic -Wall -Wextra -Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wshadow -Wc++-compat -fstack-protector-all -I $CWD/include/ -fPIC -D_ANSI_SOURCE -D_ISOC99_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 $CFLAGS"
 OPTIM="-O2 -s -D_FORTIFY_SOURCE=2 -DNDEBUG $OPTIM"
 LDFLAGS="-Wall $LDFLAGS"
 

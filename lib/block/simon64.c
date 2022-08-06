@@ -150,7 +150,7 @@ static kripto_block *simon64_create
 
 	if(!r) r = 36 + (((key_len + 3) >> 2) << 1);
 
-	s = malloc(sizeof(kripto_block) + (r << 2));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_simon64;
@@ -158,7 +158,7 @@ static kripto_block *simon64_create
 	s->k = (uint32_t *)(((uint8_t *)s) + sizeof(kripto_block));
 	s->rounds = r;
 
-	simon64_setup(s, key, key_len);
+	simon64_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -187,7 +187,7 @@ static kripto_block *simon64_recreate
 	else
 	{
 		s->rounds = r;
-		simon64_setup(s, key, key_len);
+		simon64_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

@@ -901,7 +901,7 @@ static kripto_block *rijndael128_create
 		if(r < 10) r = 10;
 	}
 
-	s = malloc(sizeof(kripto_block) + ((r + 1) << 5));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rijndael128;
@@ -910,7 +910,7 @@ static kripto_block *rijndael128_create
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 2);
 
-	rijndael_setup(s, key, key_len, 16);
+	rijndael_setup(s, (const uint8_t *)key, key_len, 16);
 
 	return s;
 }
@@ -943,7 +943,7 @@ static kripto_block *rijndael128_recreate
 	else
 	{
 		s->rounds = r;
-		rijndael_setup(s, key, key_len, 16);
+		rijndael_setup(s, (const uint8_t *)key, key_len, 16);
 	}
 
 	return s;
@@ -1133,7 +1133,7 @@ static kripto_block *rijndael256_create
 		if(r < 14) r = 14;
 	}
 
-	s = malloc(sizeof(kripto_block) + ((r + 1) << 6));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 6));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rijndael256;
@@ -1142,7 +1142,7 @@ static kripto_block *rijndael256_create
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 3);
 
-	rijndael_setup(s, key, key_len, 32);
+	rijndael_setup(s, (const uint8_t *)key, key_len, 32);
 
 	return s;
 }
@@ -1169,7 +1169,7 @@ static kripto_block *rijndael256_recreate
 	else
 	{
 		s->rounds = r;
-		rijndael_setup(s, key, key_len, 32);
+		rijndael_setup(s, (const uint8_t *)key, key_len, 32);
 	}
 
 	return s;

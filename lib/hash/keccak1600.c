@@ -369,9 +369,7 @@ static void keccak1600_output
 
 static kripto_hash *keccak1600_create(unsigned int r, size_t len)
 {
-	kripto_hash *s;
-
-	s = malloc(sizeof(struct kripto_hash));
+	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_keccak1600;

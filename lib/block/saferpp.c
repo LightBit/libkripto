@@ -383,7 +383,7 @@ static kripto_block *saferpp_create
 		else r = 7;
 	}
 
-	s = malloc(sizeof(kripto_block) + (r << 5) + 16);
+	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 5) + 16);
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_saferpp;
@@ -391,7 +391,7 @@ static kripto_block *saferpp_create
 	s->rounds = r;
 	s->k = (uint8_t *)s + sizeof(kripto_block);
 
-	saferpp_setup(s, key, key_len);
+	saferpp_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -418,7 +418,7 @@ static kripto_block *saferpp_recreate
 	else
 	{
 		s->rounds = r;
-		saferpp_setup(s, key, key_len);
+		saferpp_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

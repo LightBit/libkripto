@@ -991,9 +991,7 @@ static void whirlpool_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *whirlpool_create(unsigned int r, size_t len)
 {
-	kripto_hash *s;
-
-	s = malloc(sizeof(kripto_hash));
+	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_whirlpool;

@@ -680,7 +680,7 @@ static kripto_block *serpent_create
 
 	if(!r) r = 32;
 
-	s = malloc(sizeof(kripto_block) + ((r + 1) << 4));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 4));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_serpent;
@@ -688,7 +688,7 @@ static kripto_block *serpent_create
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
-	serpent_setup(s, key, key_len);
+	serpent_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -717,7 +717,7 @@ static kripto_block *serpent_recreate
 	else
 	{
 		s->rounds = r;
-		serpent_setup(s, key, key_len);
+		serpent_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

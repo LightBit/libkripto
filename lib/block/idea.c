@@ -184,7 +184,7 @@ static kripto_block *idea_create
 
 	if(!r) r = 8;
 
-	s = malloc(sizeof(kripto_block) + r * 24 + 16);
+	s = (kripto_block *)malloc(sizeof(kripto_block) + r * 24 + 16);
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_idea;
@@ -193,7 +193,7 @@ static kripto_block *idea_create
 	s->dk = s->ek + r * 6 + 4;
 	s->r = r;
 
-	idea_setup(s, key, key_len);
+	idea_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -222,7 +222,7 @@ static kripto_block *idea_recreate
 	else
 	{
 		s->r = r;
-		idea_setup(s, key, key_len);
+		idea_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

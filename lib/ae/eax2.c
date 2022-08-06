@@ -125,10 +125,10 @@ static kripto_ae *eax2_create
 	unsigned int mac_key; /* K1 */
 	unsigned int stream_key; /* K2 */
 
-	buf = malloc(tag_len);
+	buf = (uint8_t *)malloc(tag_len);
 	if(!buf) goto err0;
 
-	s = malloc(sizeof(kripto_ae) + tag_len);
+	s = (kripto_ae *)malloc(sizeof(kripto_ae) + tag_len);
 	if(!s) goto err1;
 
 	s->obj.desc = desc;
@@ -212,7 +212,7 @@ static kripto_ae *eax2_recreate
 
 	s->len = tag_len;
 
-	buf = malloc(tag_len);
+	buf = (uint8_t *)malloc(tag_len);
 	if(!buf) goto err0;
 
 	/* split key */
@@ -271,9 +271,7 @@ kripto_ae_desc *kripto_ae_eax2
 	const kripto_mac_desc *mac
 )
 {
-	struct ext *s;
-
-	s = malloc(sizeof(struct ext));
+	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
 
 	s->stream = stream;

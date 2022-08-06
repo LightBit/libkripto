@@ -313,21 +313,21 @@ static const uint32_t s3[256] =
 )
 
 #define R(L0, L1, R0, R1, K)	\
-{								\
-	t0 = R0 ^ (K)[0];			\
-	t1 = R1 ^ (K)[1] ^ t0;		\
-	t1 = F(t1);					\
-	t0 += t1;					\
-	t0 = F(t0);					\
-	t1 += t0;					\
-	t1 = F(t1);					\
-	t0 += t1;					\
-	t0 ^= L0;					\
-	t1 ^= L1;					\
-	L0 = R0;					\
-	L1 = R1;					\
-	R0 = t0;					\
-	R1 = t1;					\
+{				\
+	t0 = R0 ^ (K)[0];	\
+	t1 = R1 ^ (K)[1] ^ t0;	\
+	t1 = F(t1);		\
+	t0 += t1;		\
+	t0 = F(t0);		\
+	t1 += t0;		\
+	t1 = F(t1);		\
+	t0 += t1;		\
+	t0 ^= L0;		\
+	t1 ^= L1;		\
+	L0 = R0;		\
+	L1 = R1;		\
+	R0 = t0;		\
+	R1 = t1;		\
 }
 
 static void seed_encrypt
@@ -444,7 +444,7 @@ static kripto_block *seed_create
 
 	if(!r) r = 16;
 
-	s = malloc(sizeof(kripto_block) + (r << 3));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 3));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_seed;
@@ -452,7 +452,7 @@ static kripto_block *seed_create
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
-	seed_setup(s, key, key_len);
+	seed_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -481,7 +481,7 @@ static kripto_block *seed_recreate
 	else
 	{
 		s->rounds = r;
-		seed_setup(s, key, key_len);
+		seed_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

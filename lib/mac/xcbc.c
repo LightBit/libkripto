@@ -142,12 +142,10 @@ static kripto_mac *xcbc_create
 	unsigned int tag_len
 )
 {
-	kripto_mac *s;
+	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac) + desc->maxtag * 3);
+	if(!s) return 0;
 
 	(void)tag_len;
-
-	s = malloc(sizeof(kripto_mac) + desc->maxtag * 3);
-	if(!s) return 0;
 
 	s->obj.desc = desc;
 	s->len = desc->maxtag;
@@ -196,9 +194,7 @@ err:
 
 kripto_mac_desc *kripto_mac_xcbc(const kripto_block_desc *block)
 {
-	struct ext *s;
-
-	s = malloc(sizeof(struct ext));
+	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
 
 	s->block = block;

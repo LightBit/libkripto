@@ -621,7 +621,7 @@ int main(void)
 	for(n = 1; n <= 32; n++)
 	{
 		printf("%u-bit key, %u-bit IV: ", n * 8, (n % 24) * 8);
-		s = kripto_stream_create(kripto_stream_salsa20, k, n, iv, n % 24, 0);
+		s = kripto_stream_create(kripto_stream_salsa20, 0, k, n, iv, n % 24);
 		kripto_stream_prng(s, t, 128);
 		for(i = 0; i < 128; i++) if(t[i] != ct[n - 1][i])
 		{

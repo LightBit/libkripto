@@ -86,13 +86,11 @@ static kripto_stream *ecb_create
 	unsigned int iv_len
 )
 {
-	kripto_stream *s;
+	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
+	if(!s) return 0;
 
 	(void)iv;
 	(void)iv_len;
-
-	s = malloc(sizeof(kripto_stream));
-	if(!s) return 0;
 
 	s->blocksize = kripto_block_size(EXT(desc)->block);
 
@@ -138,9 +136,7 @@ static kripto_stream *ecb_recreate
 
 kripto_stream_desc *kripto_stream_ecb(const kripto_block_desc *block)
 {
-	struct ext *s;
-
-	s = malloc(sizeof(struct ext));
+	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
 
 	s->block = block;

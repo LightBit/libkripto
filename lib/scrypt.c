@@ -28,7 +28,7 @@
 #include <kripto/scrypt.h>
 
 #define QR(A, B, C, D)		\
-{							\
+{				\
 	B ^= ROL32_07(A + D);	\
 	C ^= ROL32_09(B + A);	\
 	D ^= ROL32_13(C + B);	\
@@ -218,7 +218,7 @@ int kripto_scrypt
 	uint32_t *t2;
 	uint32_t i;
 
-	b = malloc((r << 7) * p + (r << 7) * n + (r << 8));
+	b = (uint8_t *)malloc((r << 7) * p + (r << 7) * n + (r << 8));
 	if(!b) return -1;
 
 	t0 = (uint32_t *)(b + (r << 7) * p);

@@ -51,7 +51,7 @@ int kripto_pbkdf2
 	x = kripto_mac_maxtag(mac);
 	if(out_len < x) x = out_len;
 
-	buf0 = malloc(x << 1);
+	buf0 = (uint8_t *)malloc(x << 1);
 	if(!buf0) return -1;
 
 	buf1 = buf0 + x;

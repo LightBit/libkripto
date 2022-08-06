@@ -483,11 +483,11 @@ static void rkey
 		| (y[(i + 2) & 3] << (32 - r)));
 }
 
-#define DM(X)				\
-(							\
-    (X) << 8 ^ (X) >> 8		\
-    ^ (X) << 16 ^ (X) >> 16	\
-    ^ (X) << 24 ^ (X) >> 24	\
+#define DM(X)			\
+(				\
+    (X) <<  8 ^ (X) >>  8 ^	\
+    (X) << 16 ^ (X) >> 16 ^	\
+    (X) << 24 ^ (X) >> 24	\
 )
 
 static void aria_setup
@@ -672,7 +672,7 @@ static kripto_block *aria_create
 		if(r < 12) r = 12;
 	}
 
-	s = malloc(sizeof(kripto_block) + ((r + 1) << 5));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_aria;
@@ -681,7 +681,7 @@ static kripto_block *aria_create
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 2);
 
-	aria_setup(s, key, key_len);
+	aria_setup(s, (const uint8_t *)key, key_len);
 
 	return s;
 }
@@ -715,7 +715,7 @@ static kripto_block *aria_recreate
 	else
 	{
 		s->rounds = r;
-		aria_setup(s, key, key_len);
+		aria_setup(s, (const uint8_t *)key, key_len);
 	}
 
 	return s;

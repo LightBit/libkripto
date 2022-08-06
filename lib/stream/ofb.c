@@ -103,9 +103,7 @@ static kripto_stream *ofb_create
 	unsigned int iv_len
 )
 {
-	kripto_stream *s;
-
-	s = malloc(sizeof(kripto_stream) + desc->maxiv);
+	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream) + desc->maxiv);
 	if(!s) return 0;
 
 	s->obj.desc = desc;
@@ -161,9 +159,7 @@ static kripto_stream *ofb_recreate
 
 kripto_stream_desc *kripto_stream_ofb(const kripto_block_desc *block)
 {
-	struct ext *s;
-
-	s = malloc(sizeof(struct ext));
+	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
 
 	s->block = block;

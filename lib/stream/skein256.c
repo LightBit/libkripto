@@ -245,12 +245,10 @@ static kripto_stream *skein256_create
 	unsigned int iv_len
 )
 {
-	kripto_stream *s;
+	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
+	if(!s) return 0;
 
 	(void)desc;
-
-	s = malloc(sizeof(kripto_stream));
-	if(!s) return 0;
 
 	s->obj.desc = kripto_stream_skein256;
 	s->obj.multof = 1;
