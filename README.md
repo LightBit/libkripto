@@ -1,11 +1,7 @@
 # libkripto
-*Simple and flexible cryptographic library written in ISO C99.*
+*Symmetric cryptography library written in ISO C99.*
 
-**Due to lack of time and interest project is abandoned.**
-
-**IT IS NOT TESTED**
-
-There is no documentation, however API is really simple.
+**IT IS MOSTLY UNTESTED!**
 
 Run build.sh to compile.
 
@@ -17,8 +13,8 @@ Run build.sh to compile.
 * Blowfish
 * CAST5
 * Camellia
-* DES (TDES)
-* GOST
+* DES
+* GOST 28147-89 (Magma)
 * IDEA
 * KHAZAD
 * MARS
@@ -33,17 +29,18 @@ Run build.sh to compile.
 * SAFER++
 * SEED
 * Serpent
-* Simon128
 * Simon32
 * Simon64
+* Simon128
 * Skipjack
-* Speck128
 * Speck32
 * Speck64
+* Speck128
 * TEA
-* Threefish1024
 * Threefish256
 * Threefish512
+* Threefish1024
+* TripleDES
 * Twofish
 * XTEA
 
@@ -59,45 +56,48 @@ Run build.sh to compile.
 * EAX2
 
 #### Stream ciphers
-* ChaCha (XChaCha)
-* Keccak1600
+* ChaCha
 * Keccak800
+* Keccak1600
 * RC4
-* Salsa20 (XSalsa20)
-* Skein1024
+* Salsa20
 * Skein256
 * Skein512
+* Skein1024
+* XChaCha
+* XSalsa20
 
 #### Hash functions
 * BLAKE-256
 * BLAKE-512
 * BLAKE2b
 * BLAKE2s
-* Keccak1600
 * Keccak800
+* Keccak1600
 * MD5
 * SHA1
-* SHA2
-* Skein1024
+* SHA2-256
+* SHA2-512
 * Skein256
 * Skein512
+* Skein1024
 * Tiger
-* WHIRPOOL
+* WHIRLPOOL
 
 #### Message authentication codes
 * HMAC
-* Keccak1600
 * Keccak800
+* Keccak1600
 * OMAC (CMAC1)
-* Skein1024
 * Skein256
 * Skein512
+* Skein1024
 * XCBC
 
 #### Other
 * PBKDF2
 * PKCS7
 * Memory wipe
-* Random number generator
+* Pseudo-random number generator
 * scrypt
 
