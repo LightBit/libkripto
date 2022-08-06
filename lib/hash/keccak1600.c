@@ -28,6 +28,7 @@
 #include <kripto/object/hash.h>
 
 #include <kripto/hash/keccak1600.h>
+#include <kripto/hash/sha3.h>
 
 struct kripto_hash
 {
@@ -418,3 +419,67 @@ static const kripto_hash_desc keccak1600 =
 };
 
 const kripto_hash_desc *const kripto_hash_keccak1600 = &keccak1600;
+
+/* SHA3 */
+static void sha3_output
+(
+	kripto_hash *s,
+	void *out,
+	size_t len
+)
+{
+	size_t i;
+
+	/* switch to output mode */
+	if(!s->o)
+	{
+		/* pad */
+		s->s[s->i] ^= 0x06;
+		s->s[s->rate - 1] ^= 0x80;
+
+		keccak1600_F(s);
+
+		s->i = 0;
+		s->o = -1;
+	}
+
+	/* output */
+	for(i = 0; i < len; i++)
+	{
+		U8(out)[i] = s->s[s->i++];
+	}
+}
+
+static int sha3_hash
+(
+	unsigned int r,
+	const void *in,
+	size_t in_len,
+	void *out,
+	size_t out_len
+)
+{
+	kripto_hash s;
+
+	(void)keccak1600_recreate(&s, r, out_len);
+	keccak1600_input(&s, in, in_len);
+	sha3_output(&s, out, out_len);
+
+	kripto_memwipe(&s, sizeof(kripto_hash));
+
+	return 0;
+}
+
+static const kripto_hash_desc sha3 =
+{
+	&keccak1600_create,
+	&keccak1600_recreate,
+	&keccak1600_input,
+	&sha3_output,
+	&keccak1600_destroy,
+	&sha3_hash,
+	64, /* max output */
+	200 /* block_size */
+};
+
+const kripto_hash_desc *const kripto_hash_sha3 = &sha3;

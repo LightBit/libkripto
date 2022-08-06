@@ -78,6 +78,7 @@ Run build.sh to compile.
 * SHA1
 * SHA2-256
 * SHA2-512
+* SHA3
 * Skein256
 * Skein512
 * Skein1024
