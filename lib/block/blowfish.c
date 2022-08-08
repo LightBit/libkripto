@@ -19,7 +19,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -475,8 +475,8 @@ static void blowfish_setup
 	}
 
 	/* wipe temporary values */
-	kripto_memwipe(b, 8);
-	kripto_memwipe(&t, sizeof(uint32_t));
+	kripto_memory_wipe(b, 8);
+	kripto_memory_wipe(&t, sizeof(uint32_t));
 }
 
 static kripto_block *blowfish_create
@@ -505,7 +505,7 @@ static kripto_block *blowfish_create
 
 static void blowfish_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

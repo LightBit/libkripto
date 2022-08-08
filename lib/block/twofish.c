@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -1069,10 +1069,10 @@ static void twofish_setup
 	}
 
 	/* wipe */
-	kripto_memwipe(K, 32);
-	kripto_memwipe(S, 16);
-	kripto_memwipe(&A, sizeof(uint32_t));
-	kripto_memwipe(&B, sizeof(uint32_t));
+	kripto_memory_wipe(K, 32);
+	kripto_memory_wipe(S, 16);
+	kripto_memory_wipe(&A, sizeof(uint32_t));
+	kripto_memory_wipe(&B, sizeof(uint32_t));
 }
 
 #define G0(x, s)					\
@@ -1211,7 +1211,7 @@ static kripto_block *twofish_create
 
 static void twofish_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

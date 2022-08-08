@@ -19,7 +19,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -105,7 +105,7 @@ static kripto_block *tea_create
 
 static void tea_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, sizeof(kripto_block));
+	kripto_memory_wipe(s, sizeof(kripto_block));
 	free(s);
 }
 

@@ -18,7 +18,7 @@
 #include <limits.h>
 
 #include <kripto/cast.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/hash/keccak1600.h>
 #include <kripto/hash/keccak800.h>

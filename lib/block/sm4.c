@@ -20,7 +20,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -181,7 +181,7 @@ static void sm4_setup
 		FS(k[3], k[0], k[1], k[2], CK[i]); s->k[i++] = k[3];
 	}
 
-	kripto_memwipe(k, 16);
+	kripto_memory_wipe(k, 16);
 }
 
 static kripto_block *sm4_create
@@ -206,7 +206,7 @@ static kripto_block *sm4_create
 
 static void sm4_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, sizeof(kripto_block) + (s->r << 2));
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->r << 2));
 	free(s);
 }
 

@@ -21,7 +21,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/block/threefish1024.h>
 #include <kripto/stream.h>
@@ -162,7 +162,7 @@ static kripto_stream *skein1024_recreate
 	tweak[15] = 0xFF; /* type OUTPUT, first, final */
 	kripto_block_tweak(s->block, tweak, 16);
 
-	kripto_memwipe(k, 128);
+	kripto_memory_wipe(k, 128);
 
 	return s;
 }
@@ -268,7 +268,7 @@ static kripto_stream *skein1024_create
 static void skein1024_destroy(kripto_stream *s)
 {
 	kripto_block_destroy(s->block);
-	kripto_memwipe(s, sizeof(kripto_stream));
+	kripto_memory_wipe(s, sizeof(kripto_stream));
 	free(s);
 }
 

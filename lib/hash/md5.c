@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
 #include <kripto/object/hash.h>
@@ -169,7 +169,7 @@ static void md5_process(kripto_hash *s, const uint8_t *data)
 		G3(b, c, d, a, i); i++;
 	}
 
-	kripto_memwipe(m, 64);
+	kripto_memory_wipe(m, 64);
 
 	s->h[0] += a;
 	s->h[1] += b;
@@ -247,7 +247,7 @@ static kripto_hash *md5_create(unsigned int r, size_t len)
 
 static void md5_destroy(kripto_hash *s)
 {
-	kripto_memwipe(s, sizeof(kripto_hash));
+	kripto_memory_wipe(s, sizeof(kripto_hash));
 	free(s);
 }
 
@@ -266,7 +266,7 @@ static int md5_hash
 	md5_input(&s, in, in_len);
 	md5_output(&s, out, out_len);
 
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }

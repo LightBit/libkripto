@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
 #include <kripto/object/hash.h>
@@ -188,7 +188,7 @@ static void blake256_process(kripto_hash *s, const uint8_t *data)
 		G(x3, x4, x9, x14, m, sigma[i][14], sigma[i][15]);
 	}
 
-	kripto_memwipe(m, 64);
+	kripto_memory_wipe(m, 64);
 
 	s->h[0] ^= x0 ^ x8; /* ^ s->s[0] */
 	s->h[1] ^= x1 ^ x9; /* ^ s->s[1] */
@@ -283,7 +283,7 @@ static kripto_hash *blake256_create(unsigned int r, size_t len)
 
 static void blake256_destroy(kripto_hash *s)
 {
-	kripto_memwipe(s, sizeof(kripto_hash));
+	kripto_memory_wipe(s, sizeof(kripto_hash));
 	free(s);
 }
 
@@ -302,7 +302,7 @@ static int blake256_hash
 	blake256_input(&s, in, in_len);
 	blake256_output(&s, out, out_len);
 
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }

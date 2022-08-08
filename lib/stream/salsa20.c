@@ -19,7 +19,7 @@
 
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
 #include <kripto/object/stream.h>
@@ -301,7 +301,7 @@ static kripto_stream *salsa20_create
 
 static void salsa20_destroy(kripto_stream *s)
 {
-	kripto_memwipe(s, sizeof(kripto_stream));
+	kripto_memory_wipe(s, sizeof(kripto_stream));
 	free(s);
 }
 

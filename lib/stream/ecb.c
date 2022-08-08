@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include <kripto/cast.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
@@ -64,7 +64,7 @@ static void ecb_decrypt
 static void ecb_destroy(kripto_stream *s)
 {
 	kripto_block_destroy(s->block);
-	kripto_memwipe(s, sizeof(kripto_stream));
+	kripto_memory_wipe(s, sizeof(kripto_stream));
 	free(s);
 }
 
@@ -101,7 +101,7 @@ static kripto_stream *ecb_create
 	s->block = kripto_block_create(EXT(desc)->block, rounds, key, key_len);
 	if(!s->block)
 	{
-		kripto_memwipe(s, sizeof(kripto_stream));
+		kripto_memory_wipe(s, sizeof(kripto_stream));
 		free(s);
 		return 0;
 	}
@@ -126,7 +126,7 @@ static kripto_stream *ecb_recreate
 	s->block = kripto_block_recreate(s->block, rounds, key, key_len);
 	if(!s->block)
 	{
-		kripto_memwipe(s, sizeof(kripto_stream));
+		kripto_memory_wipe(s, sizeof(kripto_stream));
 		free(s);
 		return 0;
 	}

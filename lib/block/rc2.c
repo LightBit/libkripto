@@ -23,7 +23,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -99,7 +99,7 @@ static kripto_block *rc2_recreate
 
 	for(i = 0; i < 64; i++) s->k[i] = LOAD16L(t + (i << 1));
 
-	kripto_memwipe(t, 128);
+	kripto_memory_wipe(t, 128);
 
 	return s;
 }
@@ -205,7 +205,7 @@ static kripto_block *rc2_create
 
 static void rc2_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, sizeof(kripto_block));
+	kripto_memory_wipe(s, sizeof(kripto_block));
 	free(s);
 }
 

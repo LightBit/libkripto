@@ -20,7 +20,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -72,9 +72,9 @@ static void rc6_setup
 	}
 
 	/* wipe */
-	kripto_memwipe(x, ls << 2);
-	kripto_memwipe(&a, sizeof(uint32_t));
-	kripto_memwipe(&b, sizeof(uint32_t));
+	kripto_memory_wipe(x, ls << 2);
+	kripto_memory_wipe(&a, sizeof(uint32_t));
+	kripto_memory_wipe(&b, sizeof(uint32_t));
 }
 
 static void rc6_encrypt(const kripto_block *s, const void *pt, void *ct)
@@ -185,7 +185,7 @@ static kripto_block *rc6_create
 
 static void rc6_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

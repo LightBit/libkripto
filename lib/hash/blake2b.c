@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
 #include <kripto/object/hash.h>
@@ -171,7 +171,7 @@ static void blake2b_process(kripto_hash *s, const uint8_t *data)
 		G(x3, x4, x9, x14, m[sigma[i][14]], m[sigma[i][15]]);
 	}
 
-	kripto_memwipe(m, 128);
+	kripto_memory_wipe(m, 128);
 
 	s->h[0] ^= x0 ^ x8;
 	s->h[1] ^= x1 ^ x9;
@@ -253,7 +253,7 @@ static kripto_hash *blake2b_create(unsigned int r, size_t len)
 
 static void blake2b_destroy(kripto_hash *s)
 {
-	kripto_memwipe(s, sizeof(kripto_hash));
+	kripto_memory_wipe(s, sizeof(kripto_hash));
 	free(s);
 }
 
@@ -272,7 +272,7 @@ static int blake2b_hash
 	blake2b_input(&s, in, in_len);
 	blake2b_output(&s, out, out_len);
 
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }

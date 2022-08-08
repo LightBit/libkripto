@@ -20,7 +20,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -69,9 +69,9 @@ static void rc5_64_setup
 		k++;
 	}
 
-	kripto_memwipe(x, ls << 3);
-	kripto_memwipe(&a, sizeof(uint64_t));
-	kripto_memwipe(&b, sizeof(uint64_t));
+	kripto_memory_wipe(x, ls << 3);
+	kripto_memory_wipe(&a, sizeof(uint64_t));
+	kripto_memory_wipe(&b, sizeof(uint64_t));
 }
 
 static void rc5_64_encrypt(const kripto_block *s, const void *pt, void *ct)
@@ -144,7 +144,7 @@ static kripto_block *rc5_64_create
 
 static void rc5_64_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

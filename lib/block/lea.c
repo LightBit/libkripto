@@ -20,7 +20,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -151,7 +151,7 @@ static void lea_setup
 			*k++ = t[(i * 6 + 5) & 7];
 		}
 
-		kripto_memwipe(t, 32);
+		kripto_memory_wipe(t, 32);
 	}
 	else if(key_len > 16) /* 192-bit */
 	{
@@ -181,7 +181,7 @@ static void lea_setup
 			*k++ = t[5];
 		}
 
-		kripto_memwipe(t, 24);
+		kripto_memory_wipe(t, 24);
 	}
 	else /* 128-bit */
 	{
@@ -209,7 +209,7 @@ static void lea_setup
 			*k++ = t[1];
 		}
 
-		kripto_memwipe(t, 16);
+		kripto_memory_wipe(t, 16);
 	}
 }
 
@@ -240,7 +240,7 @@ static kripto_block *lea_create
 
 static void lea_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, sizeof(kripto_block) + s->r * 24);
+	kripto_memory_wipe(s, sizeof(kripto_block) + s->r * 24);
 	free(s);
 }
 

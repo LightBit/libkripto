@@ -21,7 +21,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -784,8 +784,8 @@ static kripto_block *cast5_recreate
 	s->kr[14] = (s5[X(12)] ^ s6[X(13)] ^ s7[X( 3)] ^ s8[X( 2)] ^ s7[X( 8)]) & 31;
 	s->kr[15] = (s5[X(14)] ^ s6[X(15)] ^ s7[X( 1)] ^ s8[X( 0)] ^ s8[X(13)]) & 31;
 
-	kripto_memwipe(x, 16);
-	kripto_memwipe(z, 16);
+	kripto_memory_wipe(x, 16);
+	kripto_memory_wipe(z, 16);
 
 	return s;
 }
@@ -807,7 +807,7 @@ static kripto_block *cast5_create
 
 static void cast5_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, sizeof(kripto_block));
+	kripto_memory_wipe(s, sizeof(kripto_block));
 	free(s);
 }
 

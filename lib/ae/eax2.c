@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include <kripto/cast.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/stream.h>
 #include <kripto/mac.h>
 #include <kripto/ae.h>
@@ -95,7 +95,7 @@ static void eax2_destroy(kripto_ae *s)
 	kripto_mac_destroy(s->mac);
 	kripto_mac_destroy(s->header);
 
-	kripto_memwipe(s->iv, s->len);
+	kripto_memory_wipe(s->iv, s->len);
 
 	free(s);
 }
@@ -178,7 +178,7 @@ static kripto_ae *eax2_create
 
 err5: kripto_stream_destroy(s->stream);
 err4: kripto_mac_destroy(s->mac);
-err3: kripto_memwipe(s->iv, tag_len);
+err3: kripto_memory_wipe(s->iv, tag_len);
 err2: free(s);
 err1: free(buf);
 err0: return 0;
@@ -208,7 +208,7 @@ static kripto_ae *eax2_recreate
 	}
 
 	if(tag_len < s->len)
-		kripto_memwipe(s->iv + tag_len, s->len - tag_len);
+		kripto_memory_wipe(s->iv + tag_len, s->len - tag_len);
 
 	s->len = tag_len;
 
@@ -260,7 +260,7 @@ err3: kripto_stream_destroy(s->stream);
 err2: kripto_mac_destroy(s->mac);
 err1: free(buf);
 err0:
-	kripto_memwipe(s->iv, tag_len);
+	kripto_memory_wipe(s->iv, tag_len);
 	free(s);
 	return 0;
 }

@@ -23,7 +23,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -674,11 +674,11 @@ static void anubis_setup
 	}
 
 	/* wipe */
-	kripto_memwipe(x, n << 2);
-	kripto_memwipe(kx, n << 2);
-	kripto_memwipe(&t1, sizeof(uint32_t));
-	kripto_memwipe(&t2, sizeof(uint32_t));
-	kripto_memwipe(&t3, sizeof(uint32_t));
+	kripto_memory_wipe(x, n << 2);
+	kripto_memory_wipe(kx, n << 2);
+	kripto_memory_wipe(&t1, sizeof(uint32_t));
+	kripto_memory_wipe(&t2, sizeof(uint32_t));
+	kripto_memory_wipe(&t3, sizeof(uint32_t));
 
 	/* generate inverse key schedule */
 	for(i = 0; i < 4; i++)
@@ -700,7 +700,7 @@ static void anubis_setup
 	}
 
 	/* wipe */
-	kripto_memwipe(&t0, sizeof(uint32_t));
+	kripto_memory_wipe(&t0, sizeof(uint32_t));
 }
 
 static void anubis_encrypt
@@ -754,7 +754,7 @@ static kripto_block *anubis_create
 
 static void anubis_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

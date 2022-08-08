@@ -30,7 +30,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -787,7 +787,7 @@ static void rijndael_setup
 	}
 
 	/* wipe */
-	kripto_memwipe(&t, sizeof(uint32_t));
+	kripto_memory_wipe(&t, sizeof(uint32_t));
 }
 
 static void rijndael128_encrypt
@@ -917,7 +917,7 @@ static kripto_block *rijndael128_create
 
 static void rijndael_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

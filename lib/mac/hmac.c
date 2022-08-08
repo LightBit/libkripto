@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
@@ -101,7 +101,7 @@ static void hmac_destroy(kripto_mac *s)
 {
 	kripto_hash_destroy(s->hash);
 
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 
@@ -158,7 +158,7 @@ static kripto_mac *hmac_recreate
 	s->hash = kripto_hash_recreate(s->hash, r, tag_len);
 	if(!s->hash)
 	{
-		kripto_memwipe(s, s->size);
+		kripto_memory_wipe(s, s->size);
 		free(s);
 		return 0;
 	}

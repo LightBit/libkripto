@@ -21,7 +21,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/block/threefish512.h>
 #include <kripto/mac.h>
@@ -220,7 +220,7 @@ static kripto_mac *skein512_create
 static void skein512_destroy(kripto_mac *s)
 {
 	kripto_block_destroy(s->block);
-	kripto_memwipe(s, sizeof(kripto_mac));
+	kripto_memory_wipe(s, sizeof(kripto_mac));
 	free(s);
 }
 

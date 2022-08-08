@@ -21,7 +21,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/block/threefish256.h>
 #include <kripto/hash.h>
@@ -186,7 +186,7 @@ static kripto_hash *skein256_create(unsigned int r, size_t len)
 static void skein256_destroy(kripto_hash *s)
 {
 	kripto_block_destroy(s->block);
-	kripto_memwipe(s, sizeof(kripto_hash));
+	kripto_memory_wipe(s, sizeof(kripto_hash));
 	free(s);
 }
 
@@ -209,7 +209,7 @@ static int skein256_hash
 	skein256_output(&s, out, out_len);
 
 	kripto_block_destroy(s.block);
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }

@@ -18,7 +18,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -254,13 +254,13 @@ int kripto_scrypt
 		out_len
 	)) goto err;
 
-	kripto_memwipe(b, (r << 7) * p + (r << 7) * n + (r << 8));
+	kripto_memory_wipe(b, (r << 7) * p + (r << 7) * n + (r << 8));
 	free(b);
 
 	return 0;
 
 err:
-	kripto_memwipe(b, (r << 7) * p + (r << 7) * n + (r << 8));
+	kripto_memory_wipe(b, (r << 7) * p + (r << 7) * n + (r << 8));
 	free(b);
 
 	return -1;

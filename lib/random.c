@@ -61,7 +61,7 @@ struct kripto_random
 #include <sys/resource.h>
 #endif*/
 
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/stream.h>
 #include <kripto/scrypt.h>
 #include <kripto/stream/chacha.h>
@@ -144,7 +144,7 @@ static int seed(kripto_random *s, uint8_t *out, unsigned int len)
 		out, len
 	)) return -1;
 
-	kripto_memwipe(&entropy, sizeof(entropy));
+	kripto_memory_wipe(&entropy, sizeof(entropy));
 
 	s->output = 0;
 	s->time = time(NULL);
@@ -299,7 +299,7 @@ size_t kripto_random_gen(kripto_random *s, void *out, size_t len)
 	return len;
 
 err:
-	kripto_memwipe(s, sizeof(kripto_random));
+	kripto_memory_wipe(s, sizeof(kripto_random));
 	free(s);
 	return 0;
 
@@ -328,7 +328,7 @@ void kripto_random_destroy(kripto_random *s)
 	kripto_stream_destroy(s->stream);
 	free(s->mac);
 
-	kripto_memwipe(s, sizeof(kripto_random));
+	kripto_memory_wipe(s, sizeof(kripto_random));
 	free(s);
 
 	#endif

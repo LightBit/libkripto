@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
 #include <kripto/object/hash.h>
@@ -153,7 +153,7 @@ static void sha1_process(kripto_hash *s, const uint8_t *data)
 		G3(b, c, d, e, a, w[i++]);
 	}
 
-	kripto_memwipe(w, 320);
+	kripto_memory_wipe(w, 320);
 
 	s->h[0] += a;
 	s->h[1] += b;
@@ -233,7 +233,7 @@ static kripto_hash *sha1_create(unsigned int r, size_t len)
 
 static void sha1_destroy(kripto_hash *s)
 {
-	kripto_memwipe(s, sizeof(kripto_hash));
+	kripto_memory_wipe(s, sizeof(kripto_hash));
 	free(s);
 }
 
@@ -252,7 +252,7 @@ static int sha1_hash
 	sha1_input(&s, in, in_len);
 	sha1_output(&s, out, out_len);
 
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }

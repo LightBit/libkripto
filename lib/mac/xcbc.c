@@ -19,7 +19,7 @@
 #include <assert.h>
 
 #include <kripto/loadstore.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
@@ -121,7 +121,7 @@ static void xcbc_destroy(kripto_mac *s)
 {
 	kripto_block_destroy(s->block);
 
-	kripto_memwipe(s, sizeof(kripto_mac) + s->len * 3);
+	kripto_memory_wipe(s, sizeof(kripto_mac) + s->len * 3);
 	free(s);
 }
 
@@ -187,7 +187,7 @@ static kripto_mac *xcbc_recreate
 	return s;
 
 err:
-	kripto_memwipe(s, sizeof(kripto_mac) + s->obj.desc->maxtag * 3);
+	kripto_memory_wipe(s, sizeof(kripto_mac) + s->obj.desc->maxtag * 3);
 	free(s);
 	return 0;
 }

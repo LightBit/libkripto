@@ -20,7 +20,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -574,7 +574,7 @@ static void aria_setup
 			s->k + i, rot[(i >> 4) % 5]);
 
 	/* wipe */
-	kripto_memwipe(k, 64);
+	kripto_memory_wipe(k, 64);
 
 	/* decryption */
 	j = s->rounds << 2;
@@ -650,10 +650,10 @@ static void aria_setup
 	s->dk[j + 3] = d;
 
 	/* wipe */
-	kripto_memwipe(&a, sizeof(uint32_t));
-	kripto_memwipe(&b, sizeof(uint32_t));
-	kripto_memwipe(&c, sizeof(uint32_t));
-	kripto_memwipe(&d, sizeof(uint32_t));
+	kripto_memory_wipe(&a, sizeof(uint32_t));
+	kripto_memory_wipe(&b, sizeof(uint32_t));
+	kripto_memory_wipe(&c, sizeof(uint32_t));
+	kripto_memory_wipe(&d, sizeof(uint32_t));
 }
 
 static kripto_block *aria_create
@@ -688,7 +688,7 @@ static kripto_block *aria_create
 
 static void aria_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

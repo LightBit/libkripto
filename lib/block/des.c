@@ -34,7 +34,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -158,9 +158,9 @@ static void des_key
 			| (kn[i] & 0x0000003F);
 	}
 
-	kripto_memwipe(kn, 128);
-	kripto_memwipe(pcr, 56);
-	kripto_memwipe(pc1m, 56);
+	kripto_memory_wipe(kn, 128);
+	kripto_memory_wipe(pcr, 56);
+	kripto_memory_wipe(pc1m, 56);
 }
 
 static void des_setup
@@ -507,7 +507,7 @@ static kripto_block *des_create
 
 static void des_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, sizeof(kripto_block));
+	kripto_memory_wipe(s, sizeof(kripto_block));
 	free(s);
 }
 

@@ -21,7 +21,7 @@
 
 #include <kripto/cast.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -301,13 +301,13 @@ static void safer_setup
 		}
 	}
 
-	kripto_memwipe(ka, 9);
-	kripto_memwipe(kb, 9);
+	kripto_memory_wipe(ka, 9);
+	kripto_memory_wipe(kb, 9);
 }
 
 static void safer_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

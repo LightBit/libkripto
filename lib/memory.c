@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -14,13 +14,26 @@
  */
 
 #include <stddef.h>
-#include <stdint.h>
 
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 
-void kripto_memwipe(void *dst, size_t len)
+void kripto_memory_wipe(void *dst, size_t len)
 {
-	volatile uint8_t *x = (volatile uint8_t *)dst;
+	volatile unsigned char *x = (volatile unsigned char *)dst;
 
 	while(len--) *x++ = '\0';
+}
+
+unsigned char kripto_memory_equals(const void *a, const void *b, size_t len)
+{
+	const volatile unsigned char *ax = (const volatile unsigned char *)a;
+	const volatile unsigned char *bx = (const volatile unsigned char *)b;
+	volatile unsigned char x = 0;
+
+	for (size_t i = 0; i < len; i++)
+	{
+		x |= ax[i] ^ bx[i];
+	}
+
+	return !x;
 }

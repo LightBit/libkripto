@@ -19,7 +19,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -428,9 +428,9 @@ static void seed_setup
 	}
 
 	/* wipe */
-	kripto_memwipe(k, 16);
-	kripto_memwipe(&t0, sizeof(uint32_t));
-	kripto_memwipe(&t1, sizeof(uint32_t));
+	kripto_memory_wipe(k, 16);
+	kripto_memory_wipe(&t0, sizeof(uint32_t));
+	kripto_memory_wipe(&t1, sizeof(uint32_t));
 }
 
 static kripto_block *seed_create
@@ -459,7 +459,7 @@ static kripto_block *seed_create
 
 static void seed_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

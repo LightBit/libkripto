@@ -20,7 +20,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -110,7 +110,7 @@ static void speck32_setup
 		s->k[++i] = k[0];
 	}
 
-	kripto_memwipe(k, 8);
+	kripto_memory_wipe(k, 8);
 }
 
 static kripto_block *speck32_create
@@ -139,7 +139,7 @@ static kripto_block *speck32_create
 
 static void speck32_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

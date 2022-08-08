@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -561,13 +561,13 @@ static void camellia_setup
 		s->kw[3] = LOAD64B(t + 40);
 	}
 
-	kripto_memwipe(t, 48);
-	kripto_memwipe(ka, 16);
-	kripto_memwipe(kb, 16);
-	kripto_memwipe(kr, 16);
-	kripto_memwipe(kl, 16);
-	kripto_memwipe(&a, sizeof(uint64_t));
-	kripto_memwipe(&b, sizeof(uint64_t));
+	kripto_memory_wipe(t, 48);
+	kripto_memory_wipe(ka, 16);
+	kripto_memory_wipe(kb, 16);
+	kripto_memory_wipe(kr, 16);
+	kripto_memory_wipe(kl, 16);
+	kripto_memory_wipe(&a, sizeof(uint64_t));
+	kripto_memory_wipe(&b, sizeof(uint64_t));
 }
 
 static void camellia_encrypt
@@ -691,7 +691,7 @@ static kripto_block *camellia_create
 
 static void camellia_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, sizeof(kripto_block));
+	kripto_memory_wipe(s, sizeof(kripto_block));
 	free(s);
 }
 

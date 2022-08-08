@@ -18,7 +18,7 @@
 #include <limits.h>
 
 #include <kripto/cast.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/hash/keccak1600.h>
 #include <kripto/hash/keccak800.h>
@@ -62,7 +62,7 @@ static void keccak_crypt
 		U8(out)[i] = CU8(in)[i] ^ buf[n++];
 	}
 
-	kripto_memwipe(buf, 64);
+	kripto_memory_wipe(buf, 64);
 }
 
 static void keccak_prng(kripto_stream *s, void *out, size_t len)

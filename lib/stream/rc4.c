@@ -18,7 +18,7 @@
 #include <limits.h>
 
 #include <kripto/cast.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
 #include <kripto/object/stream.h>
@@ -157,7 +157,7 @@ static kripto_stream *rc4_create
 
 static void rc4_destroy(kripto_stream *s)
 {
-	kripto_memwipe(s, sizeof(kripto_stream));
+	kripto_memory_wipe(s, sizeof(kripto_stream));
 	free(s);
 }
 

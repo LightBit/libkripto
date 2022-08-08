@@ -20,7 +20,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
@@ -125,7 +125,7 @@ static void simon32_setup
 		s->k[i] = t ^ ((0x19C3522FB386A45F >> ((i - 4) % 62)) & 1);
 	}
 
-	kripto_memwipe(&t, sizeof(uint16_t));
+	kripto_memory_wipe(&t, sizeof(uint16_t));
 }
 
 static kripto_block *simon32_create
@@ -154,7 +154,7 @@ static kripto_block *simon32_create
 
 static void simon32_destroy(kripto_block *s)
 {
-	kripto_memwipe(s, s->size);
+	kripto_memory_wipe(s, s->size);
 	free(s);
 }
 

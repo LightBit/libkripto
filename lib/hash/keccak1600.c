@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
 #include <kripto/object/hash.h>
@@ -382,7 +382,7 @@ static kripto_hash *keccak1600_create(unsigned int r, size_t len)
 
 static void keccak1600_destroy(kripto_hash *s) 
 {
-	kripto_memwipe(s, sizeof(kripto_hash));
+	kripto_memory_wipe(s, sizeof(kripto_hash));
 	free(s);
 }
 
@@ -401,7 +401,7 @@ static int keccak1600_hash
 	keccak1600_input(&s, in, in_len);
 	keccak1600_output(&s, out, out_len);
 
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }
@@ -465,7 +465,7 @@ static int sha3_hash
 	keccak1600_input(&s, in, in_len);
 	sha3_output(&s, out, out_len);
 
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }

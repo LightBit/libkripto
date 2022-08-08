@@ -22,7 +22,7 @@
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
 #include <kripto/object/hash.h>
@@ -224,7 +224,7 @@ static void sha2_512_process(kripto_hash *s, const uint8_t *in)
 		a = t;
 	}
 
-	kripto_memwipe(w, s->r << 2);
+	kripto_memory_wipe(w, s->r << 2);
 
 	s->h[0] += a;
 	s->h[1] += b;
@@ -308,7 +308,7 @@ static kripto_hash *sha2_512_create(unsigned int r, size_t len)
 
 static void sha2_512_destroy(kripto_hash *s)
 {
-	kripto_memwipe(s, sizeof(kripto_hash));
+	kripto_memory_wipe(s, sizeof(kripto_hash));
 	free(s);
 }
 
@@ -327,7 +327,7 @@ static int sha2_512_hash
 	sha2_512_input(&s, in, in_len);
 	sha2_512_output(&s, out, out_len);
 
-	kripto_memwipe(&s, sizeof(kripto_hash));
+	kripto_memory_wipe(&s, sizeof(kripto_hash));
 
 	return 0;
 }

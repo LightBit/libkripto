@@ -19,7 +19,7 @@
 #include <assert.h>
 
 #include <kripto/cast.h>
-#include <kripto/memwipe.h>
+#include <kripto/memory.h>
 #include <kripto/mac.h>
 
 #include <kripto/pbkdf2.h>
@@ -95,15 +95,15 @@ int kripto_pbkdf2
 	}
 
 	kripto_mac_destroy(m);
-	kripto_memwipe(buf0, x);
-	kripto_memwipe(buf1, x);
+	kripto_memory_wipe(buf0, x);
+	kripto_memory_wipe(buf1, x);
 	free(buf0);
 
 	return 0;
 
 err:
-	kripto_memwipe(buf0, x);
-	kripto_memwipe(buf1, x);
+	kripto_memory_wipe(buf0, x);
+	kripto_memory_wipe(buf1, x);
 	free(buf0);
 
 	return -1;
