@@ -17,7 +17,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -394,7 +393,7 @@ static const kripto_hash_desc keccak800 =
 	&keccak800_output,
 	&keccak800_destroy,
 	&keccak800_hash,
-	SIZE_MAX, /* max output */
+	0, /* max output */
 	100 /* block_size */
 };
 
