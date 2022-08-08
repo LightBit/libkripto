@@ -17,6 +17,7 @@ Run build.sh to compile.
 * GOST 28147-89 (Magma)
 * IDEA
 * KHAZAD
+* LEA
 * MARS
 * Noekeon
 * RC2
@@ -29,10 +30,12 @@ Run build.sh to compile.
 * SAFER++
 * SEED
 * Serpent
+* SHACAL-2
 * Simon32
 * Simon64
 * Simon128
 * Skipjack
+* SM4
 * Speck32
 * Speck64
 * Speck128
