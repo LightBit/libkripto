@@ -101,6 +101,7 @@ Run build.sh to compile.
 #### Other
 * PBKDF2
 * PKCS7
+* Constant time compare
 * Memory wipe
 * Pseudo-random number generator
 * scrypt
