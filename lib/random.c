@@ -14,6 +14,7 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
 
 #if defined(KRIPTO_UNIX)
 
@@ -63,13 +64,12 @@ struct kripto_random
 
 #include <kripto/memory.h>
 #include <kripto/stream.h>
-#include <kripto/scrypt.h>
-#include <kripto/stream/chacha.h>
 #include <kripto/mac.h>
-#include <kripto/mac.h>
-#include <kripto/mac/hmac.h>
 #include <kripto/hash.h>
+#include <kripto/stream/chacha.h>
+#include <kripto/mac/hmac.h>
 #include <kripto/hash/blake2s.h>
+#include <kripto/scrypt.h>
 
 struct kripto_random
 {
@@ -81,7 +81,6 @@ struct kripto_random
 
 #endif
 
-#include <stdint.h>
 #include <string.h>
 #include <math.h>
 
@@ -157,7 +156,7 @@ static kripto_random *create(void)
 	kripto_random *s;
 	uint8_t buf[32];
 
-	s = malloc(sizeof(kripto_random));
+	s = (kripto_random *)malloc(sizeof(kripto_random));
 	if(!s) return 0;
 
 	if(seed(s, buf, 32)) goto err;
