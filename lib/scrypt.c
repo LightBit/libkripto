@@ -221,7 +221,7 @@ int kripto_scrypt
 	b = (uint8_t *)malloc((r << 7) * p + (r << 7) * n + (r << 8));
 	if(!b) return -1;
 
-	t0 = (uint32_t *)(b + (r << 7) * p);
+	t0 = (uint32_t *)(void *)(b + (r << 7) * p);
 	t1 = t0 + (r << 5);
 	t2 = t1 + (r << 5);
 

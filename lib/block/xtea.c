@@ -86,15 +86,15 @@ static void xtea_decrypt(const kripto_block *s, const void *ct, void *pt)
 {
 	uint32_t x0 = LOAD32B(CU8(ct));
 	uint32_t x1 = LOAD32B(CU8(ct) + 4);
-	unsigned int i = s->rounds - 1;
+	unsigned int i = s->rounds;
 
-	while(i != UINT_MAX)
+	while(i)
 	{
-		x1 -= F(x0) ^ s->k[i--];
+		x1 -= F(x0) ^ s->k[--i];
 
 		if(i == UINT_MAX) break;
 
-		x0 -= F(x1) ^ s->k[i--];
+		x0 -= F(x1) ^ s->k[--i];
 	}
 
 	STORE32B(x0, U8(pt));
@@ -117,7 +117,7 @@ static kripto_block *xtea_create
 
 	s->obj.desc = kripto_block_xtea;
 	s->rounds = r;
-	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 
 	xtea_setup(s, (const uint8_t *)key, key_len);
 

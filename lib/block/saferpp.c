@@ -353,7 +353,7 @@ static void saferpp_setup
 				bias = EXP(bias);
 			}
 			
-			*k++ += kb[(i + j) % 17] + bias;
+			*k++ = kb[(i + j) % 17] + bias;
 		}
 	}
 
@@ -387,7 +387,7 @@ static kripto_block *saferpp_create
 
 	s->obj.desc = kripto_block_saferpp;
 	s->rounds = r;
-	s->k = (uint8_t *)s + sizeof(kripto_block);
+	s->k = (uint8_t *)(s + 1);
 
 	saferpp_setup(s, (const uint8_t *)key, key_len);
 

@@ -19,7 +19,7 @@ AR=${AR:-"ar"}
 STRIP=${STRIP:-"strip"}
 CFLAGS="-std=c99 -pedantic -Wall -Wextra -Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wshadow -Wc++-compat -fstack-protector-all -I $CWD/include/ -fPIC -D_ANSI_SOURCE -D_ISOC99_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 $CFLAGS"
 # -DNDEBUG -D_FORTIFY_SOURCE=2
-OPTIM="-O2 -s $OPTIM"
+OPTIM="-O2 $OPTIM"
 LDFLAGS="-Wall $LDFLAGS"
 
 i=1

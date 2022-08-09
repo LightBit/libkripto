@@ -494,7 +494,7 @@ static kripto_block *blowfish_create
 
 	s->obj.desc = kripto_block_blowfish;
 	s->rounds = r;
-	s->p = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->p = (uint32_t *)(s + 1);
 
 	blowfish_setup(s, (const uint8_t *)key, key_len);
 

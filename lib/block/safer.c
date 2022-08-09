@@ -330,7 +330,7 @@ static kripto_block *safer_create
 
 	s->obj.desc = kripto_block_safer;
 	s->rounds = r;
-	s->k = (uint8_t *)s + sizeof(kripto_block);
+	s->k = (uint8_t *)(s + 1);
 
 	safer_setup(s, (const uint8_t *)key, key_len, 0);
 
@@ -384,7 +384,7 @@ static kripto_block *safer_sk_create
 
 	s->obj.desc = kripto_block_safer_sk;
 	s->rounds = r;
-	s->k = (uint8_t *)s + sizeof(kripto_block);
+	s->k = (uint8_t *)(s + 1);
 
 	safer_setup(s, (const uint8_t *)key, key_len, -1);
 

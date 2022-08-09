@@ -722,7 +722,7 @@ static kripto_block *khazad_create
 
 	s->obj.desc = kripto_block_khazad;
 	s->r = r;
-	s->k = (uint64_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->k = (uint64_t *)(s + 1);
 	s->dk = s->k + r + 1;
 
 	khazad_setup(s, (const uint8_t *)key, key_len);

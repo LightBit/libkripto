@@ -185,7 +185,7 @@ static kripto_block *idea_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_idea;
-	s->ek = (uint16_t *)(((uint8_t *)s) + sizeof(kripto_block));
+	s->ek = (uint16_t *)(s + 1);
 	s->dk = s->ek + r * 6 + 4;
 	s->r = r;
 

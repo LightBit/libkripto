@@ -197,7 +197,7 @@ static kripto_block *sm4_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_sm4;
-	s->k = (uint32_t *)(((uint8_t *)s) + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 	s->r = r;
 	sm4_setup(s, key, key_len);
 

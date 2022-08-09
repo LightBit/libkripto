@@ -210,7 +210,7 @@ static kripto_block *shacal2_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_shacal2;
-	s->k = (uint32_t *)(((uint8_t *)s) + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 	s->r = r;
 	shacal2_setup(s, key, key_len);
 

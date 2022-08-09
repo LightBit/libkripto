@@ -131,7 +131,7 @@ static kripto_block *rc5_create
 
 	s->obj.desc = kripto_block_rc5;
 	s->r = r;
-	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 
 	rc5_setup(s, (const uint8_t *)key, key_len);
 

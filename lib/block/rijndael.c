@@ -903,7 +903,7 @@ static kripto_block *rijndael128_create
 
 	s->obj.desc = kripto_block_rijndael128;
 	s->rounds = r;
-	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
 
 	rijndael_setup(s, (const uint8_t *)key, key_len, 16);
@@ -1134,7 +1134,7 @@ static kripto_block *rijndael256_create
 
 	s->obj.desc = kripto_block_rijndael256;
 	s->rounds = r;
-	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 3);
 
 	rijndael_setup(s, (const uint8_t *)key, key_len, 32);

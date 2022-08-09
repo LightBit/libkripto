@@ -740,7 +740,7 @@ static kripto_block *anubis_create
 
 	s->obj.desc = kripto_block_anubis;
 	s->rounds = r;
-	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
 
 	anubis_setup(s, (const uint8_t *)key, key_len);

@@ -132,7 +132,7 @@ static kripto_block *speck128_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_speck128;
-	s->k = (uint64_t *)(((uint8_t *)s) + sizeof(kripto_block));
+	s->k = (uint64_t *)(s + 1);
 	s->rounds = r;
 
 	speck128_setup(s, (const uint8_t *)key, key_len);

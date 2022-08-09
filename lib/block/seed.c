@@ -447,7 +447,7 @@ static kripto_block *seed_create
 
 	s->obj.desc = kripto_block_seed;
 	s->rounds = r;
-	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
+	s->k = (uint32_t *)(s + 1);
 
 	seed_setup(s, (const uint8_t *)key, key_len);
 
