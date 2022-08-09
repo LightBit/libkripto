@@ -80,15 +80,19 @@ static kripto_hash *sha2_256_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
+	(void)salt;
+	(void)salt_len;
 	s->len = s->o = s->i = 0;
 
 	s->r = r;
 	if(!s->r) s->r = 64;
 
-	if(len > 28)
+	if(out_len > 28)
 	{
 		/* 256 */
 		s->h[0] = 0x6A09E667;
@@ -218,17 +222,15 @@ static void sha2_256_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	s->len += len << 3;
-	assert(s->len >= len << 3);
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		s->buf[s->i++] = CU8(in)[i];
 
 		if(s->i == 64)
 		{
+			s->len += 512;
+			assert(s->len >= 512);
+
 			sha2_256_process(s, s->buf);
 			s->i = 0;
 		}
@@ -237,6 +239,9 @@ static void sha2_256_input
 
 static void sha2_256_finish(kripto_hash *s)
 {
+	s->len += s->i << 3;
+	assert(s->len >= (s->i << 3));
+
 	s->buf[s->i++] = 0x80; /* pad */
 
 	if(s->i > 56) /* not enough space for length */
@@ -248,7 +253,6 @@ static void sha2_256_finish(kripto_hash *s)
 	while(s->i < 56) s->buf[s->i++] = 0;
 
 	/* add length */
-	//s->len << 3;
 	STORE64B(s->len, s->buf + 56);
 
 	sha2_256_process(s, s->buf);
@@ -259,23 +263,26 @@ static void sha2_256_finish(kripto_hash *s)
 
 static void sha2_256_output(kripto_hash *s, void *out, size_t len)
 {
-	unsigned int i;
-
 	if(!s->o) sha2_256_finish(s);
 
-	/* big endian */
-	for(i = 0; i < len; s->i++, i++)
-		U8(out)[i] = s->h[s->i >> 2] >> (24 - ((s->i & 3) << 3));
+	STORE32B_ARRAY(s->h, s->i, out, len);
+	s->i += len;
 }
 
-static kripto_hash *sha2_256_create(unsigned int r, size_t len)
+static kripto_hash *sha2_256_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_sha2_256;
 
-	(void)sha2_256_recreate(s, r, len);
+	(void)sha2_256_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -289,6 +296,8 @@ static void sha2_256_destroy(kripto_hash *s)
 static int sha2_256_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -297,7 +306,7 @@ static int sha2_256_hash
 {
 	kripto_hash s;
 
-	(void)sha2_256_recreate(&s, r, out_len);
+	(void)sha2_256_recreate(&s, r, salt, salt_len, out_len);
 	sha2_256_input(&s, in, in_len);
 	sha2_256_output(&s, out, out_len);
 
@@ -315,7 +324,8 @@ static const kripto_hash_desc sha2_256 =
 	&sha2_256_destroy,
 	&sha2_256_hash,
 	32, /* max output */
-	64 /* block_size */
+	64, /* block_size */
+	0 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_sha2_256 = &sha2_256;

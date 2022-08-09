@@ -54,6 +54,8 @@ static int hmac_init
 		if(kripto_hash_all(
 			hash,
 			s->r,
+			0,
+			0,
 			key,
 			key_len,
 			s->key,
@@ -91,7 +93,7 @@ static void hmac_tag(kripto_mac *s, void *tag, unsigned int len)
 
 	kripto_hash_output(s->hash, tag, len);
 
-	kripto_hash_recreate(s->hash, s->r, len);
+	kripto_hash_recreate(s->hash, s->r, 0, 0, len);
 	kripto_hash_input(s->hash, s->key, i);
 	kripto_hash_input(s->hash, tag, len);
 	kripto_hash_output(s->hash, tag, len);
@@ -130,7 +132,7 @@ static kripto_mac *hmac_create
 	s->obj.desc = desc;
 	s->size = sizeof(kripto_mac) + kripto_hash_blocksize(EXT(desc)->hash);
 	s->r = r;
-	s->hash = kripto_hash_create(EXT(desc)->hash, r, tag_len);
+	s->hash = kripto_hash_create(EXT(desc)->hash, r, 0, 0, tag_len);
 	if(!s->hash)
 	{
 		free(s);
@@ -155,7 +157,7 @@ static kripto_mac *hmac_recreate
 	unsigned int tag_len
 )
 {
-	s->hash = kripto_hash_recreate(s->hash, r, tag_len);
+	s->hash = kripto_hash_recreate(s->hash, r, 0, 0, tag_len);
 	if(!s->hash)
 	{
 		kripto_memory_wipe(s, s->size);

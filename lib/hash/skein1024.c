@@ -36,6 +36,7 @@ struct kripto_hash
 	kripto_block *block;
 	unsigned int r;
 	unsigned int i;
+	unsigned int out_len;
 	int f;
 	uint8_t h[128];
 	uint8_t buf[128];
@@ -45,7 +46,7 @@ struct kripto_hash
 #define POS_ADD(TWEAK, ADD)		\
 {					\
 	TWEAK[0] += ADD;		\
-	if(!TWEAK[0])			\
+	if(TWEAK[0] < ADD)			\
 	if(!++TWEAK[1])			\
 	if(!++TWEAK[2])			\
 	if(!++TWEAK[3])			\
@@ -77,7 +78,9 @@ static kripto_hash *skein1024_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
 	uint64_t t;
@@ -88,7 +91,8 @@ static kripto_hash *skein1024_recreate
 	memset(s->h, 0, 128);
 	memset(s->tweak, 0, 16);
 
-	t = len << 3;
+	s->out_len = out_len;
+	t = out_len << 3;
 
 	/* CFG */
 	s->buf[0] = 'S';
@@ -105,8 +109,29 @@ static kripto_hash *skein1024_recreate
 	s->tweak[15] = 0xC4; /* type CFG, first, final */
 	skein1024_process(s);
 
-	/* MSG */
+	/* NONCE */
 	s->tweak[0] = 0;
+	s->tweak[15] = 0x54; /* type NONCE, first */
+
+	while(salt_len)
+	{
+		unsigned int len = salt_len > 128 ? 128 : salt_len;
+
+		memcpy(s->buf, salt, len);
+		memset(s->buf, 0, 128 - len);
+
+		POS_ADD(s->tweak, len);
+		salt_len -= len;
+
+		if(!salt_len) s->tweak[15] |= 0x80; /* add final */
+
+		skein1024_process(s);
+
+		s->tweak[15] &= 0xBF; /* remove first */
+	}
+
+	/* MSG */
+	memset(s->tweak, 0, 12);
 	s->tweak[15] = 0x70; /* type MSG, first */
 
 	return s;
@@ -119,16 +144,13 @@ static void skein1024_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		s->buf[s->i++] = CU8(in)[i];
 
 		if(s->i == 128)
 		{
 			POS_ADD(s->tweak, 128);
-
 			skein1024_process(s);
 			s->tweak[15] = 0x30; /* type MSG */
 			s->i = 0;
@@ -136,35 +158,47 @@ static void skein1024_input
 	}
 }
 
-static void skein1024_finish(kripto_hash *s)
-{
-	POS_ADD(s->tweak, s->i);
-
-	memset(s->buf + s->i, 0, 128 - s->i);
-	s->tweak[15] |= 0x80; /* add final */
-	skein1024_process(s);
-
-	memset(s->buf, 0, 128);
-	memset(s->tweak, 0, 12);
-	s->tweak[0] = 8; /* 8 byte counter */
-	s->tweak[15] = 0xFF; /* type OUT, first, final */
-	skein1024_process(s);
-
-	s->i = 0;
-	s->f = -1;
-}
-
 static void skein1024_output(kripto_hash *s, void *out, size_t len)
 {
-	assert(s->i + len <= 128);
+	if(!s->f)
+	{
+		POS_ADD(s->tweak, s->i);
+		memset(s->buf + s->i, 0, 128 - s->i);
+		s->tweak[15] |= 0x80; /* add final */
+		skein1024_process(s);
+		s->f = -1;
+		s->i = 128;
+		memset(s->buf, 0, 128);
+		memset(s->tweak, 0, 12);
+		s->tweak[0] = 8; /* 8 byte counter */
+		s->tweak[15] = 0x7F; /* type OUT, first */
+	}
 
-	if(!s->f) skein1024_finish(s);
+	assert(s->out_len >= len);
 
-	memcpy(out, s->h + s->i, len);
-	s->i += len;
+	for(size_t i = 0; i < len; i++)
+	{
+		if(s->i == 128)
+		{
+			s->out_len -= 128;
+			if(!s->out_len) s->tweak[15] |= 0x80; /* add final */
+			skein1024_process(s);
+			s->tweak[15] &= 0xBF; /* remove first */
+			POS_ADD(s->tweak, 128);
+			s->i = 0;
+		}
+		
+		U8(out)[i] = s->h[s->i++];
+	}
 }
 
-static kripto_hash *skein1024_create(unsigned int r, size_t len)
+static kripto_hash *skein1024_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
@@ -178,7 +212,7 @@ static kripto_hash *skein1024_create(unsigned int r, size_t len)
 		return 0;
 	}
 
-	(void)skein1024_recreate(s, r, len);
+	(void)skein1024_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -193,6 +227,8 @@ static void skein1024_destroy(kripto_hash *s)
 static int skein1024_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -204,7 +240,7 @@ static int skein1024_hash
 	s.block = kripto_block_create(kripto_block_threefish1024, r, "", 1);
 	if(!s.block) return -1;
 
-	(void)skein1024_recreate(&s, r, out_len);
+	(void)skein1024_recreate(&s, r, salt, salt_len, out_len);
 	skein1024_input(&s, in, in_len);
 	skein1024_output(&s, out, out_len);
 
@@ -222,8 +258,9 @@ static const kripto_hash_desc skein1024 =
 	&skein1024_output,
 	&skein1024_destroy,
 	&skein1024_hash,
-	128, /* max output */
-	128 /* block_size */
+	0, /* max output */
+	128, /* block_size */
+	UINT_MAX /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_skein1024 = &skein1024;

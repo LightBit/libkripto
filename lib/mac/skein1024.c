@@ -45,7 +45,7 @@ struct kripto_mac
 #define POS_ADD(TWEAK, ADD)		\
 {					\
 	TWEAK[0] += ADD;		\
-	if(!TWEAK[0])			\
+	if(TWEAK[0] < ADD)			\
 	if(!++TWEAK[1])			\
 	if(!++TWEAK[2])			\
 	if(!++TWEAK[3])			\
@@ -153,7 +153,6 @@ static void skein1024_input
 		if(s->i == 128)
 		{
 			POS_ADD(s->tweak, 128);
-
 			skein1024_process(s);
 			s->tweak[15] = 0x30; /* type MSG */
 			s->i = 0;
@@ -181,9 +180,9 @@ static void skein1024_finish(kripto_mac *s)
 
 static void skein1024_tag(kripto_mac *s, void *tag, unsigned int len)
 {
-	assert(s->i + len <= 128);
-
 	if(!s->f) skein1024_finish(s);
+
+	assert(s->i + len <= 128);
 
 	memcpy(tag, s->h + s->i, len);
 	s->i += len;

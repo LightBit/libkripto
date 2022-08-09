@@ -292,15 +292,20 @@ static kripto_hash *keccak1600_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
+	(void)salt;
+	(void)salt_len;
+
 	s->o = s->i = 0;
 
 	s->r = r;
 	if(!s->r) s->r = 24;
 
-	s->rate = 200 - (len << 1);
+	s->rate = 200 - (out_len << 1);
 
 	memset(s->s, 0, 200);
 
@@ -314,13 +319,11 @@ static void keccak1600_input
 	size_t len
 ) 
 {
-	size_t i;
-
 	/* switch back to input mode */
 	if(s->o) s->o = s->i = 0;
 
 	/* input */
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->i == s->rate)
 		{
@@ -339,8 +342,6 @@ static void keccak1600_output
 	size_t len
 )
 {
-	size_t i;
-
 	/* switch to output mode */
 	if(!s->o)
 	{
@@ -355,7 +356,7 @@ static void keccak1600_output
 	}
 
 	/* output */
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->i == s->rate)
 		{
@@ -367,14 +368,20 @@ static void keccak1600_output
 	}
 }
 
-static kripto_hash *keccak1600_create(unsigned int r, size_t len)
+static kripto_hash *keccak1600_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_keccak1600;
 
-	(void)keccak1600_recreate(s, r, len);
+	(void)keccak1600_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -388,6 +395,8 @@ static void keccak1600_destroy(kripto_hash *s)
 static int keccak1600_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -396,7 +405,7 @@ static int keccak1600_hash
 {
 	kripto_hash s;
 
-	(void)keccak1600_recreate(&s, r, out_len);
+	(void)keccak1600_recreate(&s, r, salt, salt_len, out_len);
 	keccak1600_input(&s, in, in_len);
 	keccak1600_output(&s, out, out_len);
 
@@ -414,7 +423,8 @@ static const kripto_hash_desc keccak1600 =
 	&keccak1600_destroy,
 	&keccak1600_hash,
 	0, /* max output */
-	200 /* block_size */
+	200, /* block_size */
+	0 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_keccak1600 = &keccak1600;
@@ -427,8 +437,6 @@ static void sha3_output
 	size_t len
 )
 {
-	size_t i;
-
 	/* switch to output mode */
 	if(!s->o)
 	{
@@ -443,7 +451,7 @@ static void sha3_output
 	}
 
 	/* output */
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		U8(out)[i] = s->s[s->i++];
 	}
@@ -452,6 +460,8 @@ static void sha3_output
 static int sha3_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -460,7 +470,7 @@ static int sha3_hash
 {
 	kripto_hash s;
 
-	(void)keccak1600_recreate(&s, r, out_len);
+	(void)keccak1600_recreate(&s, r, salt, salt_len, out_len);
 	keccak1600_input(&s, in, in_len);
 	sha3_output(&s, out, out_len);
 
@@ -478,7 +488,8 @@ static const kripto_hash_desc sha3 =
 	&keccak1600_destroy,
 	&sha3_hash,
 	64, /* max output */
-	200 /* block_size */
+	200, /* block_size */
+	0, /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_sha3 = &sha3;

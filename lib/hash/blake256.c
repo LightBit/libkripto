@@ -34,14 +34,14 @@ struct kripto_hash
 	struct kripto_hash_object obj;
 	unsigned int r;
 	uint32_t h[8];
-	/* uint32_t s[4]; */
+	uint32_t s[4];
 	uint32_t len[2];
 	uint8_t buf[64];
 	unsigned int i;
 	unsigned int o; /* output length, 0 after finish */
 };
 
-static const uint8_t sigma[10][16] =
+static const uint8_t SIGMA[10][16] =
 {
 	{ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15},
 	{14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3},
@@ -55,7 +55,7 @@ static const uint8_t sigma[10][16] =
 	{10,  2,  8,  4,  7,  6,  1,  5, 15, 11,  9, 14,  3, 12, 13,  0}
 };
 
-static const uint32_t k[16] =
+static const uint32_t K[16] =
 {
 	0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344,
 	0xA4093822, 0x299F31D0, 0x082EFA98, 0xEC4E6C89,
@@ -67,16 +67,18 @@ static kripto_hash *blake256_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
 	s->r = r;
 	if(!s->r) s->r = 14;
 
 	s->len[0] = s->len[1] = s->i = 0;
-	s->o = len;
+	s->o = out_len;
 
-	if(len > 28)
+	if(out_len > 28)
 	{
 		/* 256 */
 		s->h[0] = 0x6A09E667;
@@ -101,17 +103,20 @@ static kripto_hash *blake256_recreate
 		s->h[7] = 0xBEFA4FA4;
 	}
 
+	s->s[0] = s->s[1] = s->s[2] = s->s[3] = 0;
+	LOAD32B_ARRAY(salt, s->s, salt_len);
+
 	return s;
 }
 
 #define G(A, B, C, D, M, S0, S1)	\
 {					\
-	A += B + ((M)[(S0)] ^ k[(S1)]);	\
+	A += B + ((M)[(S0)] ^ K[(S1)]);	\
 	D = ROR32_16(D ^ A);		\
 	C += D;				\
 	B = ROR32_12(B ^ C);		\
 					\
-	A += B + ((M)[(S1)] ^ k[(S0)]);	\
+	A += B + ((M)[(S1)] ^ K[(S0)]);	\
 	D = ROR32_08(D ^ A);		\
 	C += D;				\
 	B = ROR32_07(B ^ C);		\
@@ -119,36 +124,34 @@ static kripto_hash *blake256_recreate
 
 static void blake256_process(kripto_hash *s, const uint8_t *data)
 {
-	uint32_t x0;
-	uint32_t x1;
-	uint32_t x2;
-	uint32_t x3;
-	uint32_t x4;
-	uint32_t x5;
-	uint32_t x6;
-	uint32_t x7;
-	uint32_t x8;
-	uint32_t x9;
-	uint32_t x10;
-	uint32_t x11;
-	uint32_t x12;
-	uint32_t x13;
-	uint32_t x14;
-	uint32_t x15;
+	uint32_t x00 = s->h[0];
+	uint32_t x01 = s->h[1];
+	uint32_t x02 = s->h[2];
+	uint32_t x03 = s->h[3];
+	uint32_t x04 = s->h[4];
+	uint32_t x05 = s->h[5];
+	uint32_t x06 = s->h[6];
+	uint32_t x07 = s->h[7];
+	uint32_t x08 = K[0] ^ s->s[0];
+	uint32_t x09 = K[1] ^ s->s[1];
+	uint32_t x10 = K[2] ^ s->s[2];
+	uint32_t x11 = K[3] ^ s->s[3];
+	uint32_t x12 = K[4] ^ s->len[0];
+	uint32_t x13 = K[5] ^ s->len[0];
+	uint32_t x14 = K[6] ^ s->len[1];
+	uint32_t x15 = K[7] ^ s->len[1];
 	uint32_t m[16];
-	unsigned int r;
-	unsigned int i;
 
-	m[0] = LOAD32B(data);
-	m[1] = LOAD32B(data + 4);
-	m[2] = LOAD32B(data + 8);
-	m[3] = LOAD32B(data + 12);
-	m[4] = LOAD32B(data + 16);
-	m[5] = LOAD32B(data + 20);
-	m[6] = LOAD32B(data + 24);
-	m[7] = LOAD32B(data + 28);
-	m[8] = LOAD32B(data + 32);
-	m[9] = LOAD32B(data + 36);
+	m[ 0] = LOAD32B(data     );
+	m[ 1] = LOAD32B(data +  4);
+	m[ 2] = LOAD32B(data +  8);
+	m[ 3] = LOAD32B(data + 12);
+	m[ 4] = LOAD32B(data + 16);
+	m[ 5] = LOAD32B(data + 20);
+	m[ 6] = LOAD32B(data + 24);
+	m[ 7] = LOAD32B(data + 28);
+	m[ 8] = LOAD32B(data + 32);
+	m[ 9] = LOAD32B(data + 36);
 	m[10] = LOAD32B(data + 40);
 	m[11] = LOAD32B(data + 44);
 	m[12] = LOAD32B(data + 48);
@@ -156,48 +159,31 @@ static void blake256_process(kripto_hash *s, const uint8_t *data)
 	m[14] = LOAD32B(data + 56);
 	m[15] = LOAD32B(data + 60);
 
-	x0 = s->h[0];
-	x1 = s->h[1];
-	x2 = s->h[2];
-	x3 = s->h[3];
-	x4 = s->h[4];
-	x5 = s->h[5];
-	x6 = s->h[6];
-	x7 = s->h[7];
-	x8 = k[0]; /* ^ s->s[0] */
-	x9 = k[1]; /* ^ s->s[1] */
-	x10 = k[2]; /* ^ s->s[2] */
-	x11 = k[3]; /* ^ s->s[3] */
-	x12 = k[4] ^ s->len[0];
-	x13 = k[5] ^ s->len[0];
-	x14 = k[6] ^ s->len[1];
-	x15 = k[7] ^ s->len[1];
-
-	for(r = 0, i = 0; r < s->r; r++, i++)
+	for(unsigned int r = 0, i = 0; r < s->r; r++, i++)
 	{
 		if(i == 10) i = 0;
 
-		G(x0, x4, x8, x12, m, sigma[i][0], sigma[i][1]);
-		G(x1, x5, x9, x13, m, sigma[i][2], sigma[i][3]);
-		G(x2, x6, x10, x14, m, sigma[i][4], sigma[i][5]);
-		G(x3, x7, x11, x15, m, sigma[i][6], sigma[i][7]);
+		G(x00, x04, x08, x12, m, SIGMA[i][ 0], SIGMA[i][ 1]);
+		G(x01, x05, x09, x13, m, SIGMA[i][ 2], SIGMA[i][ 3]);
+		G(x02, x06, x10, x14, m, SIGMA[i][ 4], SIGMA[i][ 5]);
+		G(x03, x07, x11, x15, m, SIGMA[i][ 6], SIGMA[i][ 7]);
 
-		G(x0, x5, x10, x15, m, sigma[i][8], sigma[i][9]);
-		G(x1, x6, x11, x12, m, sigma[i][10], sigma[i][11]);
-		G(x2, x7, x8, x13, m, sigma[i][12], sigma[i][13]);
-		G(x3, x4, x9, x14, m, sigma[i][14], sigma[i][15]);
+		G(x00, x05, x10, x15, m, SIGMA[i][ 8], SIGMA[i][ 9]);
+		G(x01, x06, x11, x12, m, SIGMA[i][10], SIGMA[i][11]);
+		G(x02, x07, x08, x13, m, SIGMA[i][12], SIGMA[i][13]);
+		G(x03, x04, x09, x14, m, SIGMA[i][14], SIGMA[i][15]);
 	}
 
 	kripto_memory_wipe(m, 64);
 
-	s->h[0] ^= x0 ^ x8; /* ^ s->s[0] */
-	s->h[1] ^= x1 ^ x9; /* ^ s->s[1] */
-	s->h[2] ^= x2 ^ x10; /* ^ s->s[2] */
-	s->h[3] ^= x3 ^ x11; /* ^ s->s[3] */
-	s->h[4] ^= x4 ^ x12; /* ^ s->s[0] */
-	s->h[5] ^= x5 ^ x13; /* ^ s->s[1] */
-	s->h[6] ^= x6 ^ x14; /* ^ s->s[2] */
-	s->h[7] ^= x7 ^ x15; /* ^ s->s[3] */
+	s->h[0] ^= x00 ^ x08 ^ s->s[0];
+	s->h[1] ^= x01 ^ x09 ^ s->s[1];
+	s->h[2] ^= x02 ^ x10 ^ s->s[2];
+	s->h[3] ^= x03 ^ x11 ^ s->s[3];
+	s->h[4] ^= x04 ^ x12 ^ s->s[0];
+	s->h[5] ^= x05 ^ x13 ^ s->s[1];
+	s->h[6] ^= x06 ^ x14 ^ s->s[2];
+	s->h[7] ^= x07 ^ x15 ^ s->s[3];
 }
 
 static void blake256_input
@@ -207,16 +193,14 @@ static void blake256_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		s->buf[s->i++] = CU8(in)[i];
 
 		if(s->i == 64)
 		{
 			s->len[0] += 512;
-			if(!s->len[0])
+			if(s->len[0] < 512)
 			{
 				s->len[1]++;
 				assert(s->len[1]);
@@ -231,7 +215,11 @@ static void blake256_input
 static void blake256_finish(kripto_hash *s)
 {
 	s->len[0] += s->i << 3;
-	if(s->len[0] < (s->i << 3)) s->len[1]++;
+	if(s->len[0] < (s->i << 3))
+	{
+		s->len[1]++;
+		assert(s->len[1]);
+	}
 
 	/* pad */
 	s->buf[s->i++] = 0x80;
@@ -260,23 +248,26 @@ static void blake256_finish(kripto_hash *s)
 
 static void blake256_output(kripto_hash *s, void *out, size_t len)
 {
-	unsigned int i;
-
 	if(s->o) blake256_finish(s);
 
-	/* big endian */
-	for(i = 0; i < len; s->i++, i++)
-		U8(out)[i] = s->h[s->i >> 2] >> (24 - ((s->i & 3) << 3));
+	STORE32B_ARRAY(s->h, s->i, out, len);
+	s->i += len;
 }
 
-static kripto_hash *blake256_create(unsigned int r, size_t len)
+static kripto_hash *blake256_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_blake256;
 
-	(void)blake256_recreate(s, r, len);
+	(void)blake256_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -290,6 +281,8 @@ static void blake256_destroy(kripto_hash *s)
 static int blake256_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -298,7 +291,7 @@ static int blake256_hash
 {
 	kripto_hash s;
 
-	(void)blake256_recreate(&s, r, out_len);
+	(void)blake256_recreate(&s, r, salt, salt_len, out_len);
 	blake256_input(&s, in, in_len);
 	blake256_output(&s, out, out_len);
 
@@ -316,7 +309,8 @@ static const kripto_hash_desc blake256 =
 	&blake256_destroy,
 	&blake256_hash,
 	32, /* max output */
-	64 /* block_size */
+	64, /* block_size */
+	16 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_blake256 = &blake256;

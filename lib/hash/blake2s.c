@@ -40,7 +40,7 @@ struct kripto_hash
 	unsigned int i;
 };
 
-static const uint8_t sigma[10][16] =
+static const uint8_t SIGMA[10][16] =
 {
 	{ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15},
 	{14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3},
@@ -54,7 +54,7 @@ static const uint8_t sigma[10][16] =
 	{10,  2,  8,  4,  7,  6,  1,  5, 15, 11,  9, 14,  3, 12, 13,  0}
 };
 
-static const uint32_t iv[8] =
+static const uint32_t IV[8] =
 {
 	0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
 	0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19
@@ -64,23 +64,29 @@ static kripto_hash *blake2s_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
+	uint32_t sw[2] = {0, 0};
+
 	s->r = r;
 	if(!s->r) s->r = 10;
 
 	s->f = s->len[0] = s->len[1] = s->i = 0;
 
-	/* s->h[0] = iv[0] ^ 0x01010020; */
-	s->h[0] = iv[0] ^ 0x01010000 ^ (uint8_t)len;
-	s->h[1] = iv[1];
-	s->h[2] = iv[2];
-	s->h[3] = iv[3];
-	s->h[4] = iv[4];
-	s->h[5] = iv[5];
-	s->h[6] = iv[6];
-	s->h[7] = iv[7];
+	LOAD32L_ARRAY(salt, sw, salt_len);
+
+	/* s->h[0] = IV[0] ^ 0x01010020; */
+	s->h[0] = IV[0] ^ 0x01010000 ^ out_len;
+	s->h[1] = IV[1];
+	s->h[2] = IV[2];
+	s->h[3] = IV[3];
+	s->h[4] = IV[4] ^ sw[0];
+	s->h[5] = IV[5] ^ sw[1];
+	s->h[6] = IV[6];
+	s->h[7] = IV[7];
 
 	return s;
 }
@@ -100,36 +106,34 @@ static kripto_hash *blake2s_recreate
 
 static void blake2s_process(kripto_hash *s, const uint8_t *data)
 {
-	uint32_t x0;
-	uint32_t x1;
-	uint32_t x2;
-	uint32_t x3;
-	uint32_t x4;
-	uint32_t x5;
-	uint32_t x6;
-	uint32_t x7;
-	uint32_t x8;
-	uint32_t x9;
-	uint32_t x10;
-	uint32_t x11;
-	uint32_t x12;
-	uint32_t x13;
-	uint32_t x14;
-	uint32_t x15;
+	uint32_t x00 = s->h[0];
+	uint32_t x01 = s->h[1];
+	uint32_t x02 = s->h[2];
+	uint32_t x03 = s->h[3];
+	uint32_t x04 = s->h[4];
+	uint32_t x05 = s->h[5];
+	uint32_t x06 = s->h[6];
+	uint32_t x07 = s->h[7];
+	uint32_t x08 = IV[0];
+	uint32_t x09 = IV[1];
+	uint32_t x10 = IV[2];
+	uint32_t x11 = IV[3];
+	uint32_t x12 = IV[4] ^ s->len[0];
+	uint32_t x13 = IV[5] ^ s->len[1];
+	uint32_t x14 = IV[6] ^ s->f;
+	uint32_t x15 = IV[7];
 	uint32_t m[16];
-	unsigned int r;
-	unsigned int i;
 
-	m[0] = LOAD32L(data);
-	m[1] = LOAD32L(data + 4);
-	m[2] = LOAD32L(data + 8);
-	m[3] = LOAD32L(data + 12);
-	m[4] = LOAD32L(data + 16);
-	m[5] = LOAD32L(data + 20);
-	m[6] = LOAD32L(data + 24);
-	m[7] = LOAD32L(data + 28);
-	m[8] = LOAD32L(data + 32);
-	m[9] = LOAD32L(data + 36);
+	m[ 0] = LOAD32L(data     );
+	m[ 1] = LOAD32L(data +  4);
+	m[ 2] = LOAD32L(data +  8);
+	m[ 3] = LOAD32L(data + 12);
+	m[ 4] = LOAD32L(data + 16);
+	m[ 5] = LOAD32L(data + 20);
+	m[ 6] = LOAD32L(data + 24);
+	m[ 7] = LOAD32L(data + 28);
+	m[ 8] = LOAD32L(data + 32);
+	m[ 9] = LOAD32L(data + 36);
 	m[10] = LOAD32L(data + 40);
 	m[11] = LOAD32L(data + 44);
 	m[12] = LOAD32L(data + 48);
@@ -137,48 +141,31 @@ static void blake2s_process(kripto_hash *s, const uint8_t *data)
 	m[14] = LOAD32L(data + 56);
 	m[15] = LOAD32L(data + 60);
 
-	x0 = s->h[0];
-	x1 = s->h[1];
-	x2 = s->h[2];
-	x3 = s->h[3];
-	x4 = s->h[4];
-	x5 = s->h[5];
-	x6 = s->h[6];
-	x7 = s->h[7];
-	x8 = iv[0];
-	x9 = iv[1];
-	x10 = iv[2];
-	x11 = iv[3];
-	x12 = iv[4] ^ s->len[0];
-	x13 = iv[5] ^ s->len[1];
-	x14 = iv[6] ^ s->f;
-	x15 = iv[7];
-
-	for(r = 0, i = 0; r < s->r; r++, i++)
+	for(unsigned int r = 0, i = 0; r < s->r; r++, i++)
 	{
 		if(i == 10) i = 0;
 
-		G(x0, x4, x8, x12, m[sigma[i][0]], m[sigma[i][1]]);
-		G(x1, x5, x9, x13, m[sigma[i][2]], m[sigma[i][3]]);
-		G(x2, x6, x10, x14, m[sigma[i][4]], m[sigma[i][5]]);
-		G(x3, x7, x11, x15, m[sigma[i][6]], m[sigma[i][7]]);
+		G(x00, x04, x08, x12, m[SIGMA[i][ 0]], m[SIGMA[i][ 1]]);
+		G(x01, x05, x09, x13, m[SIGMA[i][ 2]], m[SIGMA[i][ 3]]);
+		G(x02, x06, x10, x14, m[SIGMA[i][ 4]], m[SIGMA[i][ 5]]);
+		G(x03, x07, x11, x15, m[SIGMA[i][ 6]], m[SIGMA[i][ 7]]);
 
-		G(x0, x5, x10, x15, m[sigma[i][8]], m[sigma[i][9]]);
-		G(x1, x6, x11, x12, m[sigma[i][10]], m[sigma[i][11]]);
-		G(x2, x7, x8, x13, m[sigma[i][12]], m[sigma[i][13]]);
-		G(x3, x4, x9, x14, m[sigma[i][14]], m[sigma[i][15]]);
+		G(x00, x05, x10, x15, m[SIGMA[i][ 8]], m[SIGMA[i][ 9]]);
+		G(x01, x06, x11, x12, m[SIGMA[i][10]], m[SIGMA[i][11]]);
+		G(x02, x07, x08, x13, m[SIGMA[i][12]], m[SIGMA[i][13]]);
+		G(x03, x04, x09, x14, m[SIGMA[i][14]], m[SIGMA[i][15]]);
 	}
 
 	kripto_memory_wipe(m, 64);
 
-	s->h[0] ^= x0 ^ x8;
-	s->h[1] ^= x1 ^ x9;
-	s->h[2] ^= x2 ^ x10;
-	s->h[3] ^= x3 ^ x11;
-	s->h[4] ^= x4 ^ x12;
-	s->h[5] ^= x5 ^ x13;
-	s->h[6] ^= x6 ^ x14;
-	s->h[7] ^= x7 ^ x15;
+	s->h[0] ^= x00 ^ x08;
+	s->h[1] ^= x01 ^ x09;
+	s->h[2] ^= x02 ^ x10;
+	s->h[3] ^= x03 ^ x11;
+	s->h[4] ^= x04 ^ x12;
+	s->h[5] ^= x05 ^ x13;
+	s->h[6] ^= x06 ^ x14;
+	s->h[7] ^= x07 ^ x15;
 }
 
 static void blake2s_input
@@ -188,14 +175,12 @@ static void blake2s_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->i == 64)
 		{
 			s->len[0] += 64;
-			if(!s->len[0])
+			if(s->len[0] < 64)
 			{
 				s->len[1]++;
 				assert(s->len[1]);
@@ -212,7 +197,11 @@ static void blake2s_input
 static void blake2s_finish(kripto_hash *s)
 {
 	s->len[0] += s->i;
-	if(s->len[0] < s->i) s->len[1]++;
+	if(s->len[0] < s->i)
+	{
+		s->len[1]++;
+		assert(s->len[1]);
+	}
 
 	while(s->i < 64) s->buf[s->i++] = 0;
 
@@ -225,26 +214,26 @@ static void blake2s_finish(kripto_hash *s)
 
 static void blake2s_output(kripto_hash *s, void *out, size_t len)
 {
-	unsigned int i;
-
 	if(!s->f) blake2s_finish(s);
 
-	/* little endian */
-	for(i = 0; i < len; s->i++, i++)
-	{
-		U8(out)[i] = s->h[s->i >> 2];
-		s->h[s->i >> 2] >>= 8;
-	}
+	STORE32L_ARRAY(s->h, s->i, out, len);
+	s->i += len;
 }
 
-static kripto_hash *blake2s_create(unsigned int r, size_t len)
+static kripto_hash *blake2s_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_blake2s;
 
-	(void)blake2s_recreate(s, r, len);
+	(void)blake2s_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -258,6 +247,8 @@ static void blake2s_destroy(kripto_hash *s)
 static int blake2s_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -266,7 +257,7 @@ static int blake2s_hash
 {
 	kripto_hash s;
 
-	(void)blake2s_recreate(&s, r, out_len);
+	(void)blake2s_recreate(&s, r, salt, salt_len, out_len);
 	blake2s_input(&s, in, in_len);
 	blake2s_output(&s, out, out_len);
 
@@ -284,7 +275,8 @@ static const kripto_hash_desc blake2s =
 	&blake2s_destroy,
 	&blake2s_hash,
 	32, /* max output */
-	64 /* block_size */
+	64, /* block_size */
+	8 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_blake2s = &blake2s;

@@ -10,14 +10,18 @@ extern kripto_hash *kripto_hash_create
 (
 	const kripto_hash_desc *desc,
 	unsigned int rounds,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 );
 
 extern kripto_hash *kripto_hash_recreate
 (
 	kripto_hash *s,
 	unsigned int rounds,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 );
 
 extern void kripto_hash_input
@@ -40,6 +44,8 @@ extern int kripto_hash_all
 (
 	const kripto_hash_desc *desc,
 	unsigned int rounds,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -48,8 +54,10 @@ extern int kripto_hash_all
 
 extern const kripto_hash_desc *kripto_hash_getdesc(const kripto_hash *s);
 
-extern size_t kripto_hash_maxout(const kripto_hash_desc *s);
+extern unsigned int kripto_hash_maxout(const kripto_hash_desc *desc);
 
-extern unsigned int kripto_hash_blocksize(const kripto_hash_desc *s);
+extern unsigned int kripto_hash_maxsalt(const kripto_hash_desc *desc);
+
+extern unsigned int kripto_hash_blocksize(const kripto_hash_desc *desc);
 
 #endif

@@ -893,16 +893,19 @@ static kripto_hash *whirlpool_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
-	(void)len;
+	(void)salt;
+	(void)salt_len;
+	(void)out_len;
 
 	s->r = r;
 	if(!s->r) s->r = 10;
 
-	s->i = 0;
-	s->f = 0;
+	s->f = s->i = 0;
 
 	memset(s->len, 0, 32);
 	memset(s->h, 0, 64);
@@ -917,14 +920,12 @@ static void whirlpool_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->i == 64)
 		{
 			s->len[3] += 512;
-			if(!s->len[3])
+			if(s->len[3] < 512)
 				if(!++s->len[2])
 					if(!++s->len[1])
 					{
@@ -942,17 +943,14 @@ static void whirlpool_input
 
 static void whirlpool_finish(kripto_hash *s)
 {
-	if(s->i)
-	{
-		s->len[3] += s->i << 3;
-		if(!s->len[3])
-			if(!++s->len[2])
-				if(!++s->len[1])
-				{
-					s->len[0]++;
-					assert(s->len[0]);
-				}
-	}
+	s->len[3] += s->i << 3;
+	if(s->len[3] < (s->i << 3))
+		if(!++s->len[2])
+			if(!++s->len[1])
+			{
+				s->len[0]++;
+				assert(s->len[0]);
+			}
 
 	/* pad */
 	s->buf[s->i++] = 0x80;
@@ -980,23 +978,26 @@ static void whirlpool_finish(kripto_hash *s)
 
 static void whirlpool_output(kripto_hash *s, void *out, size_t len)
 {
-	unsigned int i;
-
 	if(!s->f) whirlpool_finish(s);
 
-	/* big endian */
-	for(i = 0; i < len; s->i++, i++)
-		U8(out)[i] = s->h[s->i >> 3] >> (56 - ((s->i & 7) << 3));
+	STORE64B_ARRAY(s->h, s->i, out, len);
+	s->i += len;
 }
 
-static kripto_hash *whirlpool_create(unsigned int r, size_t len)
+static kripto_hash *whirlpool_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_whirlpool;
 
-	(void)whirlpool_recreate(s, r, len);
+	(void)whirlpool_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -1010,6 +1011,8 @@ static void whirlpool_destroy(kripto_hash *s)
 static int whirlpool_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -1018,7 +1021,7 @@ static int whirlpool_hash
 {
 	kripto_hash s;
 
-	(void)whirlpool_recreate(&s, r, out_len);
+	(void)whirlpool_recreate(&s, r, salt, salt_len, out_len);
 	whirlpool_input(&s, in, in_len);
 	whirlpool_output(&s, out, out_len);
 
@@ -1036,7 +1039,8 @@ static const kripto_hash_desc whirlpool =
 	&whirlpool_destroy,
 	&whirlpool_hash,
 	64, /* max output */
-	64 /* block_size */
+	64, /* block_size */
+	0 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_whirlpool = &whirlpool;

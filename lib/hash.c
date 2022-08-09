@@ -27,29 +27,35 @@ kripto_hash *kripto_hash_create
 (
 	const kripto_hash_desc *desc,
 	unsigned int rounds,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
 	assert(desc);
 	assert(desc->create);
-	assert(!desc->maxout || len <= desc->maxout);
+	assert(salt_len <= desc->maxsalt);
+	assert(!desc->maxout || out_len <= desc->maxout);
 
-	return desc->create(rounds, len);
+	return desc->create(rounds, salt, salt_len, out_len);
 }
 
 kripto_hash *kripto_hash_recreate
 (
 	kripto_hash *s,
 	unsigned int rounds,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
 	assert(s);
 	assert(s->desc);
 	assert(s->desc->recreate);
-	assert(!s->desc->maxout || len <= s->desc->maxout);
+	assert(salt_len <= s->desc->maxsalt);
+	assert(!s->desc->maxout || out_len <= s->desc->maxout);
 
-	return s->desc->recreate(s, rounds, len);
+	return s->desc->recreate(s, rounds, salt, salt_len, out_len);
 }
 
 void kripto_hash_input(kripto_hash *s, const void *in, size_t len)
@@ -84,6 +90,8 @@ int kripto_hash_all
 (
 	const kripto_hash_desc *desc,
 	unsigned int rounds,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -92,9 +100,10 @@ int kripto_hash_all
 {
 	assert(desc);
 	assert(desc->hash_all);
+	assert(salt_len <= desc->maxsalt);
 	assert(!desc->maxout || out_len <= desc->maxout);
 
-	return desc->hash_all(rounds, in, in_len, out, out_len);
+	return desc->hash_all(rounds, salt, salt_len, in, in_len, out, out_len);
 }
 
 const kripto_hash_desc *kripto_hash_getdesc(const kripto_hash *s)
@@ -105,11 +114,18 @@ const kripto_hash_desc *kripto_hash_getdesc(const kripto_hash *s)
 	return s->desc;
 }
 
-size_t kripto_hash_maxout(const kripto_hash_desc *desc)
+unsigned int kripto_hash_maxout(const kripto_hash_desc *desc)
 {
 	assert(desc);
 
 	return desc->maxout;
+}
+
+unsigned int kripto_hash_maxsalt(const kripto_hash_desc *desc)
+{
+	assert(desc);
+
+	return desc->maxsalt;
 }
 
 unsigned int kripto_hash_blocksize(const kripto_hash_desc *desc)

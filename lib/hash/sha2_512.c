@@ -137,15 +137,19 @@ static kripto_hash *sha2_512_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
+	(void)salt;
+	(void)salt_len;
 	s->len[1] = s->len[0] = s->o = s->i = 0;
 
 	s->r = r;
 	if(!s->r) s->r = 80;
 
-	if(len > 48)
+	if(out_len > 48)
 	{
 		/* 512 */
 		s->h[0] = 0x6A09E667F3BCC908;
@@ -243,18 +247,19 @@ static void sha2_512_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	s->len[0] += len << 3;
-	/* TODO: s->len[1] */
-	assert(s->len[0] >= len << 3);
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		s->buf[s->i++] = CU8(in)[i];
 
 		if(s->i == 128)
 		{
+			s->len[0] += 1024;
+			if(s->len[0] < 1024)
+			{
+				s->len[1]++;
+				assert(s->len[1]);
+			}
+
 			sha2_512_process(s, s->buf);
 			s->i = 0;
 		}
@@ -263,6 +268,13 @@ static void sha2_512_input
 
 static void sha2_512_finish(kripto_hash *s)
 {
+	s->len[0] += s->i << 3;
+	if(s->len[0] < (s->i << 3))
+	{
+		s->len[1]++;
+		assert(s->len[1]);
+	}
+
 	s->buf[s->i++] = 0x80; /* pad */
 
 	if(s->i > 112) /* not enough space for length */
@@ -285,23 +297,26 @@ static void sha2_512_finish(kripto_hash *s)
 
 static void sha2_512_output(kripto_hash *s, void *out, size_t len)
 {
-	unsigned int i;
-
 	if(!s->o) sha2_512_finish(s);
 
-	/* big endian */
-	for(i = 0; i < len; s->i++, i++)
-		U8(out)[i] = s->h[s->i >> 3] >> (56 - ((s->i & 7) << 3));
+	STORE64B_ARRAY(s->h, s->i, out, len);
+	s->i += len;
 }
 
-static kripto_hash *sha2_512_create(unsigned int r, size_t len)
+static kripto_hash *sha2_512_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_sha2_512;
 
-	(void)sha2_512_recreate(s, r, len);
+	(void)sha2_512_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -315,6 +330,8 @@ static void sha2_512_destroy(kripto_hash *s)
 static int sha2_512_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -323,7 +340,7 @@ static int sha2_512_hash
 {
 	kripto_hash s;
 
-	(void)sha2_512_recreate(&s, r, out_len);
+	(void)sha2_512_recreate(&s, r, salt, salt_len, out_len);
 	sha2_512_input(&s, in, in_len);
 	sha2_512_output(&s, out, out_len);
 
@@ -341,7 +358,8 @@ static const kripto_hash_desc sha2_512 =
 	&sha2_512_destroy,
 	&sha2_512_hash,
 	64, /* max output */
-	128 /* block_size */
+	128, /* block_size */
+	0 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_sha2_512 = &sha2_512;

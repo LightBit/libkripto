@@ -277,15 +277,20 @@ static kripto_hash *keccak800_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
+	(void)salt;
+	(void)salt_len;
+
 	s->o = s->i = 0;
 
 	s->r = r;
 	if(!s->r) s->r = 20;
 
-	s->rate = 100 - (len << 1);
+	s->rate = 100 - (out_len << 1);
 
 	memset(s->s, 0, 100);
 
@@ -299,13 +304,11 @@ static void keccak800_input
 	size_t len
 ) 
 {
-	size_t i;
-
 	/* switch back to input mode */
 	if(s->o) s->o = s->i = 0;
 
 	/* input */
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->i == s->rate)
 		{
@@ -319,8 +322,6 @@ static void keccak800_input
 
 static void keccak800_output(kripto_hash *s, void *out, size_t len)
 {
-	size_t i;
-
 	/* switch to output mode */
 	if(!s->o)
 	{
@@ -335,7 +336,7 @@ static void keccak800_output(kripto_hash *s, void *out, size_t len)
 	}
 
 	/* output */
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->i == s->rate)
 		{
@@ -347,14 +348,20 @@ static void keccak800_output(kripto_hash *s, void *out, size_t len)
 	}
 }
 
-static kripto_hash *keccak800_create(unsigned int r, size_t len)
+static kripto_hash *keccak800_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_keccak800;
 
-	(void)keccak800_recreate(s, r, len);
+	(void)keccak800_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -368,6 +375,8 @@ static void keccak800_destroy(kripto_hash *s)
 static int keccak800_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -376,7 +385,7 @@ static int keccak800_hash
 {
 	kripto_hash s;
 
-	(void)keccak800_recreate(&s, r, out_len);
+	(void)keccak800_recreate(&s, r, salt, salt_len, out_len);
 	keccak800_input(&s, in, in_len);
 	keccak800_output(&s, out, out_len);
 
@@ -394,7 +403,8 @@ static const kripto_hash_desc keccak800 =
 	&keccak800_destroy,
 	&keccak800_hash,
 	0, /* max output */
-	100 /* block_size */
+	100, /* block_size */
+	0 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_keccak800 = &keccak800;

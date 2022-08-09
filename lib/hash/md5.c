@@ -39,7 +39,7 @@ struct kripto_hash
 	int f;
 };
 
-static const uint32_t k[64] =
+static const uint32_t K[64] =
 {
 	0xD76AA478, 0xE8C7B756, 0x242070DB, 0xC1BDCEEE,
 	0xF57C0FAF, 0x4787C62A, 0xA8304613, 0xFD469501,
@@ -59,7 +59,7 @@ static const uint32_t k[64] =
 	0xF7537E82, 0xBD3AF235, 0x2AD7D2BB, 0xEB86D391
 };
 
-static const uint8_t rot[64] =
+static const uint8_t ROT[64] =
 {
 	7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
 	5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
@@ -74,33 +74,37 @@ static const uint8_t rot[64] =
 
 #define G0(A, B, C, D, I)					\
 {								\
-	A = B + ROL32(A + F0(B, C, D) + k[I] + m[I], rot[I]);	\
+	A = B + ROL32(A + F0(B, C, D) + K[I] + m[I], ROT[I]);	\
 }
 
 #define G1(A, B, C, D, I)							\
 {										\
-	A = B + ROL32(A + F1(B, C, D) + k[I] + m[(I * 5 + 1) & 15], rot[I]);	\
+	A = B + ROL32(A + F1(B, C, D) + K[I] + m[(I * 5 + 1) & 15], ROT[I]);	\
 }
 
 #define G2(A, B, C, D, I)							\
 {										\
-	A = B + ROL32(A + F2(B, C, D) + k[I] + m[(I * 3 + 5) & 15], rot[I]);	\
+	A = B + ROL32(A + F2(B, C, D) + K[I] + m[(I * 3 + 5) & 15], ROT[I]);	\
 }
 
 #define G3(A, B, C, D, I)							\
 {										\
-	A = B + ROL32(A + F3(B, C, D) + k[I] + m[(I * 7) & 15], rot[I]);	\
+	A = B + ROL32(A + F3(B, C, D) + K[I] + m[(I * 7) & 15], ROT[I]);	\
 }
 
 static kripto_hash *md5_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
 	(void)r;
-	(void)len;
+	(void)salt;
+	(void)salt_len;
+	(void)out_len;
 	s->len = s->f = s->i = 0;
 
 	s->h[0] = 0x67452301;
@@ -184,17 +188,15 @@ static void md5_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	s->len += len << 3;
-	assert(s->len >= len << 3);
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		s->buf[s->i++] = CU8(in)[i];
 
 		if(s->i == 64)
 		{
+			s->len += 512;
+			assert(s->len >= 512);
+
 			md5_process(s, s->buf);
 			s->i = 0;
 		}
@@ -203,6 +205,9 @@ static void md5_input
 
 static void md5_finish(kripto_hash *s)
 {
+	s->len += s->i << 3;
+	assert(s->len >= (s->i << 3));
+
 	s->buf[s->i++] = 0x80; /* pad */
 
 	if(s->i > 56) /* not enough space for length */
@@ -224,23 +229,26 @@ static void md5_finish(kripto_hash *s)
 
 static void md5_output(kripto_hash *s, void *out, size_t len)
 {
-	unsigned int i;
-
 	if(!s->f) md5_finish(s);
 
-	/* little endian */
-	for(i = 0; i < len; s->i++, i++)
-		U8(out)[i] = s->h[s->i >> 2] >> ((s->i & 3) << 3);
+	STORE32L_ARRAY(s->h, s->i, out, len);
+	s->i += len;
 }
 
-static kripto_hash *md5_create(unsigned int r, size_t len)
+static kripto_hash *md5_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_md5;
 
-	(void)md5_recreate(s, r, len);
+	(void)md5_recreate(s, r, salt, salt_len, out_len);
 
 	return s;
 }
@@ -254,6 +262,8 @@ static void md5_destroy(kripto_hash *s)
 static int md5_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -262,7 +272,7 @@ static int md5_hash
 {
 	kripto_hash s;
 
-	(void)md5_recreate(&s, r, out_len);
+	(void)md5_recreate(&s, r, salt, salt_len, out_len);
 	md5_input(&s, in, in_len);
 	md5_output(&s, out, out_len);
 
@@ -280,7 +290,8 @@ static const kripto_hash_desc md5 =
 	&md5_destroy,
 	&md5_hash,
 	16, /* max output */
-	64 /* block_size */
+	64, /* block_size */
+	0 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_md5 = &md5;

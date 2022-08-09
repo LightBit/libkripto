@@ -671,10 +671,14 @@ static kripto_hash *tiger_recreate
 (
 	kripto_hash *s,
 	unsigned int r,
-	size_t len
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
 )
 {
-	(void)len;
+	(void)salt;
+	(void)salt_len;
+	(void)out_len;
 
 	s->passes = r;
 	if(!s->passes) s->passes = 3;
@@ -697,14 +701,12 @@ static void tiger_input
 	size_t len
 ) 
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->i == 64)
 		{
 			s->len += 512;
-			assert(s->len);
+			assert(s->len >= 512);
 
 			tiger_process(s, s->buf);
 			s->i = 0;
@@ -716,11 +718,8 @@ static void tiger_input
 
 static void tiger_finish(kripto_hash *s)
 {
-	if(s->i)
-	{
-		s->len += s->i << 3;
-		assert(s->len);
-	}
+	s->len += s->i << 3;
+	assert(s->len >= (s->i << 3));
 
 	/* pad */
 	s->buf[s->i++] = 0x01;
@@ -745,26 +744,26 @@ static void tiger_finish(kripto_hash *s)
 
 static void tiger_output(kripto_hash *s, void *out, size_t len)
 {
-	unsigned int i;
-
 	if(!s->f) tiger_finish(s);
 
-	/* little endian */
-	for(i = 0; i < len; s->i++, i++)
-	{
-		U8(out)[i] = s->h[s->i >> 3];
-		s->h[s->i >> 3] >>= 8;
-	}
+	STORE64L_ARRAY(s->h, s->i, out, len);
+	s->i += len;
 }
 
-static kripto_hash *tiger_create(unsigned int r, size_t len)
+static kripto_hash *tiger_create
+(
+	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
+	unsigned int out_len
+)
 {
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_hash_tiger;
 
-	return tiger_recreate(s, r, len);
+	return tiger_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void tiger_destroy(kripto_hash *s)
@@ -776,6 +775,8 @@ static void tiger_destroy(kripto_hash *s)
 static int tiger_hash
 (
 	unsigned int r,
+	const void *salt,
+	unsigned int salt_len,
 	const void *in,
 	size_t in_len,
 	void *out,
@@ -784,7 +785,7 @@ static int tiger_hash
 {
 	kripto_hash s;
 
-	(void)tiger_recreate(&s, r, out_len);
+	(void)tiger_recreate(&s, r, salt, salt_len, out_len);
 	tiger_input(&s, in, in_len);
 	tiger_output(&s, out, out_len);
 
@@ -802,7 +803,8 @@ static const kripto_hash_desc tiger =
 	&tiger_destroy,
 	&tiger_hash,
 	24, /* max output */
-	64 /* block_size */
+	64, /* block_size */
+	0 /* max salt */
 };
 
 const kripto_hash_desc *const kripto_hash_tiger = &tiger;

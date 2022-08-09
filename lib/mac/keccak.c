@@ -59,7 +59,7 @@ static kripto_mac *keccak_recreate
 	unsigned int tag_len
 )
 {
-	(void)kripto_hash_recreate(s->hash, r, tag_len);
+	(void)kripto_hash_recreate(s->hash, r, 0, 0, tag_len);
 
 	kripto_hash_input(s->hash, key, key_len);
 
@@ -82,7 +82,7 @@ static kripto_mac *keccak1600_create
 
 	s->obj.desc = kripto_mac_keccak1600;
 
-	s->hash = kripto_hash_create(kripto_hash_keccak1600, r, tag_len);
+	s->hash = kripto_hash_create(kripto_hash_keccak1600, r, 0, 0, tag_len);
 	if(!s->hash)
 	{
 		free(s);
@@ -110,7 +110,7 @@ static kripto_mac *keccak800_create
 
 	s->obj.desc = kripto_mac_keccak800;
 
-	s->hash = kripto_hash_create(kripto_hash_keccak800, r, tag_len);
+	s->hash = kripto_hash_create(kripto_hash_keccak800, r, 0, 0, tag_len);
 	if(!s->hash)
 	{
 		free(s);

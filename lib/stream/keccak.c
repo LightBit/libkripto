@@ -80,7 +80,7 @@ static kripto_stream *keccak_recreate
 	unsigned int iv_len
 )
 {
-	(void)kripto_hash_recreate(s->hash, r, key_len);
+	(void)kripto_hash_recreate(s->hash, r, 0, 0, key_len);
 
 	kripto_hash_input(s->hash, key, key_len);
 	kripto_hash_input(s->hash, iv, iv_len);
@@ -113,7 +113,7 @@ static kripto_stream *keccak1600_create
 	s->obj.desc = kripto_stream_keccak1600;
 	s->obj.multof = 1;
 
-	s->hash = kripto_hash_create(kripto_hash_keccak1600, r, key_len);
+	s->hash = kripto_hash_create(kripto_hash_keccak1600, r, 0, 0, key_len);
 	if(!s->hash)
 	{
 		free(s);
@@ -159,7 +159,7 @@ static kripto_stream *keccak800_create
 	s->obj.desc = kripto_stream_keccak800;
 	s->obj.multof = 1;
 
-	s->hash = kripto_hash_create(kripto_hash_keccak800, r, key_len);
+	s->hash = kripto_hash_create(kripto_hash_keccak800, r, 0, 0, key_len);
 	if(!s->hash)
 	{
 		free(s);
