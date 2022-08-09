@@ -34,7 +34,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 };
 
@@ -598,9 +597,7 @@ static void serpent_setup
 	unsigned int i;
 
 	for(i = 0; i < 32; i++) s->k[i] = 0;
-
-	for(i = key_len - 1; i != UINT_MAX; i--)
-		s->k[i >> 2] = (s->k[i >> 2] << 8) | key[i];
+	LOAD32L_ARRAY(key, s->k, key_len);
 
 	if(key_len < 32)
 		s->k[(key_len) >> 2] |= 1 << ((key_len & 3) << 3);
@@ -684,7 +681,6 @@ static kripto_block *serpent_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_serpent;
-	s->size = sizeof(kripto_block) + ((r + 1) << 4);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
@@ -695,7 +691,7 @@ static kripto_block *serpent_create
 
 static void serpent_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->rounds + 1) << 4));
 	free(s);
 }
 
@@ -709,14 +705,13 @@ static kripto_block *serpent_recreate
 {
 	if(!r) r = 32;
 
-	if(sizeof(kripto_block) + ((r + 1) << 4) > s->size)
+	if(r != s->rounds)
 	{
 		serpent_destroy(s);
 		s = serpent_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		serpent_setup(s, (const uint8_t *)key, key_len);
 	}
 

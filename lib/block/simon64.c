@@ -31,7 +31,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 };
 
@@ -154,7 +153,6 @@ static kripto_block *simon64_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_simon64;
-	s->size = sizeof(kripto_block) + (r << 2);
 	s->k = (uint32_t *)(((uint8_t *)s) + sizeof(kripto_block));
 	s->rounds = r;
 
@@ -165,7 +163,7 @@ static kripto_block *simon64_create
 
 static void simon64_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->rounds << 2));
 	free(s);
 }
 
@@ -179,14 +177,13 @@ static kripto_block *simon64_recreate
 {
 	if(!r) r = 36 + (((key_len + 3) >> 2) << 1);
 
-	if(sizeof(kripto_block) + (r << 2) > s->size)
+	if(r != s->rounds)
 	{
 		simon64_destroy(s);
 		s = simon64_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		simon64_setup(s, (const uint8_t *)key, key_len);
 	}
 

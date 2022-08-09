@@ -32,7 +32,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 };
 
@@ -47,9 +46,7 @@ static void xtea_setup
 	uint32_t k[4] = {0, 0, 0, 0};
 	unsigned int i;
 
-	/* big endian */
-	for(i = 0; i < key_len; i++)
-		k[i >> 2] |= key[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, k, key_len);
 
 	key_len = (key_len + 3) >> 2;
 	i = 0;
@@ -119,7 +116,6 @@ static kripto_block *xtea_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_xtea;
-	s->size = sizeof(kripto_block) + (r << 2);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
@@ -130,7 +126,7 @@ static kripto_block *xtea_create
 
 static void xtea_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->rounds << 2));
 	free(s);
 }
 
@@ -144,14 +140,13 @@ static kripto_block *xtea_recreate
 {
 	if(!r) r = 64;
 
-	if(sizeof(kripto_block) + (r << 2) > s->size)
+	if(r != s->rounds)
 	{
 		xtea_destroy(s);
 		s = xtea_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		xtea_setup(s, (const uint8_t *)key, key_len);
 	}
 

@@ -375,10 +375,7 @@ static kripto_block *mars_recreate
 	(void)r;
 
 	for(i = 0; i < 15; i++) t[i] = 0;
-
-	for(j = key_len - 1; j != UINT_MAX; j--)
-		t[j >> 2] = (t[j >> 2] << 8) | CU8(key)[j];
-
+	LOAD32L_ARRAY(key, t, key_len);
 	t[(key_len + 3) / 4] = (key_len + 3) / 4;
 
 	for(j = 0; j < 4; j++)

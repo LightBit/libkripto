@@ -33,7 +33,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t s0[256];
 	uint32_t s1[256];
 	uint32_t s2[256];
@@ -1196,13 +1195,12 @@ static kripto_block *twofish_create
 
 	if(!r) r = 16;
 
-	s = (kripto_block *)malloc(sizeof(struct kripto_block) + (TWOFISH_K_LEN(r) << 2));
+	s = (kripto_block *)malloc(sizeof(kripto_block) + (TWOFISH_K_LEN(r) << 2));
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_twofish;
-	s->size = sizeof(kripto_block) + (TWOFISH_K_LEN(r) << 2);
 	s->rounds = r;
-	s->k = (uint32_t *)((uint8_t *)s + sizeof(struct kripto_block));
+	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
 	twofish_setup(s, (const uint8_t *)key, key_len);
 
@@ -1211,7 +1209,7 @@ static kripto_block *twofish_create
 
 static void twofish_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (TWOFISH_K_LEN(s->rounds) << 2));
 	free(s);
 }
 
@@ -1225,14 +1223,13 @@ static kripto_block *twofish_recreate
 {
 	if(!r) r = 16;
 
-	if(sizeof(kripto_block) + (TWOFISH_K_LEN(r) << 2) > s->size)
+	if(r != s->rounds)
 	{
 		twofish_destroy(s);
 		s = twofish_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		twofish_setup(s, (const uint8_t *)key, key_len);
 	}
 

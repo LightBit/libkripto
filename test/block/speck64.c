@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <kripto/block.h>
 #include <kripto/block/speck64.h>
 
 int main(void)

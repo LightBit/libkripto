@@ -46,10 +46,7 @@ static void threefish256_tweak
 )
 {
 	s->t[0] = s->t[1] = 0;
-
-	while(--len != UINT_MAX)
-		s->t[len >> 3] = (s->t[len >> 3] << 8) | CU8(tweak)[len];
-
+	LOAD64L_ARRAY(tweak, s->t, len);
 	s->t[2] = s->t[0] ^ s->t[1];
 }
 
@@ -182,18 +179,13 @@ static kripto_block *threefish256_recreate
 	unsigned int key_len
 )
 {
-	unsigned int i;
-
 	s->rounds = r;
 	if(!s->rounds) s->rounds = 72;
 
 	memset(s->k, 0, 32);
-
-	for(i = key_len - 1; i != UINT_MAX; i--)
-		s->k[i >> 3] = (s->k[i >> 3] << 8) | CU8(key)[i];
+	LOAD64L_ARRAY(key, s->k, key_len);
 
 	s->k[4] = s->k[0] ^ s->k[1] ^ s->k[2] ^ s->k[3] ^ C240;
-
 	s->t[0] = s->t[1] = s->t[2] = 0;
 
 	return s;

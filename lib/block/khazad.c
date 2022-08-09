@@ -29,7 +29,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int r;
-	size_t size;
 	uint64_t *k;
 	uint64_t *dk;
 };
@@ -722,7 +721,6 @@ static kripto_block *khazad_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_khazad;
-	s->size = sizeof(kripto_block) + ((r + 1) << 4);
 	s->r = r;
 	s->k = (uint64_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + r + 1;
@@ -734,7 +732,7 @@ static kripto_block *khazad_create
 
 static void khazad_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->r + 1) << 4));
 	free(s);
 }
 
@@ -748,14 +746,13 @@ static kripto_block *khazad_recreate
 {
 	if(!r) r = 8;
 
-	if(sizeof(kripto_block) + ((r + 1) << 4) > s->size)
+	if(r != s->r)
 	{
 		khazad_destroy(s);
 		s = khazad_create(r, key, key_len);
 	}
 	else
 	{
-		s->r = r;
 		khazad_setup(s, (const uint8_t *)key, key_len);
 	}
 

@@ -31,7 +31,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int r;
-	size_t size;
 	uint64_t *k;
 };
 
@@ -51,9 +50,7 @@ static void rc5_64_setup
 	const unsigned int ls = (key_len + 7) >> 3;
 
 	for(i = 0; i < ls; i++) x[i] = 0;
-
-	for(j = key_len - 1; j != UINT_MAX; j--)
-		x[j >> 3] = (x[j >> 3] << 8) | key[j];
+	LOAD64L_ARRAY(key, x, key_len);
 
 	*s->k = 0xB7E151628AED2A6B;
 	for(i = 1; i < ((s->r + 1) << 1); i++)
@@ -133,7 +130,6 @@ static kripto_block *rc5_64_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rc5_64;
-	s->size = sizeof(kripto_block) + ((r + 1) << 4);
 	s->r = r;
 	s->k = (uint64_t *)((uint8_t *)s + sizeof(kripto_block));
 
@@ -144,7 +140,7 @@ static kripto_block *rc5_64_create
 
 static void rc5_64_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->r + 1) << 4));
 	free(s);
 }
 
@@ -158,14 +154,13 @@ static kripto_block *rc5_64_recreate
 {
 	if(!r) r = 16;
 
-	if(sizeof(kripto_block) + ((r + 1) << 4) > s->size)
+	if(r != s->r)
 	{
 		rc5_64_destroy(s);
 		s = rc5_64_create(r, key, key_len);
 	}
 	else
 	{
-		s->r = r;
 		rc5_64_setup(s, (const uint8_t *)key, key_len);
 	}
 

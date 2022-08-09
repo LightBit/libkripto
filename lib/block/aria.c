@@ -31,7 +31,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 	uint32_t *dk;
 };
@@ -308,48 +307,48 @@ static const uint32_t is1[256] =
 	0x03030300, 0xA2A2A200, 0xACACAC00, 0x60606000
 };
 
-#define SW1(X)					\
-(								\
-	s0[(X) >> 24] ^				\
+#define SW1(X)				\
+(					\
+	s0[(X) >> 24] ^			\
 	s1[(uint8_t)((X) >> 16)] ^	\
 	is0[(uint8_t)((X) >> 8)] ^	\
-	is1[(uint8_t)(X)]			\
+	is1[(uint8_t)(X)]		\
 )
 
-#define SW2(X)					\
-(								\
-	is0[(X) >> 24] ^			\
+#define SW2(X)				\
+(					\
+	is0[(X) >> 24] ^		\
 	is1[(uint8_t)((X) >> 16)] ^	\
 	s0[(uint8_t)((X) >> 8)] ^	\
-	s1[(uint8_t)(X)]			\
+	s1[(uint8_t)(X)]		\
 )
 
-#define SWL(X)									\
-(												\
-	(is0[(X) >> 24] & 0xFF000000) |				\
+#define SWL(X)						\
+(							\
+	(is0[(X) >> 24] & 0xFF000000) |			\
 	(is1[(uint8_t)((X) >> 16)] & 0x00FF0000) |	\
 	(s0[(uint8_t)((X) >> 8)] & 0x0000FF00) |	\
-	(uint8_t)s1[(uint8_t)(X)]					\
+	(uint8_t)s1[(uint8_t)(X)]			\
 )
 
 #define S1(A, B, C, D)	\
-{						\
-	(A) = SW1(A);		\
-	(B) = SW1(B);		\
-	(C) = SW1(C);		\
-	(D) = SW1(D);		\
+{			\
+	(A) = SW1(A);	\
+	(B) = SW1(B);	\
+	(C) = SW1(C);	\
+	(D) = SW1(D);	\
 }
 
 #define S2(A, B, C, D)	\
-{						\
-	(A) = SW2(A);		\
-	(B) = SW2(B);		\
-	(C) = SW2(C);		\
-	(D) = SW2(D);		\
+{			\
+	(A) = SW2(A);	\
+	(B) = SW2(B);	\
+	(C) = SW2(C);	\
+	(D) = SW2(D);	\
 }
 
-#define M(A, B, C, D)	\
-{						\
+#define M(A, B, C, D)			\
+{					\
 	(B) ^= (C);			\
 	(C) ^= (D);			\
 	(A) ^= (B);			\
@@ -358,13 +357,13 @@ static const uint32_t is1[256] =
 	(B) ^= (C);			\
 }
 
-#define P(A, B, C, D)					\
-{										\
+#define P(A, B, C, D)				\
+{						\
 	(B) = (((B) << 8) & 0xFF00FF00)		\
 		| (((B) >> 8) & 0x00FF00FF);	\
-	(C) = ROL32_16(C);					\
-    (D) = ((D) << 24) | ((D) >> 24)		\
-		| (((D) & 0x0000FF00) << 8)		\
+	(C) = ROL32_16(C);			\
+	(D) = ((D) << 24) | ((D) >> 24)		\
+		| (((D) & 0x0000FF00) << 8)	\
 		| (((D) & 0x00FF0000) >> 8);	\
 }
 
@@ -506,9 +505,7 @@ static void aria_setup
 	unsigned int j = (key_len + 3) >> 2;
 
 	for(i = 0; i < 8; i++) k[i] = 0;
-
-	for(i = 0; i < key_len; i++)
-		k[i >> 2] |= key[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, k, key_len);
 
 	/* expand */
 	switch(j)
@@ -676,7 +673,6 @@ static kripto_block *aria_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_aria;
-	s->size = sizeof(kripto_block) + ((r + 1) << 5);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 2);
@@ -688,7 +684,7 @@ static kripto_block *aria_create
 
 static void aria_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->rounds + 1) << 5));
 	free(s);
 }
 
@@ -707,14 +703,13 @@ static kripto_block *aria_recreate
 		if(r < 12) r = 12;
 	}
 
-	if(sizeof(kripto_block) + ((r + 1) << 5) > s->size)
+	if(r != s->rounds)
 	{
 		aria_destroy(s);
 		s = aria_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		aria_setup(s, (const uint8_t *)key, key_len);
 	}
 

@@ -31,7 +31,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 };
 
@@ -53,9 +52,7 @@ static void rc6_setup
 	uint32_t x[64];
 
 	for(i = 0; i < ls; i++) x[i] = 0;
-
-	for(j = key_len - 1; j != UINT_MAX; j--)
-		x[j >> 2] = (x[j >> 2] << 8) | key[j];
+	LOAD32L_ARRAY(key, x, key_len);
 
 	*s->k = 0xB7E15163;
 	for(i = 1; i < RC6_K_LEN(s->rounds); i++)
@@ -174,7 +171,6 @@ static kripto_block *rc6_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rc6;
-	s->size = sizeof(kripto_block) + (RC6_K_LEN(r) << 2);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
@@ -185,7 +181,7 @@ static kripto_block *rc6_create
 
 static void rc6_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (RC6_K_LEN(s->rounds) << 2));
 	free(s);
 }
 
@@ -199,14 +195,13 @@ static kripto_block *rc6_recreate
 {
 	if(!r) r = 20;
 
-	if(sizeof(kripto_block) + (RC6_K_LEN(r) << 2) > s->size)
+	if(r != s->rounds)
 	{
 		rc6_destroy(s);
 		s = rc6_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		rc6_setup(s, (const uint8_t *)key, key_len);
 	}
 

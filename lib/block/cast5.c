@@ -698,7 +698,6 @@ static kripto_block *cast5_recreate
 {
 	uint32_t x[4] = {0, 0, 0, 0};
 	uint32_t z[4];
-	unsigned int i;
 
 	if(!r)
 	{
@@ -707,8 +706,7 @@ static kripto_block *cast5_recreate
 	}
 	else s->r = r;
 
-	for(i = 0; i < key_len; i++)
-		x[i >> 2] |= CU8(key)[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, x, key_len);
 
 	/* Km */
 	z[0] = x[0] ^ s5[X(13)] ^ s6[X(15)] ^ s7[X(12)] ^ s8[X(14)] ^ s7[X( 8)];

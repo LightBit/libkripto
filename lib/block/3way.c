@@ -181,15 +181,11 @@ static kripto_block *threeway_recreate
 	unsigned int key_len
 )
 {
-	unsigned int i;
-
 	if(!r) s->r = 11;
 	else s->r = r;
 
 	s->k[0] = s->k[1] = s->k[2] = 0;
-
-	for(i = 0; i < key_len; i++)
-		s->k[i >> 2] |= CU8(key)[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, s->k, key_len);
 
 	/* decryption key */
 	s->dk[0] = s->k[0];

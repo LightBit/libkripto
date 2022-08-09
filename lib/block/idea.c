@@ -30,7 +30,6 @@
 struct kripto_block
 {
 	struct kripto_block_object obj;
-	size_t size;
 	unsigned int r;
 	uint16_t *ek;
 	uint16_t *dk;
@@ -79,9 +78,7 @@ static void idea_setup
 
 	/* encryption key */
 	for(i = 0; i < 8; i++) s->ek[i] = 0;
-
-	for(i = 0; i < key_len; i++)
-		s->ek[i >> 1] |= key[i] << (8 - ((i & 1) << 3));
+	LOAD16B_ARRAY(key, s->ek, key_len);
 
 	for(i = 8; i < (6 * s->r + 4); i++)
 	{
@@ -188,7 +185,6 @@ static kripto_block *idea_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_idea;
-	s->size = sizeof(kripto_block) + r * 24 + 16;
 	s->ek = (uint16_t *)(((uint8_t *)s) + sizeof(kripto_block));
 	s->dk = s->ek + r * 6 + 4;
 	s->r = r;
@@ -200,7 +196,7 @@ static kripto_block *idea_create
 
 static void idea_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + s->r * 24 + 16);
 	free(s);
 }
 
@@ -214,14 +210,13 @@ static kripto_block *idea_recreate
 {
 	if(!r) r = 8;
 
-	if(sizeof(kripto_block) + r * 24 + 16 > s->size)
+	if(r != s->r)
 	{
 		idea_destroy(s);
 		s = idea_create(r, key, key_len);
 	}
 	else
 	{
-		s->r = r;
 		idea_setup(s, (const uint8_t *)key, key_len);
 	}
 

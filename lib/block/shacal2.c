@@ -233,14 +233,13 @@ static kripto_block *shacal2_recreate
 {
 	if(!r) r = 64;
 
-	if(r > s->r)
+	if(r != s->r)
 	{
 		shacal2_destroy(s);
 		s = shacal2_create(r, key, key_len);
 	}
 	else
 	{
-		s->r = r;
 		shacal2_setup(s, key, key_len);
 	}
 

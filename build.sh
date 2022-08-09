@@ -53,6 +53,13 @@ while [ $i -le $# ]; do
 	i=$(($i+1))
 done
 
+#endian=$(printf '\1' | od -An -t xS)
+#if [ "$endian" = " 0001" ]; then
+#	CFLAGS="$CFLAGS -DKRIPTO_LITTLE_ENDIAN"
+#elif [ "$endian" = " 0100" ]; then
+#	CFLAGS="$CFLAGS -DKRIPTO_BIG_ENDIAN"
+#fi
+
 # if OS not defined assume UNIX
 if [ -z $os ]; then
 	CFLAGS="$CFLAGS -DKRIPTO_UNIX"

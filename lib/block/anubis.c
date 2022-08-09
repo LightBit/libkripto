@@ -34,7 +34,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 	uint32_t *dk;
 };
@@ -613,9 +612,7 @@ static void anubis_setup
 	uint32_t kx[80];
 
 	for(r = 0; r < n; r++) kx[r] = 0;
-
-	for(r = 0; r < key_len; r++)
-		kx[r >> 2] |= key[r] << (24 - ((r & 3) << 3));
+	LOAD32B_ARRAY(key, kx, key_len);
 
 	/* generate s->rounds + 1 round keys  */
 	for(r = 0; r <= s->rounds; r++)
@@ -742,7 +739,6 @@ static kripto_block *anubis_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_anubis;
-	s->size = sizeof(kripto_block) + ((r + 1) << 5);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 2);
@@ -754,7 +750,7 @@ static kripto_block *anubis_create
 
 static void anubis_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->rounds + 1) << 5));
 	free(s);
 }
 
@@ -772,14 +768,13 @@ static kripto_block *anubis_recreate
 		if(r < 12) r = 12;
 	}
 
-	if(sizeof(kripto_block) + ((r + 1) << 5) > s->size)
+	if(r != s->rounds)
 	{
 		anubis_destroy(s);
 		s = anubis_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		anubis_setup(s, (const uint8_t *)key, key_len);
 	}
 

@@ -80,10 +80,7 @@ static kripto_block *tea_recreate
 	else s->c = 0xC6EF3720; /* 0x9E3779B9 * 32 */
 
 	for(i = 0; i < 4; i++) s->k[i] = 0;
-
-	/* big endian */
-	for(i = 0; i < key_len; i++)
-		s->k[i >> 2] |= CU8(key)[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, s->k, key_len);
 
 	return s;
 }

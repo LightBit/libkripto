@@ -126,11 +126,7 @@ static void lea_setup
 	if(key_len > 24) /* 256-bit */
 	{
 		uint32_t t[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-
-		for(unsigned int i = 0; i < key_len; i++)
-		{
-			t[i >> 2] |= CU8(key)[i] << ((i & 3) << 3);
-		}
+		LOAD32L_ARRAY(key, t, key_len);
 
 		for(unsigned int i = 0; i < s->r; i++)
 		{
@@ -156,11 +152,7 @@ static void lea_setup
 	else if(key_len > 16) /* 192-bit */
 	{
 		uint32_t t[6] = {0, 0, 0, 0, 0, 0};
-
-		for(unsigned int i = 0; i < key_len; i++)
-		{
-			t[i >> 2] |= CU8(key)[i] << ((i & 3) << 3);
-		}
+		LOAD32L_ARRAY(key, t, key_len);
 
 		for(unsigned int i = 0; i < s->r; i++)
 		{
@@ -186,11 +178,7 @@ static void lea_setup
 	else /* 128-bit */
 	{
 		uint32_t t[4] = {0, 0, 0, 0};
-
-		for(unsigned int i = 0; i < key_len; i++)
-		{
-			t[i >> 2] |= CU8(key)[i] << ((i & 3) << 3);
-		}
+		LOAD32L_ARRAY(key, t, key_len);
 
 		for(unsigned int i = 0; i < s->r; i++)
 		{
@@ -259,14 +247,13 @@ static kripto_block *lea_recreate
 		else r = 24;
 	}
 
-	if(r > s->r)
+	if(r != s->r)
 	{
 		lea_destroy(s);
 		s = lea_create(r, key, key_len);
 	}
 	else
 	{
-		s->r = r;
 		lea_setup(s, key, key_len);
 	}
 

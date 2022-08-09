@@ -30,7 +30,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 };
 
@@ -401,8 +400,7 @@ static void seed_setup
 	uint32_t kc = 0x9E3779B9;
 	unsigned int i;
 
-	for(i = 0; i < key_len; i++)
-		k[i >> 2] |= key[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, k, key_len);
 
 	for(i = 0; i < s->rounds; i++)
 	{
@@ -448,7 +446,6 @@ static kripto_block *seed_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_seed;
-	s->size = sizeof(kripto_block) + (r << 3);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
@@ -459,7 +456,7 @@ static kripto_block *seed_create
 
 static void seed_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->rounds << 3));
 	free(s);
 }
 
@@ -473,14 +470,13 @@ static kripto_block *seed_recreate
 {
 	if(!r) r = 16;
 
-	if(sizeof(kripto_block) + (r << 3) > s->size)
+	if(r != s->rounds)
 	{
 		seed_destroy(s);
 		s = seed_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		seed_setup(s, (const uint8_t *)key, key_len);
 	}
 

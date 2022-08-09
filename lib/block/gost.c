@@ -31,7 +31,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 };
 
@@ -297,7 +296,6 @@ static kripto_block *gost_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_gost;
-	s->size = sizeof(kripto_block) + (r << 2);
 	s->k = (uint32_t *)(((uint8_t *)s) + sizeof(kripto_block));
 	s->rounds = r;
 
@@ -308,7 +306,7 @@ static kripto_block *gost_create
 
 static void gost_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->rounds << 2));
 	free(s);
 }
 
@@ -322,14 +320,13 @@ static kripto_block *gost_recreate
 {
 	if(!r) r = 32;
 
-	if(sizeof(kripto_block) + (r << 2) > s->size)
+	if(r != s->rounds)
 	{
 		gost_destroy(s);
 		s = gost_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		gost_setup(s, (const uint8_t *)key, key_len);
 	}
 

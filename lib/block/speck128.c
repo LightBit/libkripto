@@ -31,7 +31,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint64_t *k;
 };
 
@@ -133,7 +132,6 @@ static kripto_block *speck128_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_speck128;
-	s->size = sizeof(kripto_block) + (r << 3);
 	s->k = (uint64_t *)(((uint8_t *)s) + sizeof(kripto_block));
 	s->rounds = r;
 
@@ -144,7 +142,7 @@ static kripto_block *speck128_create
 
 static void speck128_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->rounds << 3));
 	free(s);
 }
 
@@ -158,14 +156,13 @@ static kripto_block *speck128_recreate
 {
 	if(!r) r = 30 + ((key_len + 7) >> 3);
 
-	if(sizeof(kripto_block) + (r << 3) > s->size)
+	if(r != s->rounds)
 	{
 		speck128_destroy(s);
 		s = speck128_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		speck128_setup(s, (const uint8_t *)key, key_len);
 	}
 

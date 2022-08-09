@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <kripto/block.h>
 #include <kripto/block/idea.h>
 
 int main(void)

@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <kripto/block.h>
 #include <kripto/block/rc5.h>
 
 int main(void)

@@ -31,7 +31,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint16_t *k;
 };
 
@@ -128,7 +127,6 @@ static kripto_block *speck32_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_speck32;
-	s->size = sizeof(kripto_block) + (r << 1);
 	s->k = (uint16_t *)(((uint8_t *)s) + sizeof(kripto_block));
 	s->rounds = r;
 
@@ -139,7 +137,7 @@ static kripto_block *speck32_create
 
 static void speck32_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->rounds << 1));
 	free(s);
 }
 
@@ -153,14 +151,13 @@ static kripto_block *speck32_recreate
 {
 	if(!r) r = 22;
 
-	if(sizeof(kripto_block) + (r << 1) > s->size)
+	if(r != s->rounds)
 	{
 		speck32_destroy(s);
 		s = speck32_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		speck32_setup(s, (const uint8_t *)key, key_len);
 	}
 

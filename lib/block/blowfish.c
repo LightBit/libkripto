@@ -30,7 +30,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t s0[256];
 	uint32_t s1[256];
 	uint32_t s2[256];
@@ -494,7 +493,6 @@ static kripto_block *blowfish_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_blowfish;
-	s->size = sizeof(kripto_block) + ((r + 2) << 2);
 	s->rounds = r;
 	s->p = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 
@@ -505,7 +503,7 @@ static kripto_block *blowfish_create
 
 static void blowfish_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->rounds + 2) << 2));
 	free(s);
 }
 
@@ -519,15 +517,13 @@ static kripto_block *blowfish_recreate
 {
 	if(!r) r = 16;
 
-	if(sizeof(kripto_block) + ((r + 2) << 2) > s->size)
+	if(r != s->rounds)
 	{
 		blowfish_destroy(s);
 		s = blowfish_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
-
 		blowfish_setup(s, (const uint8_t *)key, key_len);
 	}
 

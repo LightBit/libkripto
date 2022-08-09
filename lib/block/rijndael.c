@@ -42,7 +42,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint32_t *k;
 	uint32_t *dk;
 };
@@ -681,35 +680,35 @@ static const uint32_t rcon[52] =
 };
 
 #define E(X0, X1, X2, X3)		\
-(								\
-	te0[(X0) >> 24] ^			\
-	te1[((X1) >> 16) & 0xFF] ^	\
-	te2[((X2) >> 8) & 0xFF] ^	\
-	te3[(X3) & 0xFF]			\
+(					\
+	te0[(X0) >> 24] ^		\
+	te1[(uint8_t)((X1) >> 16)] ^	\
+	te2[(uint8_t)((X2) >> 8)] ^	\
+	te3[(uint8_t)(X3)]		\
 )
 
-#define EL(X0, X1, X2, X3)				\
-(										\
-	(te4[(X0) >> 24] << 24) |			\
-	(te4[((X1) >> 16) & 0xFF] << 16) |	\
-	(te4[((X2) >> 8) & 0xFF] << 8) |	\
-	te4[(X3) & 0xFF]					\
+#define EL(X0, X1, X2, X3)			\
+(						\
+	(te4[(X0) >> 24] << 24) |		\
+	(te4[(uint8_t)((X1) >> 16)] << 16) |	\
+	(te4[(uint8_t)((X2) >> 8)] << 8) |	\
+	te4[(uint8_t)(X3)]			\
 )
 
 #define D(X0, X1, X2, X3)		\
-(								\
-	td0[(X0) >> 24] ^			\
-	td1[((X1) >> 16) & 0xFF] ^	\
-	td2[((X2) >> 8) & 0xFF] ^	\
-	td3[(X3) & 0xFF]			\
+(					\
+	td0[(X0) >> 24] ^		\
+	td1[(uint8_t)((X1) >> 16)] ^	\
+	td2[(uint8_t)((X2) >> 8)] ^	\
+	td3[(uint8_t)(X3)]		\
 )
 
-#define DL(X0, X1, X2, X3)				\
-(										\
-	(td4[(X0) >> 24] << 24) |			\
-	(td4[((X1) >> 16) & 0xFF] << 16) |	\
-	(td4[((X2) >> 8) & 0xFF] << 8) |	\
-	td4[(X3) & 0xFF]					\
+#define DL(X0, X1, X2, X3)			\
+(						\
+	(td4[(X0) >> 24] << 24) |		\
+	(td4[(uint8_t)((X1) >> 16)] << 16) |	\
+	(td4[(uint8_t)((X2) >> 8)] << 8) |	\
+	td4[(uint8_t)(X3)]			\
 )
 
 static void rijndael_setup
@@ -731,9 +730,7 @@ static void rijndael_setup
 	len = (s->rounds + 1) * bs;
 
 	for(i = 0; i < n; i++) s->k[i] = 0;
-
-	for(i = 0; i < key_len; i++)
-		s->k[i >> 2] |= key[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, s->k, key_len);
 
 	for(j = n, x = 0; j < len; j += n)
 	{
@@ -905,7 +902,6 @@ static kripto_block *rijndael128_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rijndael128;
-	s->size = sizeof(kripto_block) + ((r + 1) << 5);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 2);
@@ -915,9 +911,9 @@ static kripto_block *rijndael128_create
 	return s;
 }
 
-static void rijndael_destroy(kripto_block *s)
+static void rijndael128_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->rounds + 1) << 5));
 	free(s);
 }
 
@@ -935,14 +931,13 @@ static kripto_block *rijndael128_recreate
 		if(r < 10) r = 10;
 	}
 
-	if(sizeof(kripto_block) + ((r + 1) << 5) > s->size)
+	if(r != s->rounds)
 	{
-		rijndael_destroy(s);
+		rijndael128_destroy(s);
 		s = rijndael128_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		rijndael_setup(s, (const uint8_t *)key, key_len, 16);
 	}
 
@@ -956,13 +951,14 @@ static const kripto_block_desc rijndael128 =
 	0, /* tweak */
 	&rijndael128_encrypt,
 	&rijndael128_decrypt,
-	&rijndael_destroy,
+	&rijndael128_destroy,
 	16, /* block size */
 	32, /* max key */
 	0 /* max tweak */
 };
 
 const kripto_block_desc *const kripto_block_rijndael128 = &rijndael128;
+
 
 /* rijndael256 */
 
@@ -1137,7 +1133,6 @@ static kripto_block *rijndael256_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_rijndael256;
-	s->size = sizeof(kripto_block) + ((r + 1) << 6);
 	s->rounds = r;
 	s->k = (uint32_t *)((uint8_t *)s + sizeof(kripto_block));
 	s->dk = s->k + ((r + 1) << 3);
@@ -1145,6 +1140,12 @@ static kripto_block *rijndael256_create
 	rijndael_setup(s, (const uint8_t *)key, key_len, 32);
 
 	return s;
+}
+
+static void rijndael256_destroy(kripto_block *s)
+{
+	kripto_memory_wipe(s, sizeof(kripto_block) + ((s->rounds + 1) << 6));
+	free(s);
 }
 
 static kripto_block *rijndael256_recreate
@@ -1161,14 +1162,13 @@ static kripto_block *rijndael256_recreate
 		if(r < 14) r = 14;
 	}
 
-	if(sizeof(kripto_block) + ((r + 1) << 6) > s->size)
+	if(r != s->rounds)
 	{
-		rijndael_destroy(s);
+		rijndael256_destroy(s);
 		s = rijndael256_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		rijndael_setup(s, (const uint8_t *)key, key_len, 32);
 	}
 
@@ -1182,7 +1182,7 @@ static const kripto_block_desc rijndael256 =
 	0, /* tweak */
 	&rijndael256_encrypt,
 	&rijndael256_decrypt,
-	&rijndael_destroy,
+	&rijndael256_destroy,
 	32, /* block size */
 	32, /* max key */
 	0 /* max tweak */

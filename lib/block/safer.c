@@ -33,7 +33,6 @@ struct kripto_block
 {
 	struct kripto_block_object obj;
 	unsigned int rounds;
-	size_t size;
 	uint8_t *k;
 };
 
@@ -307,7 +306,7 @@ static void safer_setup
 
 static void safer_destroy(kripto_block *s)
 {
-	kripto_memory_wipe(s, s->size);
+	kripto_memory_wipe(s, sizeof(kripto_block) + (s->rounds << 4) + 8);
 	free(s);
 }
 
@@ -330,7 +329,6 @@ static kripto_block *safer_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_safer;
-	s->size = sizeof(kripto_block) + (r << 4) + 8;
 	s->rounds = r;
 	s->k = (uint8_t *)s + sizeof(kripto_block);
 
@@ -353,14 +351,13 @@ static kripto_block *safer_recreate
 		else r = 6;
 	}
 
-	if(sizeof(kripto_block) + (r << 4) + 8 > s->size)
+	if(r != s->rounds)
 	{
 		safer_destroy(s);
 		s = safer_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		safer_setup(s, (const uint8_t *)key, key_len, 0);
 	}
 
@@ -386,7 +383,6 @@ static kripto_block *safer_sk_create
 	if(!s) return 0;
 
 	s->obj.desc = kripto_block_safer_sk;
-	s->size = sizeof(kripto_block) + (r << 4) + 8;
 	s->rounds = r;
 	s->k = (uint8_t *)s + sizeof(kripto_block);
 
@@ -409,14 +405,13 @@ static kripto_block *safer_sk_recreate
 		else r = 8;
 	}
 
-	if(sizeof(kripto_block) + (r << 4) + 8 > s->size)
+	if(r != s->rounds)
 	{
 		safer_destroy(s);
 		s = safer_sk_create(r, key, key_len);
 	}
 	else
 	{
-		s->rounds = r;
 		safer_setup(s, (const uint8_t *)key, key_len, -1);
 	}
 

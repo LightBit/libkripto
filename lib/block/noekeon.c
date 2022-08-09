@@ -160,16 +160,13 @@ static void noekeon_setup
 	unsigned int key_len
 )
 {
-	unsigned int i;
 	uint32_t T;
 
 	if(!s->rounds) s->rounds = 16;
 
 	/* direct mode */
 	s->k[0] = s->k[1] = s->k[2] = s->k[3] = 0;
-
-	for(i = 0; i < key_len; i++)
-		s->k[i >> 2] |= key[i] << (24 - ((i & 3) << 3));
+	LOAD32B_ARRAY(key, s->k, key_len);
 
 	/* decryption key */
 	s->dk[0] = s->k[0];

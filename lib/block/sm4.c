@@ -220,14 +220,13 @@ static kripto_block *sm4_recreate
 {
 	if(!r) r = 32;
 
-	if(r > s->r)
+	if(r != s->r)
 	{
 		sm4_destroy(s);
 		s = sm4_create(r, key, key_len);
 	}
 	else
 	{
-		s->r = r;
 		sm4_setup(s, key, key_len);
 	}
 

@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <kripto/block.h>
 #include <kripto/block/threefish256.h>
 
 #ifdef VERBOSE
