@@ -26,7 +26,7 @@ int main(void)
 	unsigned int i;
 
 	puts("34E2B65BF0BE667CA5DEBA82C37CB253EB9F8474F3426BA622A25219FD182433");
-	kripto_hash_all(kripto_hash_skein256, 0, "\x0", 1, hash, 32);
+	kripto_hash_all(kripto_hash_skein256, 0, 0, 0, "\x0", 1, hash, 32);
 	for(i = 0; i < 32; i++) printf("%.2X", hash[i]);
 	putchar('\n');
 

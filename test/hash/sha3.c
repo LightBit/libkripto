@@ -62,7 +62,7 @@ int main(void)
 	puts("kripto_hash_sha3");
 
 	/* 224 */
-	kripto_hash_all(kripto_hash_sha3, 0, sha3_224, 0, hash, 28);
+	kripto_hash_all(kripto_hash_sha3, 0, 0, 0, sha3_224, 0, hash, 28);
 	for(i = 0; i < 28; i++) if(hash[i] != sha3_224[i])
 	{
 		printf("224-bit hash: FAIL\n");
@@ -71,7 +71,7 @@ int main(void)
 	if(i == 28) printf("224-bit hash: OK\n");
 
 	/* 256 */
-	kripto_hash_all(kripto_hash_sha3, 0, sha3_256, 0, hash, 32);
+	kripto_hash_all(kripto_hash_sha3, 0, 0, 0, sha3_256, 0, hash, 32);
 	for(i = 0; i < 32; i++) if(hash[i] != sha3_256[i])
 	{
 		printf("256-bit hash: FAIL\n");
@@ -80,7 +80,7 @@ int main(void)
 	if(i == 32) printf("256-bit hash: OK\n");
 
 	/* 384 */
-	kripto_hash_all(kripto_hash_sha3, 0, sha3_384, 0, hash, 48);
+	kripto_hash_all(kripto_hash_sha3, 0, 0, 0, sha3_384, 0, hash, 48);
 	for(i = 0; i < 48; i++) if(hash[i] != sha3_384[i])
 	{
 		printf("384-bit hash: FAIL\n");
@@ -89,7 +89,7 @@ int main(void)
 	if(i == 48) printf("384-bit hash: OK\n");
 
 	/* 512 */
-	kripto_hash_all(kripto_hash_sha3, 0, sha3_512, 0, hash, 64);
+	kripto_hash_all(kripto_hash_sha3, 0, 0, 0, sha3_512, 0, hash, 64);
 	for(i = 0; i < 64; i++) if(hash[i] != sha3_512[i])
 	{
 		printf("512-bit hash: FAIL\n");

@@ -154,7 +154,6 @@ static void sha2_256_process(kripto_hash *s, const uint8_t *data)
 	uint32_t g = s->h[6];
 	uint32_t h = s->h[7];
 	uint32_t k[16];
-	unsigned int i;
 
 	k[ 0] = LOAD32B(data     );
 	k[ 1] = LOAD32B(data +  4);
@@ -191,7 +190,7 @@ static void sha2_256_process(kripto_hash *s, const uint8_t *data)
 	ROUND(c, d, e, f, g, h, a, b, RC[14], k[14]);
 	ROUND(b, c, d, e, f, g, h, a, RC[15], k[15]);
 
-	for(i = 16; i < s->r;)
+	for(unsigned int i = 16; i < s->r;)
 	{
 		ROUND(a, b, c, d, e, f, g, h, RC[i], KI(k, i)); i++;
 		ROUND(h, a, b, c, d, e, f, g, RC[i], KI(k, i)); i++;
@@ -203,7 +202,7 @@ static void sha2_256_process(kripto_hash *s, const uint8_t *data)
 		ROUND(b, c, d, e, f, g, h, a, RC[i], KI(k, i)); i++;
 	}
 
-	kripto_memory_wipe(k, 16);
+	kripto_memory_wipe(k, 64);
 
 	s->h[0] += a;
 	s->h[1] += b;

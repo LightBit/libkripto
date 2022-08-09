@@ -45,7 +45,7 @@ struct kripto_mac
 #define POS_ADD(TWEAK, ADD)		\
 {					\
 	TWEAK[0] += ADD;		\
-	if(TWEAK[0] < ADD)			\
+	if(TWEAK[0] < ADD)		\
 	if(!++TWEAK[1])			\
 	if(!++TWEAK[2])			\
 	if(!++TWEAK[3])			\

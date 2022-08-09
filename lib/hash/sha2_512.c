@@ -40,16 +40,7 @@ struct kripto_hash
 	int o;
 };
 
-#define CH(X0, X1, X2) (X2 ^ (X0 & (X1 ^ X2)))
-#define MAJ(X0, X1, X2) ((X0 & X1) | (X2 & (X0 | X1)))
-
-#define S0(X) (ROR64_01(X) ^ ROR64_08(X) ^ ((X) >> 7))
-#define S1(X) (ROR64_19(X) ^ ROR64_61(X) ^ ((X) >> 6))
-
-#define E0(X) (ROR64_28(X) ^ ROR64_34(X) ^ ROR64_39(X))
-#define E1(X) (ROR64_14(X) ^ ROR64_18(X) ^ ROR64_41(X))
-
-static const uint64_t k[160] =
+static const uint64_t RC[160] =
 {
 	0x428A2F98D728AE22, 0x7137449123EF65CD,
 	0xB5C0FBCFEC4D3B2F, 0xE9B5DBA58189DBBC,
@@ -177,7 +168,30 @@ static kripto_hash *sha2_512_recreate
 	return s;
 }
 
-static void sha2_512_process(kripto_hash *s, const uint8_t *in)
+#define CH(X0, X1, X2) (X2 ^ (X0 & (X1 ^ X2)))
+#define MAJ(X0, X1, X2) ((X0 & X1) | (X2 & (X0 | X1)))
+
+#define S0(X) (ROR64_01(X) ^ ROR64_08(X) ^ ((X) >> 7))
+#define S1(X) (ROR64_19(X) ^ ROR64_61(X) ^ ((X) >> 6))
+
+#define E0(X) (ROR64_28(X) ^ ROR64_34(X) ^ ROR64_39(X))
+#define E1(X) (ROR64_14(X) ^ ROR64_18(X) ^ ROR64_41(X))
+
+#define ROUND(A, B, C, D, E, F, G, H, RC, RK)	\
+{ 						\
+	H += E1(E) + CH(E, F, G) + RC + RK;	\
+	D += H;					\
+	H += E0(A) + MAJ(A, B, C);		\
+}
+
+#define KI(K, I)				\
+(						\
+	K[I & 15] += S0(K[(I + 1) & 15])	\
+		+ K[(I + 9) & 15]		\
+		+ S1(K[(I + 14) & 15])		\
+)
+
+static void sha2_512_process(kripto_hash *s, const uint8_t *data)
 {
 	uint64_t a = s->h[0];
 	uint64_t b = s->h[1];
@@ -187,48 +201,56 @@ static void sha2_512_process(kripto_hash *s, const uint8_t *in)
 	uint64_t f = s->h[5];
 	uint64_t g = s->h[6];
 	uint64_t h = s->h[7];
-	uint64_t t;
-	uint64_t w[160];
-	unsigned int i;
+	uint64_t k[16];
 
-	w[0] = LOAD64B(in);
-	w[1] = LOAD64B(in + 8);
-	w[2] = LOAD64B(in + 16);
-	w[3] = LOAD64B(in + 24);
-	w[4] = LOAD64B(in + 32);
-	w[5] = LOAD64B(in + 40);
-	w[6] = LOAD64B(in + 48);
-	w[7] = LOAD64B(in + 56);
-	w[8] = LOAD64B(in + 64);
-	w[9] = LOAD64B(in + 72);
-	w[10] = LOAD64B(in + 80);
-	w[11] = LOAD64B(in + 88);
-	w[12] = LOAD64B(in + 96);
-	w[13] = LOAD64B(in + 104);
-	w[14] = LOAD64B(in + 112);
-	w[15] = LOAD64B(in + 120);
+	k[ 0] = LOAD64B(data      );
+	k[ 1] = LOAD64B(data +   8);
+	k[ 2] = LOAD64B(data +  16);
+	k[ 3] = LOAD64B(data +  24);
+	k[ 4] = LOAD64B(data +  32);
+	k[ 5] = LOAD64B(data +  40);
+	k[ 6] = LOAD64B(data +  48);
+	k[ 7] = LOAD64B(data +  56);
+	k[ 8] = LOAD64B(data +  64);
+	k[ 9] = LOAD64B(data +  72);
+	k[10] = LOAD64B(data +  80);
+	k[11] = LOAD64B(data +  88);
+	k[12] = LOAD64B(data +  96);
+	k[13] = LOAD64B(data + 104);
+	k[14] = LOAD64B(data + 112);
+	k[15] = LOAD64B(data + 120);
 
-	for(i = 16; i < s->r; i++)
-		w[i] = w[i - 16] + S0(w[i - 15]) +  w[i - 7] + S1(w[i - 2]);
+	ROUND(a, b, c, d, e, f, g, h, RC[ 0], k[ 0]);
+	ROUND(h, a, b, c, d, e, f, g, RC[ 1], k[ 1]);
+	ROUND(g, h, a, b, c, d, e, f, RC[ 2], k[ 2]);
+	ROUND(f, g, h, a, b, c, d, e, RC[ 3], k[ 3]);
+	ROUND(e, f, g, h, a, b, c, d, RC[ 4], k[ 4]);
+	ROUND(d, e, f, g, h, a, b, c, RC[ 5], k[ 5]);
+	ROUND(c, d, e, f, g, h, a, b, RC[ 6], k[ 6]);
+	ROUND(b, c, d, e, f, g, h, a, RC[ 7], k[ 7]);
+	
+	ROUND(a, b, c, d, e, f, g, h, RC[ 8], k[ 8]);
+	ROUND(h, a, b, c, d, e, f, g, RC[ 9], k[ 9]);
+	ROUND(g, h, a, b, c, d, e, f, RC[10], k[10]);
+	ROUND(f, g, h, a, b, c, d, e, RC[11], k[11]);
+	ROUND(e, f, g, h, a, b, c, d, RC[12], k[12]);
+	ROUND(d, e, f, g, h, a, b, c, RC[13], k[13]);
+	ROUND(c, d, e, f, g, h, a, b, RC[14], k[14]);
+	ROUND(b, c, d, e, f, g, h, a, RC[15], k[15]);
 
-	for(i = 0; i < s->r; i++)
+	for(unsigned int i = 16; i < s->r;)
 	{
-		h += E1(e) + CH(e, f, g) + k[i] + w[i];
-		d += h;
-		h += E0(a) + MAJ(a, b, c);
-
-		t = h;
-		h = g;
-		g = f;
-		f = e;
-		e = d;
-		d = c;
-		c = b;
-		b = a;
-		a = t;
+		ROUND(a, b, c, d, e, f, g, h, RC[i], KI(k, i)); i++;
+		ROUND(h, a, b, c, d, e, f, g, RC[i], KI(k, i)); i++;
+		ROUND(g, h, a, b, c, d, e, f, RC[i], KI(k, i)); i++;
+		ROUND(f, g, h, a, b, c, d, e, RC[i], KI(k, i)); i++;
+		ROUND(e, f, g, h, a, b, c, d, RC[i], KI(k, i)); i++;
+		ROUND(d, e, f, g, h, a, b, c, RC[i], KI(k, i)); i++;
+		ROUND(c, d, e, f, g, h, a, b, RC[i], KI(k, i)); i++;
+		ROUND(b, c, d, e, f, g, h, a, RC[i], KI(k, i)); i++;
 	}
 
-	kripto_memory_wipe(w, s->r << 2);
+	kripto_memory_wipe(k, 128);
 
 	s->h[0] += a;
 	s->h[1] += b;

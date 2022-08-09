@@ -26,7 +26,7 @@ int main(void)
 	unsigned int i;
 
 	puts("9e107d9d372bb6826bd81d3542a419d6");
-	kripto_hash_all(kripto_hash_md5, 0, "The quick brown fox jumps over the lazy dog", 43, hash, 16);
+	kripto_hash_all(kripto_hash_md5, 0, 0, 0, "The quick brown fox jumps over the lazy dog", 43, hash, 16);
 	for(i = 0; i < 16; i++) printf("%.2x", hash[i]);
 	putchar('\n');
 

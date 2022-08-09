@@ -26,12 +26,12 @@ int main(void)
 	unsigned int i;
 
 	puts("3293ac630c13f0245f92bbb1766e16167a4e58492dde73f3");
-	kripto_hash_all(kripto_hash_tiger, 0, "", 0, hash, 24);
+	kripto_hash_all(kripto_hash_tiger, 0, 0, 0, "", 0, hash, 24);
 	for(i = 0; i < 24; i++) printf("%.2x", hash[i]);
 	putchar('\n');
 
 	puts("6d12a41e72e644f017b6f0e2f7b44c6285f06dd5d2c5b075");
-	kripto_hash_all(kripto_hash_tiger, 0, "The quick brown fox jumps over the lazy dog", 43, hash, 24);
+	kripto_hash_all(kripto_hash_tiger, 0, 0, 0, "The quick brown fox jumps over the lazy dog", 43, hash, 24);
 	for(i = 0; i < 24; i++) printf("%.2x", hash[i]);
 	putchar('\n');
 

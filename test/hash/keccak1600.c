@@ -103,22 +103,22 @@ int main(void)
 	uint8_t t[64];
 
 	/* 224 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, msg, 256, t, 28))
+	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 28))
 		test_error(TEST"224-bit");
 	test_cmp(TEST"224-bit", t, hash224, 28);
 
 	/* 256 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, msg, 256, t, 32))
+	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 32))
 		test_error(TEST"256-bit");
 	test_cmp(TEST"256-bit", t, hash256, 32);
 
 	/* 384 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, msg, 256, t, 48))
+	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 48))
 		test_error(TEST"384-bit");
 	test_cmp(TEST"384-bit", t, hash384, 48);
 
 	/* 512 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, msg, 256, t, 64))
+	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 64))
 		test_error(TEST"512-bit");
 	test_cmp(TEST"512-bit", t, hash512, 64);
 
