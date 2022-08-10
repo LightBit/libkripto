@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -13,48 +13,25 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <kripto/block.h>
 #include <kripto/block/3way.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	uint8_t t[12];
-	const uint8_t k[12] =
+	const struct vector vectors[1] =
 	{
-		0xD2, 0xF0, 0x5B, 0x5E, 0xD6, 0x14,
-		0x41, 0x38, 0xCA, 0xB9, 0x20, 0xCD
-	};
-	const uint8_t pt[12] =
-	{
-		0x40, 0x59, 0xC7, 0x6E, 0x83, 0xAE,
-		0x9D, 0xC4, 0xAD, 0x21, 0xEC, 0xF7
-	};
-	const uint8_t ct[12] =
-	{
-		0x47, 0x8E, 0xA8, 0x71, 0x6B, 0x13,
-		0xF1, 0x7C, 0x15, 0xB1, 0x55, 0xED
+		{
+			.key_len = 12,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xD2\xF0\x5B\x5E\xD6\x14\x41\x38\xCA\xB9\x20\xCD",
+			.pt = "\x40\x59\xC7\x6E\x83\xAE\x9D\xC4\xAD\x21\xEC\xF7",
+			.ct = "\x47\x8E\xA8\x71\x6B\x13\xF1\x7C\x15\xB1\x55\xED"
+		}
 	};
 
-	puts("kripto_block_3way");
-
-	/* 96-bit key */
-	s = kripto_block_create(kripto_block_3way, 0, k, 12);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	if(memcmp(t, ct, 12)) puts("96-bit key encrypt: FAIL");
-	else puts("96-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct, t);
-	if(memcmp(t, pt, 12)) puts("96-bit key decrypt: FAIL");
-	else puts("96-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_3way, vectors, 1);
 }

@@ -13,16 +13,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 
 #include <kripto/hash.h>
 #include <kripto/hash/keccak1600.h>
 
 #include "../test.h"
-
-#define TEST "kripto_hash_keccak1600: "
 
 int main(void)
 {
@@ -61,7 +57,6 @@ int main(void)
 		0xDD, 0x59, 0x15, 0x00, 0xD0, 0x18, 0xDD, 0x16,
 		0x28, 0x15, 0xCC, 0x99, 0x35, 0x95, 0xB1, 0x95
 	};
-
 	const uint8_t hash224[28] =
 	{
 		0xE9, 0x0F, 0x81, 0xAE, 0x86, 0xD7, 0x2D, 0xCC,
@@ -69,7 +64,6 @@ int main(void)
 		0xA6, 0x29, 0xEE, 0x7D, 0xC7, 0x23, 0x7C, 0x19,
 		0x58, 0xCF, 0xCD, 0xBC
 	};
-
 	const uint8_t hash256[32] =
 	{
 		0xEA, 0x0E, 0x41, 0x6C, 0x0F, 0x7B, 0x4F, 0x11,
@@ -77,7 +71,6 @@ int main(void)
 		0x25, 0x39, 0xE5, 0xE5, 0x57, 0x75, 0x3B, 0xD5,
 		0x46, 0xF6, 0x9E, 0xE3, 0x75, 0xA5, 0xDE, 0x29
 	};
-
 	const uint8_t hash384[48] =
 	{
 		0x86, 0xB7, 0xCC, 0x35, 0x44, 0xE5, 0xF9, 0x1F,
@@ -87,7 +80,6 @@ int main(void)
 		0x11, 0x6A, 0xA1, 0x30, 0x52, 0x56, 0x9E, 0xAB,
 		0x59, 0x7C, 0xEC, 0xA9, 0x22, 0xB1, 0xED, 0x32
 	};
-
 	const uint8_t hash512[64] =
 	{
 		0x4E, 0x98, 0x77, 0x68, 0x46, 0x9F, 0x54, 0x62,
@@ -104,23 +96,23 @@ int main(void)
 
 	/* 224 */
 	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 28))
-		test_error(TEST"224-bit");
-	test_cmp(TEST"224-bit", t, hash224, 28);
+		TEST_ERROR("kripto_hash_keccak1600: 224-bit");
+	TEST_CMP(t, hash224, 28, "kripto_hash_keccak1600: 224-bit");
 
 	/* 256 */
 	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 32))
-		test_error(TEST"256-bit");
-	test_cmp(TEST"256-bit", t, hash256, 32);
+		TEST_ERROR("kripto_hash_keccak1600: 256-bit");
+	TEST_CMP(t, hash256, 32, "kripto_hash_keccak1600: 256-bit");
 
 	/* 384 */
 	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 48))
-		test_error(TEST"384-bit");
-	test_cmp(TEST"384-bit", t, hash384, 48);
+		TEST_ERROR("kripto_hash_keccak1600: 384-bit");
+	TEST_CMP(t, hash384, 48, "kripto_hash_keccak1600: 384-bit");
 
 	/* 512 */
 	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 64))
-		test_error(TEST"512-bit");
-	test_cmp(TEST"512-bit", t, hash512, 64);
+		TEST_ERROR("kripto_hash_keccak1600: 512-bit");
+	TEST_CMP(t, hash512, 64, "kripto_hash_keccak1600: 512-bit");
 
-	return 0;
+	return test_result;
 }
