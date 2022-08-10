@@ -13,8 +13,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* gcc -Wall -Wextra -std=c99 -pedantic perf/block.c -Iinclude lib/libkripto.a -O2 -DPERF_UNIX -D_GNU_SOURCE */
-/* gcc -Wall -Wextra -std=c99 -pedantic perf/block.c -Iinclude lib/libkripto.a -O2 -DPERF_WINDOWS /lib/w32api/libpowrprof.a */
+/* cc -Wall -Wextra -std=c99 -pedantic perf/block.c -Iinclude lib/libkripto.a -O2 -DPERF_UNIX -D_GNU_SOURCE */
+/* cc -Wall -Wextra -std=c99 -pedantic perf/block.c -Iinclude lib/libkripto.a -O2 -DPERF_WINDOWS /lib/w32api/libpowrprof.a */
 
 #include <stdint.h>
 #include <stdio.h>
@@ -33,6 +33,7 @@
 #include <kripto/block/gost.h>
 #include <kripto/block/idea.h>
 #include <kripto/block/khazad.h>
+#include <kripto/block/lea.h>
 #include <kripto/block/mars.h>
 #include <kripto/block/noekeon.h>
 #include <kripto/block/rc2.h>
@@ -43,12 +44,15 @@
 #include <kripto/block/rijndael256.h>
 #include <kripto/block/safer.h>
 #include <kripto/block/safer_sk.h>
+#include <kripto/block/saferpp.h>
 #include <kripto/block/seed.h>
 #include <kripto/block/serpent.h>
+#include <kripto/block/shacal2.h>
 #include <kripto/block/simon32.h>
 #include <kripto/block/simon64.h>
 #include <kripto/block/simon128.h>
 #include <kripto/block/skipjack.h>
+#include <kripto/block/sm4.h>
 #include <kripto/block/speck32.h>
 #include <kripto/block/speck64.h>
 #include <kripto/block/speck128.h>
@@ -61,11 +65,14 @@
 
 #include "perf.h"
 
-#ifndef KEYSTEP
-#define KEYSTEP 4
+#ifndef KEYSTART
+#define KEYSTART 16
 #endif
 
-#define MAXBLOCK 255
+#ifndef KEYSTEP
+#define KEYSTEP 8
+#endif
+
 #define MAXKEY 32
 
 static void die(const char *str)
@@ -76,24 +83,11 @@ static void die(const char *str)
 
 int main(void)
 {
-	kripto_block *s;
-	unsigned int n;
-	unsigned int cipher;
-	unsigned int maxkey;
-	uint8_t t[MAXBLOCK];
-	const uint8_t k[MAXKEY] =
-	{
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-		0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
-	};
-	perf_int cycles;
 	struct
 	{
 		const char *name;
 		const kripto_block_desc *desc;
-	} ciphers[35] =
+	} ciphers[39] =
 	{
 		{"3-Way", kripto_block_3way},
 		{"Anubis", kripto_block_anubis},
@@ -105,6 +99,7 @@ int main(void)
 		{"GOST", kripto_block_gost},
 		{"IDEA", kripto_block_idea},
 		{"KHAZAD", kripto_block_khazad},
+		{"LEA", kripto_block_khazad},
 		{"MARS", kripto_block_mars},
 		{"Noekeon", kripto_block_noekeon},
 		{"RC2", kripto_block_rc2},
@@ -115,12 +110,15 @@ int main(void)
 		{"Rijndael-256", kripto_block_rijndael256},
 		{"SAFER", kripto_block_safer},
 		{"SAFER-SK", kripto_block_safer_sk},
+		{"SAFER++", kripto_block_saferpp},
 		{"SEED", kripto_block_seed},
 		{"Serpent", kripto_block_serpent},
+		{"SHACAL-2", kripto_block_shacal2},
 		{"Simon32", kripto_block_simon32},
 		{"Simon64", kripto_block_simon64},
 		{"Simon128", kripto_block_simon128},
 		{"Skipjack", kripto_block_skipjack},
+		{"SM4", kripto_block_sm4},
 		{"Speck32", kripto_block_speck32},
 		{"Speck64", kripto_block_speck64},
 		{"Speck128", kripto_block_speck128},
@@ -131,21 +129,30 @@ int main(void)
 		{"Twofish", kripto_block_twofish},
 		{"XTEA", kripto_block_xtea}
 	};
-
-	memset(t, 0, MAXBLOCK);
+	perf_int cycles;
 
 	perf_init();
 
-	for(cipher = 0; cipher < 35; cipher++)
-	{
-		if(!ciphers[cipher].desc) continue;
+	uint8_t k[MAXKEY];
+	memset(k, 0x5A, MAXKEY);
 
-		maxkey = kripto_block_maxkey(ciphers[cipher].desc);
+	for(unsigned int cipher = 0; cipher < 39; cipher++)
+	{
+		puts(ciphers[cipher].name);
+
+		unsigned int maxkey = kripto_block_maxkey(ciphers[cipher].desc);
 		if(maxkey > MAXKEY) maxkey = MAXKEY;
 
-		for(n = KEYSTEP; n <= maxkey; n += KEYSTEP)
+		unsigned int minkey = kripto_block_maxkey(ciphers[cipher].desc);
+		if(minkey > KEYSTART) minkey = KEYSTART;
+
+		unsigned int size = kripto_block_size(ciphers[cipher].desc);
+		uint8_t t[size];
+		memset(t, 0, size);
+
+		for(unsigned int n = minkey; n <= maxkey; n += KEYSTEP)
 		{
-			s = kripto_block_create(ciphers[cipher].desc, 0, k, n);
+			kripto_block *s = kripto_block_create(ciphers[cipher].desc, 0, k, n);
 			if(!s) die("kripto_block_create()");
 
 			/* setup */
@@ -154,34 +161,31 @@ int main(void)
 			if(!s) die("kripto_block_recreate()");
 			PERF_STOP
 
-			printf("%s %u-bit setup: %lu cycles\n",
-				ciphers[cipher].name, n * 8, cycles);
+			printf("%u-bit setup: %lu cycles\n", n * 8, cycles);
 
 			/* encrypt */
 			PERF_START
 			kripto_block_encrypt(s, t, t);
 			PERF_STOP
 
-			printf("%s %u-bit encrypt: %.1f cpb\n",
-				ciphers[cipher].name, n * 8,
-				cycles / (float)kripto_block_size(ciphers[cipher].desc));
+			printf("%u-bit encrypt: %.1f cpb\n",
+				n * 8, cycles / (float)size);
 
 			/* decrypt */
 			PERF_START
 			kripto_block_decrypt(s, t, t);
 			PERF_STOP
 
-			printf("%s %u-bit decrypt: %.1f cpb\n",
-				ciphers[cipher].name, n * 8,
-				cycles / (float)kripto_block_size(ciphers[cipher].desc));
+			printf("%u-bit decrypt: %.1f cpb\n",
+				n * 8, cycles / (float)size);
 
 			kripto_block_destroy(s);
 
 			perf_rest();
 			fflush(stdout);
-
 			putchar('\n');
 		}
+		putchar('\n');
 	}
 
 	return 0;
