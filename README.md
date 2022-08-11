@@ -3,7 +3,7 @@
 
 **IT IS MOSTLY UNTESTED!**
 
-Run build.sh to compile.
+Run "sh build.sh" to compile.
 
 ### Supported features:
 #### Block ciphers
@@ -105,4 +105,3 @@ Run build.sh to compile.
 * Memory wipe
 * Pseudo-random number generator
 * scrypt
-
