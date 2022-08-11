@@ -13,6 +13,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifndef PERF_ITERATIONS
+#define PERF_ITERATIONS 1000000
+#endif
+
 #include <stdio.h>
 
 #if defined(PERF_UNIX)
@@ -49,7 +53,7 @@ typedef clock_t perf_int;
 
 #endif
 
-inline perf_int perf_clock(void)
+static inline perf_int perf_clock(void)
 {
 	#if defined(PERF_WINDOWS) && defined(PERF_QPC)
 
@@ -93,31 +97,29 @@ inline perf_int perf_clock(void)
 
 #if defined(PERF_AVG)
 
-#define PERF_START						\
-{										\
-	unsigned int i;						\
-	cycles = perf_clock();				\
-	for(i = 0; i < 1000000; i++)		\
+#define PERF_START							\
+{									\
+	cycles = perf_clock();						\
+	for(unsigned int perf_i = 0; perf_i < PERF_ITERATIONS; perf_i++)\
 	{
 
-#define PERF_STOP								\
-	}											\
-	cycles = (perf_clock() - cycles) / 1000000;	\
+#define PERF_STOP						\
+	}							\
+	cycles = (perf_clock() - cycles) / PERF_ITERATIONS;	\
 }
 
 #else
 
-#define PERF_START					\
+#define PERF_START							\
 {									\
-	perf_int t0;					\
-	perf_int t1;					\
-	unsigned int i;					\
-	cycles = PERF_INT_MAX;			\
-	for(i = 0; i < 1000000; i++)	\
+	perf_int t0;							\
+	perf_int t1;							\
+	cycles = PERF_INT_MAX;						\
+	for(unsigned int perf_i = 0; perf_i < PERF_ITERATIONS; perf_i++)\
 	{								\
 		t0 = perf_clock();
 
-#define PERF_STOP							\
+#define PERF_STOP					\
 		t1 = perf_clock() - t0 - perf_c;	\
 		if(cycles > t1) cycles = t1;		\
 	}										\
@@ -127,7 +129,7 @@ inline perf_int perf_clock(void)
 
 perf_int perf_c;
 
-void perf_init(void)
+static void perf_init(void)
 {
 	perf_int cycles;
 
