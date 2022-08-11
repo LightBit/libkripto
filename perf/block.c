@@ -136,23 +136,23 @@ int main(void)
 	uint8_t k[MAXKEY];
 	memset(k, 0x5A, MAXKEY);
 
-	for(unsigned int cipher = 0; cipher < 39; cipher++)
+	for(unsigned int i = 0; i < 39; i++)
 	{
-		puts(ciphers[cipher].name);
+		puts(ciphers[i].name);
 
-		unsigned int maxkey = kripto_block_maxkey(ciphers[cipher].desc);
+		unsigned int maxkey = kripto_block_maxkey(ciphers[i].desc);
 		if(maxkey > MAXKEY) maxkey = MAXKEY;
 
-		unsigned int minkey = kripto_block_maxkey(ciphers[cipher].desc);
+		unsigned int minkey = kripto_block_maxkey(ciphers[i].desc);
 		if(minkey > KEYSTART) minkey = KEYSTART;
 
-		unsigned int size = kripto_block_size(ciphers[cipher].desc);
+		unsigned int size = kripto_block_size(ciphers[i].desc);
 		uint8_t t[size];
 		memset(t, 0, size);
 
 		for(unsigned int n = minkey; n <= maxkey; n += KEYSTEP)
 		{
-			kripto_block *s = kripto_block_create(ciphers[cipher].desc, 0, k, n);
+			kripto_block *s = kripto_block_create(ciphers[i].desc, 0, k, n);
 			if(!s) die("kripto_block_create()");
 
 			/* setup */
