@@ -14,8 +14,8 @@
  */
 
 #include <assert.h>
-#include <stdint.h>
 
+#include <kripto/memory.h>
 #include <kripto/ae.h>
 #include <kripto/desc/ae.h>
 
@@ -132,6 +132,18 @@ void kripto_ae_tag
 	assert(s->desc->tag);
 
 	s->desc->tag(s, tag, len);
+}
+
+int kripto_ae_verify
+(
+	kripto_ae *s,
+	const void *tag,
+	unsigned int len
+)
+{
+	char t[len];
+	s->desc->tag(s, t, len);
+	return kripto_memory_equals(t, tag, len);
 }
 
 void kripto_ae_destroy(kripto_ae *s)

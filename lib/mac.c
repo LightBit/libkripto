@@ -15,6 +15,7 @@
 
 #include <assert.h>
 
+#include <kripto/memory.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
 
@@ -76,6 +77,17 @@ void kripto_mac_tag(kripto_mac *s, void *tag, unsigned int len)
 	assert(s->desc->tag);
 
 	s->desc->tag(s, tag, len);
+}
+
+int kripto_mac_verify(kripto_mac *s, const void *tag, unsigned int len)
+{
+	assert(s);
+	assert(s->desc);
+	assert(s->desc->tag);
+
+	char t[len];
+	s->desc->tag(s, t, len);
+	return kripto_memory_equals(t, tag, len);
 }
 
 void kripto_mac_destroy(kripto_mac *s)

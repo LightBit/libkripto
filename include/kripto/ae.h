@@ -58,6 +58,13 @@ extern void kripto_ae_tag
 	unsigned int len
 );
 
+extern int kripto_ae_verify
+(
+	kripto_ae *s,
+	const void *tag,
+	unsigned int len
+);
+
 extern void kripto_ae_destroy(kripto_ae *s);
 
 extern unsigned int kripto_ae_multof(const kripto_ae *s);

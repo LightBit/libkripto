@@ -38,6 +38,13 @@ extern void kripto_mac_tag
 	unsigned int len
 );
 
+extern int kripto_mac_verify
+(
+	kripto_mac *s,
+	const void *tag,
+	unsigned int len
+);
+
 extern void kripto_mac_destroy(kripto_mac *s);
 
 extern int kripto_mac_all
