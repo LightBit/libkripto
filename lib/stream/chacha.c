@@ -15,7 +15,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <assert.h>
 
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -50,18 +50,16 @@ static void chacha_core
 	void *out
 )
 {
-	unsigned int i;
-
-	uint32_t x0 = x[0];
-	uint32_t x1 = x[1];
-	uint32_t x2 = x[2];
-	uint32_t x3 = x[3];
-	uint32_t x4 = x[4];
-	uint32_t x5 = x[5];
-	uint32_t x6 = x[6];
-	uint32_t x7 = x[7];
-	uint32_t x8 = x[8];
-	uint32_t x9 = x[9];
+	uint32_t x00 = x[ 0];
+	uint32_t x01 = x[ 1];
+	uint32_t x02 = x[ 2];
+	uint32_t x03 = x[ 3];
+	uint32_t x04 = x[ 4];
+	uint32_t x05 = x[ 5];
+	uint32_t x06 = x[ 6];
+	uint32_t x07 = x[ 7];
+	uint32_t x08 = x[ 8];
+	uint32_t x09 = x[ 9];
 	uint32_t x10 = x[10];
 	uint32_t x11 = x[11];
 	uint32_t x12 = x[12];
@@ -69,31 +67,31 @@ static void chacha_core
 	uint32_t x14 = x[14];
 	uint32_t x15 = x[15];
 
-	for(i = 0; i < r; i++)
+	for(unsigned int i = 0; i < r; i++)
 	{
-		QR(x0, x4, x8, x12);
-		QR(x1, x5, x9, x13);
-		QR(x2, x6, x10, x14);
-		QR(x3, x7, x11, x15);
+		QR(x00, x04, x08, x12);
+		QR(x01, x05, x09, x13);
+		QR(x02, x06, x10, x14);
+		QR(x03, x07, x11, x15);
 
 		if(++i == r) break;
 
-		QR(x0, x5, x10, x15);
-		QR(x1, x6, x11, x12);
-		QR(x2, x7, x8, x13);
-		QR(x3, x4, x9, x14);
+		QR(x00, x05, x10, x15);
+		QR(x01, x06, x11, x12);
+		QR(x02, x07, x08, x13);
+		QR(x03, x04, x09, x14);
 	}
 
-	x0 += x[0];
-	x1 += x[1];
-	x2 += x[2];
-	x3 += x[3];
-	x4 += x[4];
-	x5 += x[5];
-	x6 += x[6];
-	x7 += x[7];
-	x8 += x[8];
-	x9 += x[9];
+	x00 += x[ 0];
+	x01 += x[ 1];
+	x02 += x[ 2];
+	x03 += x[ 3];
+	x04 += x[ 4];
+	x05 += x[ 5];
+	x06 += x[ 6];
+	x07 += x[ 7];
+	x08 += x[ 8];
+	x09 += x[ 9];
 	x10 += x[10];
 	x11 += x[11];
 	x12 += x[12];
@@ -101,16 +99,16 @@ static void chacha_core
 	x14 += x[14];
 	x15 += x[15];
 
-	STORE32L(x0, U8(out));
-	STORE32L(x1, U8(out) + 4);
-	STORE32L(x2, U8(out) + 8);
-	STORE32L(x3, U8(out) + 12);
-	STORE32L(x4, U8(out) + 16);
-	STORE32L(x5, U8(out) + 20);
-	STORE32L(x6, U8(out) + 24);
-	STORE32L(x7, U8(out) + 28);
-	STORE32L(x8, U8(out) + 32);
-	STORE32L(x9, U8(out) + 36);
+	STORE32L(x00, U8(out)     );
+	STORE32L(x01, U8(out) +  4);
+	STORE32L(x02, U8(out) +  8);
+	STORE32L(x03, U8(out) + 12);
+	STORE32L(x04, U8(out) + 16);
+	STORE32L(x05, U8(out) + 20);
+	STORE32L(x06, U8(out) + 24);
+	STORE32L(x07, U8(out) + 28);
+	STORE32L(x08, U8(out) + 32);
+	STORE32L(x09, U8(out) + 36);
 	STORE32L(x10, U8(out) + 40);
 	STORE32L(x11, U8(out) + 44);
 	STORE32L(x12, U8(out) + 48);
@@ -137,7 +135,10 @@ static void chacha_crypt
 			s->used = 0;
 
 			if(!++s->x[12])
+			{
 				++s->x[13];
+				assert(s->x[13]);
+			}
 		}
 
 		U8(out)[i] = CU8(in)[i] ^ s->buf[s->used++];
@@ -161,7 +162,10 @@ static void chacha_prng
 			s->used = 0;
 
 			if(!++s->x[12])
+			{
 				++s->x[13];
+				assert(s->x[13]);
+			}
 		}
 
 		U8(out)[i] = s->buf[s->used++];
@@ -178,9 +182,7 @@ static kripto_stream *chacha_recreate
 	unsigned int iv_len
 )
 {
-	unsigned int i;
-	unsigned int j = 0;
-	uint32_t constant[4] =
+	const uint32_t constant[4] =
 	{
 		0x61707865,				// "expa"
 		0x3020646E + ((key_len / 10) << 24),	// "nd 0"
@@ -193,41 +195,29 @@ static kripto_stream *chacha_recreate
 	s->x[2] = constant[2];
 	s->x[3] = constant[3];
 
-	for(i = 4; i < 12; i++)
-	{
-		s->x[i] = 0;
-
-		s->x[i] = (s->x[i] >> 8) | (CU8(key)[j++] << 24);
-		if(j == key_len) j = 0;
-
-		s->x[i] = (s->x[i] >> 8) | (CU8(key)[j++] << 24);
-		if(j == key_len) j = 0;
-
-		s->x[i] = (s->x[i] >> 8) | (CU8(key)[j++] << 24);
-		if(j == key_len) j = 0;
-
-		s->x[i] = (s->x[i] >> 8) | (CU8(key)[j++] << 24);
-		if(j == key_len) j = 0;
-	}
+	/* KEY */
+	s->x[4] = s->x[5] = s->x[ 6] = s->x[ 7] = 0;
+	s->x[8] = s->x[9] = s->x[10] = s->x[11] = 0;
+	LOAD32L_ARRAY(key, s->x + 4, key_len);
 
 	/* IV */
 	s->x[12] = s->x[13] = s->x[14] = s->x[15] = 0;
-
-	if(iv_len > 8) i = 48; /* XChaCha */
-	else i = 56;
-
-	for(; i < 64 && j < iv_len; i++, j++)
-			s->x[i >> 2] = (s->x[i >> 2] >> 8) | (CU8(iv)[j] << 24);
+	LOAD32L_ARRAY
+	(
+		iv,
+		s->x + (iv_len > 8 ? 12 : 14),
+		iv_len > 16 ? 16 : iv_len
+	);
 
 	s->r = r;
 	if(!s->r) s->r = 20;
 
 	if(iv_len > 8) /* XChaCha */
 	{
-		for(i = 0; i < s->r; i++)
+		for(unsigned int i = 0; i < s->r; i++)
 		{
-			QR(s->x[0], s->x[4], s->x[8], s->x[12]);
-			QR(s->x[1], s->x[5], s->x[9], s->x[13]);
+			QR(s->x[0], s->x[4], s->x[ 8], s->x[12]);
+			QR(s->x[1], s->x[5], s->x[ 9], s->x[13]);
 			QR(s->x[2], s->x[6], s->x[10], s->x[14]);
 			QR(s->x[3], s->x[7], s->x[11], s->x[15]);
 
@@ -235,8 +225,8 @@ static kripto_stream *chacha_recreate
 
 			QR(s->x[0], s->x[5], s->x[10], s->x[15]);
 			QR(s->x[1], s->x[6], s->x[11], s->x[12]);
-			QR(s->x[2], s->x[7], s->x[8], s->x[13]);
-			QR(s->x[3], s->x[4], s->x[9], s->x[14]);
+			QR(s->x[2], s->x[7], s->x[ 8], s->x[13]);
+			QR(s->x[3], s->x[4], s->x[ 9], s->x[14]);
 		}
 
 		s->x[4] = s->x[0]; s->x[0] = constant[0];
@@ -244,13 +234,16 @@ static kripto_stream *chacha_recreate
 		s->x[6] = s->x[2]; s->x[2] = constant[2];
 		s->x[7] = s->x[3]; s->x[3] = constant[3];
 
-		s->x[8] = s->x[12]; s->x[12] = 0;
-		s->x[9] = s->x[13]; s->x[13] = 0;
+		s->x[ 8] = s->x[12]; s->x[12] = 0;
+		s->x[ 9] = s->x[13]; s->x[13] = 0;
 		s->x[10] = s->x[14]; s->x[14] = 0;
 		s->x[11] = s->x[15]; s->x[15] = 0;
 
-		for(i = 56; i < 64 && j < iv_len; i++, j++)
-			s->x[i >> 2] = (s->x[i >> 2] >> 8) | (CU8(iv)[j] << 24);
+		/* IV */
+		if(iv_len > 16)
+		{
+			LOAD32L_ARRAY(CU8(iv) + 16, s->x + 12, iv_len - 16);
+		}
 	}
 
 	s->used = 64;
