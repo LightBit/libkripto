@@ -35,6 +35,7 @@
 #include <kripto/desc/block.h>
 #include <kripto/object/block.h>
 
+#include <kripto/block/aes.h>
 #include <kripto/block/rijndael128.h>
 #include <kripto/block/rijndael256.h>
 
@@ -958,6 +959,7 @@ static const kripto_block_desc rijndael128 =
 };
 
 const kripto_block_desc *const kripto_block_rijndael128 = &rijndael128;
+const kripto_block_desc *const kripto_block_aes = &rijndael128;
 
 
 /* rijndael256 */
