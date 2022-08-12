@@ -15,7 +15,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -53,18 +52,14 @@ static void speck128_encrypt
 	void *ct
 )
 {
-	uint64_t a;
-	uint64_t b;
-	unsigned int i;
+	uint64_t a = LOAD64L(CU8(pt) + 8);
+	uint64_t b = LOAD64L(CU8(pt)    );
 
-	a = LOAD64B(CU8(pt));
-	b = LOAD64B(CU8(pt) + 8);
-
-	for(i = 0; i < s->rounds; i++)
+	for(unsigned int i = 0; i < s->rounds; i++)
 		R(a, b, s->k[i]);
 
-	STORE64B(a, U8(ct));
-	STORE64B(b, U8(ct) + 8);
+	STORE64L(a, U8(ct) + 8);
+	STORE64L(b, U8(ct)    );
 }
 
 static void speck128_decrypt
@@ -74,43 +69,34 @@ static void speck128_decrypt
 	void *pt
 )
 {
-	uint64_t a;
-	uint64_t b;
-	unsigned int i;
+	uint64_t a = LOAD64L(CU8(ct) + 8);
+	uint64_t b = LOAD64L(CU8(ct)    );
 
-	a = LOAD64B(CU8(ct));
-	b = LOAD64B(CU8(ct) + 8);
-
-	for(i = s->rounds; i--;)
+	for(unsigned int i = s->rounds; i--;)
 		IR(a, b, s->k[i]);
 
-	STORE64B(a, U8(pt));
-	STORE64B(b, U8(pt) + 8);
+	STORE64L(a, U8(pt) + 8);
+	STORE64L(b, U8(pt)    );
 }
 
 static void speck128_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int len
 )
 {
-	unsigned int i;
-	unsigned int m;
 	uint64_t k[4] = {0, 0, 0, 0};
+	unsigned int m = ((len + 7) >> 3) - 1;
 
-	if(len > 24) m = 3;
-	else if(len > 16) m = 2;
-	else m = 1;
-
-	for(i = 0; i < len; i++)
-		k[m - (i >> 3)] |= (uint64_t)key[i] << (56 - ((i & 7) << 3));
+	LOAD64L_ARRAY(key, k, len);
 
 	s->k[0] = k[0];
 
-	for(i = 0; i < s->rounds - 1;)
+	for(unsigned int i = 0; i < s->rounds - 1;)
 	{
-		R(k[(i % m) + 1], k[0], i);
+		unsigned int a = (i % m) + 1;
+		R(k[a], k[0], i);
 		s->k[++i] = k[0];
 	}
 
@@ -135,7 +121,7 @@ static kripto_block *speck128_create
 	s->k = (uint64_t *)(s + 1);
 	s->rounds = r;
 
-	speck128_setup(s, (const uint8_t *)key, key_len);
+	speck128_setup(s, key, key_len);
 
 	return s;
 }
@@ -163,7 +149,7 @@ static kripto_block *speck128_recreate
 	}
 	else
 	{
-		speck128_setup(s, (const uint8_t *)key, key_len);
+		speck128_setup(s, key, key_len);
 	}
 
 	return s;

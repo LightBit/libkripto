@@ -15,7 +15,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -53,18 +52,14 @@ static void speck64_encrypt
 	void *ct
 )
 {
-	uint32_t a;
-	uint32_t b;
-	unsigned int i;
+	uint32_t a = LOAD32L(CU8(pt) + 4);
+	uint32_t b = LOAD32L(CU8(pt)    );
 
-	a = LOAD32B(CU8(pt));
-	b = LOAD32B(CU8(pt) + 4);
-
-	for(i = 0; i < s->rounds; i++)
+	for(unsigned int i = 0; i < s->rounds; i++)
 		R(a, b, s->k[i]);
 
-	STORE32B(a, U8(ct));
-	STORE32B(b, U8(ct) + 4);
+	STORE32L(a, U8(ct) + 4);
+	STORE32L(b, U8(ct)    );
 }
 
 static void speck64_decrypt
@@ -74,42 +69,34 @@ static void speck64_decrypt
 	void *pt
 )
 {
-	uint32_t a;
-	uint32_t b;
-	unsigned int i;
+	uint32_t a = LOAD32L(CU8(ct) + 4);
+	uint32_t b = LOAD32L(CU8(ct)    );
 
-	a = LOAD32B(CU8(ct));
-	b = LOAD32B(CU8(ct) + 4);
-
-	for(i = s->rounds; i--;)
+	for(unsigned int i = s->rounds; i--;)
 		IR(a, b, s->k[i]);
 
-	STORE32B(a, U8(pt));
-	STORE32B(b, U8(pt) + 4);
+	STORE32L(a, U8(pt) + 4);
+	STORE32L(b, U8(pt)    );
 }
 
 static void speck64_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int len
 )
 {
-	unsigned int i;
-	unsigned int m;
 	uint32_t k[4] = {0, 0, 0, 0};
+	unsigned int m = ((len + 3) >> 2) - 1;
 
-	if(len > 12) m = 3;
-	else m = 2;
-
-	for(i = 0; i < len; i++)
-		k[m - (i >> 2)] |= (uint32_t)key[i] << (24 - ((i & 3) << 3));
+	LOAD32L_ARRAY(key, k, len);
 
 	s->k[0] = k[0];
 
-	for(i = 0; i < s->rounds - 1;)
+	for(unsigned int i = 0; i < s->rounds - 1;)
 	{
-		R(k[(i % m) + 1], k[0], i);
+		unsigned int a = (i % m) + 1;
+		R(k[a], k[0], i);
 		s->k[++i] = k[0];
 	}
 
@@ -134,7 +121,7 @@ static kripto_block *speck64_create
 	s->k = (uint32_t *)(s + 1);
 	s->rounds = r;
 
-	speck64_setup(s, (const uint8_t *)key, key_len);
+	speck64_setup(s, key, key_len);
 
 	return s;
 }
@@ -162,7 +149,7 @@ static kripto_block *speck64_recreate
 	}
 	else
 	{
-		speck64_setup(s, (const uint8_t *)key, key_len);
+		speck64_setup(s, key, key_len);
 	}
 
 	return s;

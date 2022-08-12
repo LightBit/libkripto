@@ -15,7 +15,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -53,18 +52,14 @@ static void speck32_encrypt
 	void *ct
 )
 {
-	uint16_t a;
-	uint16_t b;
-	unsigned int i;
+	uint16_t a = LOAD16L(CU8(pt) + 2);
+	uint16_t b = LOAD16L(CU8(pt)    );
 
-	a = LOAD16B(CU8(pt));
-	b = LOAD16B(CU8(pt) + 2);
-
-	for(i = 0; i < s->rounds; i++)
+	for(unsigned int i = 0; i < s->rounds; i++)
 		R(a, b, s->k[i]);
 
-	STORE16B(a, U8(ct));
-	STORE16B(b, U8(ct) + 2);
+	STORE16L(a, U8(ct) + 2);
+	STORE16L(b, U8(ct)    );
 }
 
 static void speck32_decrypt
@@ -74,38 +69,34 @@ static void speck32_decrypt
 	void *pt
 )
 {
-	uint16_t a;
-	uint16_t b;
-	unsigned int i;
+	uint16_t a = LOAD16L(CU8(ct) + 2);
+	uint16_t b = LOAD16L(CU8(ct)    );
 
-	a = LOAD16B(CU8(ct));
-	b = LOAD16B(CU8(ct) + 2);
-
-	for(i = s->rounds; i--;)
+	for(unsigned int i = s->rounds; i--;)
 		IR(a, b, s->k[i]);
 
-	STORE16B(a, U8(pt));
-	STORE16B(b, U8(pt) + 2);
+	STORE16L(a, U8(pt) + 2);
+	STORE16L(b, U8(pt)    );
 }
 
 static void speck32_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int len
 )
 {
-	unsigned int i;
 	uint16_t k[4] = {0, 0, 0, 0};
+	unsigned int m = ((len + 1) >> 1) - 1;
 
-	for(i = 0; i < len; i++)
-		k[3 - (i >> 1)] |= (uint16_t)key[i] << (8 - ((i & 1) << 3));
+	LOAD16L_ARRAY(key, k, len);
 
 	s->k[0] = k[0];
 
-	for(i = 0; i < s->rounds - 1;)
+	for(unsigned int i = 0; i < s->rounds - 1;)
 	{
-		R(k[(i % 3) + 1], k[0], i);
+		unsigned int a = (i % m) + 1;
+		R(k[a], k[0], i);
 		s->k[++i] = k[0];
 	}
 
@@ -130,7 +121,7 @@ static kripto_block *speck32_create
 	s->k = (uint16_t *)(s + 1);
 	s->rounds = r;
 
-	speck32_setup(s, (const uint8_t *)key, key_len);
+	speck32_setup(s, key, key_len);
 
 	return s;
 }
@@ -158,7 +149,7 @@ static kripto_block *speck32_recreate
 	}
 	else
 	{
-		speck32_setup(s, (const uint8_t *)key, key_len);
+		speck32_setup(s, key, key_len);
 	}
 
 	return s;

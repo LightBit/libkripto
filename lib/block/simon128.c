@@ -15,7 +15,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -43,29 +42,25 @@ static void simon128_encrypt
 	void *ct
 )
 {
-	uint64_t a;
-	uint64_t b;
-	unsigned int i = 0;
+	uint64_t a = LOAD64L(CU8(pt) + 8);
+	uint64_t b = LOAD64L(CU8(pt)    );
 
-	a = LOAD64B(CU8(pt));
-	b = LOAD64B(CU8(pt) + 8);
-
-	while(i < s->rounds)
+	for(unsigned int i = 0; i < s->rounds;)
 	{
 		b ^= F(a) ^ s->k[i++];
 
 		if(i == s->rounds)
 		{
-			STORE64B(a, U8(ct) + 8);
-			STORE64B(b, U8(ct));
+			STORE64L(a, U8(ct)    );
+			STORE64L(b, U8(ct) + 8);
 			return;
 		}
 
 		a ^= F(b) ^ s->k[i++];
 	}
 
-	STORE64B(a, U8(ct));
-	STORE64B(b, U8(ct) + 8);
+	STORE64L(a, U8(ct) + 8);
+	STORE64L(b, U8(ct)    );
 }
 
 static void simon128_decrypt
@@ -75,29 +70,25 @@ static void simon128_decrypt
 	void *pt
 )
 {
-	uint64_t a;
-	uint64_t b;
-	unsigned int i = s->rounds;
+	uint64_t a = LOAD64L(CU8(ct) + 8);
+	uint64_t b = LOAD64L(CU8(ct)    );
 
-	a = LOAD64B(CU8(ct));
-	b = LOAD64B(CU8(ct) + 8);
-
-	while(i)
+	for(unsigned int i = s->rounds; i;)
 	{
 		a ^= F(b) ^ s->k[--i];
 
 		if(!i)
 		{
-			STORE64B(a, U8(pt) + 8);
-			STORE64B(b, U8(pt));
+			STORE64L(a, U8(pt)    );
+			STORE64L(b, U8(pt) + 8);
 			return;
 		}
 
 		b ^= F(a) ^ s->k[--i];
 	}
 
-	STORE64B(a, U8(pt));
-	STORE64B(b, U8(pt) + 8);
+	STORE64L(a, U8(pt) + 8);
+	STORE64L(b, U8(pt)    );
 }
 
 static const uint64_t z[3] =
@@ -110,25 +101,20 @@ static const uint64_t z[3] =
 static void simon128_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int len
 )
 {
-	unsigned int i;
-	unsigned int m;
 	uint64_t t;
-
-	m = (len + 7) >> 3;
+	unsigned int m = (len + 7) >> 3;
 	if(m < 2) m = 2;
 
-	for(i = 0; i < m; i++)
+	for(unsigned int i = 0; i < m; i++)
 		s->k[i] = 0;
 
-	for(i = 0; i < len; i++)
-		s->k[m - 1 - (i >> 3)] |=
-			(uint64_t)key[i] << (56 - ((i & 7) << 3));
+	LOAD64L_ARRAY(key, s->k, len);
 
-	for(i = m; i < s->rounds; i++)
+	for(unsigned int i = m; i < s->rounds; i++)
 	{
 		t = ROR64_03(s->k[i - 1]);
 		if(m == 4) t ^= s->k[i - 3];
@@ -165,7 +151,7 @@ static kripto_block *simon128_create
 	s->k = (uint64_t *)(s + 1);
 	s->rounds = r;
 
-	simon128_setup(s, (const uint8_t *)key, key_len);
+	simon128_setup(s, key, key_len);
 
 	return s;
 }
@@ -201,7 +187,7 @@ static kripto_block *simon128_recreate
 	}
 	else
 	{
-		simon128_setup(s, (const uint8_t *)key, key_len);
+		simon128_setup(s, key, key_len);
 	}
 
 	return s;
