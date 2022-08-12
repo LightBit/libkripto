@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,54 +13,25 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/rc2.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[8];
-	const uint8_t k[16] =
+	const struct vector vectors[1] =
 	{
-		0x88, 0xBC, 0xA9, 0x0E, 0x90, 0x87, 0x5A, 0x7F,
-		0x0F, 0x79, 0xC3, 0x84, 0x62, 0x7B, 0xAF, 0xB2
-	};
-	const uint8_t pt[8] =
-	{
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	};
-	const uint8_t ct[8] =
-	{
-		0x22, 0x69, 0x55, 0x2A, 0xB0, 0xF8, 0x5C, 0xA6
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77",
+			.ct = "\x5A\xB3\x33\x7C\x2C\x72\xB6\x9F"
+		}
 	};
 
-	puts("kripto_block_rc2");
-
-	/* 128-bit key */
-	s = kripto_block_create(kripto_block_rc2, 0, k, 16);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	for(i = 0; i < 8; i++) if(t[i] != ct[i])
-	{
-		puts("128-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("128-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct, t);
-	for(i = 0; i < 8; i++) if(t[i] != pt[i])
-	{
-		puts("128-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("128-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_rc2, vectors, 1);
 }

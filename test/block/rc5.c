@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,46 +13,43 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <kripto/block.h>
 #include <kripto/block/rc5.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	uint8_t t[8];
-	const uint8_t k[16] =
+	const struct vector vectors[3] =
 	{
-		0x91, 0x5F, 0x46, 0x19, 0xBE, 0x41, 0xB2, 0x51,
-		0x63, 0x55, 0xA5, 0x01, 0x10, 0xA9, 0xCE, 0x91
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.pt = "\x96\x95\x0D\xDA\x65\x4A\x3D\x62",
+			.ct = "\x00\x11\x22\x33\x44\x55\x66\x77"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\x6E\xD5\xF3\xBD\xDA\xAC\xD1\x63",
+			.ct = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40",
+			.pt = "\x00\x00\x00\x00\x00\x00\x00\x00",
+			.ct = "\xAB\xAC\x12\x0C\xAD\xEA\xE7\x2E"
+		}
 	};
-	const uint8_t pt[8] =
-	{
-		0x21, 0xA5, 0xDB, 0xEE, 0x15, 0x4B, 0x8F, 0x6D
-	};
-	const uint8_t ct[8] =
-	{
-		0xF7, 0xC0, 0x13, 0xAC, 0x5B, 0x2B, 0x89, 0x52
-	};
 
-	puts("kripto_block_rc5");
-
-	/* 128-bit key */
-	s = kripto_block_create(kripto_block_rc5, 0, k, 16);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	if(memcmp(t, ct, 8)) puts("128-bit key encrypt: FAIL");
-	else puts("128-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct, t);
-	if(memcmp(t, pt, 8)) puts("128-bit key decrypt: FAIL");
-	else puts("128-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_rc5, vectors, 3);
 }

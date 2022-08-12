@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,54 +13,70 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/des.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[8];
-	const uint8_t k[24] =
+	const struct vector vectors[6] =
 	{
-		0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
-		0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10,
-		0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67
+		{
+			.key_len = 8,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77",
+			.ct = "\x12\x53\x5C\xB0\xF7\x7E\xE7\x7C"
+		},
+		{
+			.key_len = 8,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.ct = "\x73\x59\xB2\x16\x3E\x4E\xDC\x58"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77",
+			.ct = "\x04\xF4\x03\x2E\xDB\xF3\xA8\x2E"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.ct = "\x73\x59\xB2\x16\x3E\x4E\xDC\x58"
+		},
+		{
+			.key_len = 24,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77",
+			.ct = "\xE3\x59\x81\x76\x85\x0E\x73\x6F"
+		},
+		{
+			.key_len = 24,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.ct = "\x73\x59\xB2\x16\x3E\x4E\xDC\x58"
+		}
 	};
-	const uint8_t pt[8] =
-	{
-		0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xE7
-	};
-	const uint8_t ct3[8] =
-	{
-		0xDE, 0x0B, 0x7C, 0x06, 0xAE, 0x5E, 0x0E, 0xD5
-	};
 
-	puts("kripto_block_des");
-
-	s = kripto_block_create(kripto_block_des, 0, k, 24);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	for(i = 0; i < 8; i++) if(t[i] != ct3[i])
-	{
-		puts("192-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("192-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct3, t);
-	for(i = 0; i < 8; i++) if(t[i] != pt[i])
-	{
-		puts("192-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("192-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_des, vectors, 6);
 }

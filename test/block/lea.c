@@ -13,122 +13,43 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/lea.h>
 
+#include "test.h"
+
 int main(void)
 {
-	const uint8_t k[32] =
+	const struct vector vectors[3] =
 	{
-		0x0F, 0x1E, 0x2D, 0x3C, 0x4B, 0x5A, 0x69, 0x78,
-		0x87, 0x96, 0xA5, 0xB4, 0xC3, 0xD2, 0xE1, 0xF0,
-		0xF0, 0xE1, 0xD2, 0xC3, 0xB4, 0xA5, 0x96, 0x87,
-		0x78, 0x69, 0x5A, 0x4B, 0x3C, 0x2D, 0x1E, 0x0F
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x0F\x1E\x2D\x3C\x4B\x5A\x69\x78\x87\x96\xA5\xB4\xC3\xD2\xE1\xF0",
+			.pt = "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F",
+			.ct = "\x9F\xC8\x4E\x35\x28\xC6\xC6\x18\x55\x32\xC7\xA7\x04\x64\x8B\xFD"
+		},
+		{
+			.key_len = 24,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x0F\x1E\x2D\x3C\x4B\x5A\x69\x78\x87\x96\xA5\xB4\xC3\xD2\xE1\xF0\xF0\xE1\xD2\xC3\xB4\xA5\x96\x87",
+			.pt = "\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F",
+			.ct = "\x6F\xB9\x5E\x32\x5A\xAD\x1B\x87\x8C\xDC\xF5\x35\x76\x74\xC6\xF2"
+		},
+		{
+			.key_len = 32,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x0F\x1E\x2D\x3C\x4B\x5A\x69\x78\x87\x96\xA5\xB4\xC3\xD2\xE1\xF0\xF0\xE1\xD2\xC3\xB4\xA5\x96\x87\x78\x69\x5A\x4B\x3C\x2D\x1E\x0F",
+			.pt = "\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3A\x3B\x3C\x3D\x3E\x3F",
+			.ct = "\xD6\x51\xAF\xF6\x47\xB1\x89\xC1\x3A\x89\x00\xCA\x27\xF9\xE1\x97"
+		}
 	};
-	const uint8_t pt128[16] =
-	{
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-		0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
-	};
-	const uint8_t ct128[16] =
-	{
-		0x9F, 0xC8, 0x4E, 0x35, 0x28, 0xC6, 0xC6, 0x18,
-		0x55, 0x32, 0xC7, 0xA7, 0x04, 0x64, 0x8B, 0xFD
-	};
-	const uint8_t pt192[16] =
-	{
-		0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
-		0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F
-	};
-	const uint8_t ct192[16] =
-	{
-		0x6F, 0xB9, 0x5E, 0x32, 0x5A, 0xAD, 0x1B, 0x87,
-		0x8C, 0xDC, 0xF5, 0x35, 0x76, 0x74, 0xC6, 0xF2
-	};
-	const uint8_t pt256[16] =
-	{
-		0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
-		0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F
-	};
-	const uint8_t ct256[16] =
-	{
-		0xD6, 0x51, 0xAF, 0xF6, 0x47, 0xB1, 0x89, 0xC1,
-		0x3A, 0x89, 0x00, 0xCA, 0x27, 0xF9, 0xE1, 0x97
-	};
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[16];
 
-	puts("kripto_block_lea");
-
-	/* 128-bit */
-	s = kripto_block_create(kripto_block_lea, 0, k, 16);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt128, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct128[i])
-	{
-		printf("128-bit encrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("128-bit encrypt: OK\n");
-
-	kripto_block_decrypt(s, ct128, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt128[i])
-	{
-		printf("128-bit decrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("128-bit decrypt: OK\n");
-
-	kripto_block_destroy(s);
-
-	/* 192-bit */
-	s = kripto_block_create(kripto_block_lea, 0, k, 24);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt192, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct192[i])
-	{
-		printf("192-bit encrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("192-bit encrypt: OK\n");
-
-	kripto_block_decrypt(s, ct192, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt192[i])
-	{
-		printf("192-bit decrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("192-bit decrypt: OK\n");
-
-	kripto_block_destroy(s);
-
-	/* 256-bit */
-	s = kripto_block_create(kripto_block_lea, 0, k, 32);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt256, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct256[i])
-	{
-		printf("256-bit encrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("256-bit encrypt: OK\n");
-
-	kripto_block_decrypt(s, ct256, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt256[i])
-	{
-		printf("256-bit decrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("256-bit decrypt: OK\n");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_lea, vectors, 3);
 }

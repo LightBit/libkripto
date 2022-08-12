@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,47 +13,25 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/simon32.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[4];
-	const uint8_t k[8] =
+	const struct vector vectors[1] =
 	{
-		0x19, 0x18, 0x11, 0x10, 0x09, 0x08, 0x01, 0x00
+		{
+			.key_len = 8,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x00\x01\x08\x09\x10\x11\x18\x19",
+			.pt = "\x77\x68\x65\x65",
+			.ct = "\xBB\xE9\x9B\xC6"
+		}
 	};
-	const uint8_t pt[4] = {0x65, 0x65, 0x68, 0x77};
-	const uint8_t ct[4] = {0xC6, 0x9B, 0xE9, 0xBB};
 
-	puts("kripto_block_simon32");
-
-	/* 64-bit key */
-	s = kripto_block_create(kripto_block_simon32, 0, k, 8);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	for(i = 0; i < 4; i++) if(t[i] != ct[i])
-	{
-		puts("64-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 4) puts("64-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct, t);
-	for(i = 0; i < 4; i++) if(t[i] != pt[i])
-	{
-		puts("64-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 4) puts("64-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_simon32, vectors, 1);
 }

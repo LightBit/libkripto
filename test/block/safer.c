@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,108 +13,48 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/safer.h>
 #include <kripto/block/safer_sk.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[8];
-	const uint8_t k64[8] =
+	const struct vector vectors[1] =
 	{
-		0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01
+		{
+			.key_len = 8,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x08\x07\x06\x05\x04\x03\x02\x01",
+			.pt = "\x01\x02\x03\x04\x05\x06\x07\x08",
+			.ct = "\xC8\xF2\x9C\xDD\x87\x78\x3E\xD9"
+		}
 	};
-	const uint8_t pt[16] =
+	const struct vector sk_vectors[2] =
 	{
-		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+		{
+			.key_len = 8,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x01\x02\x03\x04\x05\x06\x07\x08",
+			.pt = "\x01\x02\x03\x04\x05\x06\x07\x08",
+			.ct = "\x5F\xCE\x9B\xA2\x05\x84\x38\xC7"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x01\x02\x03\x04\x05\x06\x07\x08\x00\x00\x00\x00\x00\x00\x00\x00",
+			.pt = "\x01\x02\x03\x04\x05\x06\x07\x08",
+			.ct = "\xFF\x78\x11\xE4\xB3\xA7\x2E\x71"
+		}
 	};
-	const uint8_t ct64[8] =
-	{
-		0xC8, 0xF2, 0x9C, 0xDD, 0x87, 0x78, 0x3E, 0xD9
-	};
-	const uint8_t ct64sk[8] =
-	{
-		0x5F, 0xCE, 0x9B, 0xA2, 0x05, 0x84, 0x38, 0xC7
-	};
-	const uint8_t ct128sk[8] =
-	{
-		0xFF, 0x78, 0x11, 0xE4, 0xB3, 0xA7, 0x2E, 0x71
-	};
 
-	puts("kripto_block_safer");
-
-	/* 64-bit key */
-	s = kripto_block_create(kripto_block_safer, 0, k64, 8);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	for(i = 0; i < 8; i++) if(t[i] != ct64[i])
-	{
-		puts("64-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("64-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct64, t);
-	for(i = 0; i < 8; i++) if(t[i] != pt[i])
-	{
-		puts("64-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("64-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	/* SK */
-	puts("\nkripto_block_safer_sk");
-
-	/* 64-bit key */
-	s = kripto_block_create(kripto_block_safer_sk, 6, pt, 8);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	for(i = 0; i < 8; i++) if(t[i] != ct64sk[i])
-	{
-		puts("64-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("64-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct64sk, t);
-	for(i = 0; i < 8; i++) if(t[i] != pt[i])
-	{
-		puts("64-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("64-bit key decrypt: OK");
-
-	/* 128-bit key */
-	s = kripto_block_recreate(s, 0, pt, 16);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	for(i = 0; i < 8; i++) if(t[i] != ct128sk[i])
-	{
-		puts("128-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("128-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct128sk, t);
-	for(i = 0; i < 8; i++) if(t[i] != pt[i])
-	{
-		puts("128-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("128-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_safer, vectors, 1) |
+		TEST(kripto_block_safer_sk, sk_vectors, 2);
 }

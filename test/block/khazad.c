@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,46 +13,34 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <kripto/block.h>
 #include <kripto/block/khazad.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	uint8_t t[8];
-	const uint8_t k[16] =
+	const struct vector vectors[2] =
 	{
-		0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77",
+			.ct = "\xC6\x64\x39\x1B\xB8\xB8\x5B\x0A"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.ct = "\x9F\x8B\x34\x4F\x0C\xF8\x11\xB0"
+		}
 	};
-	const uint8_t pt[8] =
-	{
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	};
-	const uint8_t ct[8] =
-	{
-		0x49, 0xA4, 0xCE, 0x32, 0xAC, 0x19, 0x0E, 0x3F
-	};
 
-	puts("kripto_block_khazad");
-
-	/* 128-bit key */
-	s = kripto_block_create(kripto_block_khazad, 0, k, 16);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	if(memcmp(t, ct, 8)) puts("128-bit key encrypt: FAIL");
-	else puts("128-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct, t);
-	if(memcmp(t, pt, 8)) puts("128-bit key decrypt: FAIL");
-	else puts("128-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_khazad, vectors, 2);
 }

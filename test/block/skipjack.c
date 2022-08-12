@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,52 +13,34 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/skipjack.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[8];
-	const uint8_t k[10] =
+	const struct vector vectors[2] =
 	{
-		0x00, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11
+		{
+			.key_len = 10,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77",
+			.ct = "\x0C\x1F\xD5\xD4\x5C\x24\x3E\x87"
+		},
+		{
+			.key_len = 10,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.ct = "\x08\x72\xA2\x6E\x61\x5D\xC3\x08"
+		}
 	};
-	const uint8_t pt[8] =
-	{
-		0x33, 0x22, 0x11, 0x00, 0xDD, 0xCC, 0xBB, 0xAA
-	};
-	const uint8_t ct[8] =
-	{
-		0x25, 0x87, 0xCA, 0xE2, 0x7A, 0x12, 0xD3, 0x00
-	};
 
-	puts("kripto_block_skipjack");
-
-	s = kripto_block_create(kripto_block_skipjack, 0, k, 10);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt, t);
-	for(i = 0; i < 8; i++) if(t[i] != ct[i])
-	{
-		puts("encrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("encrypt: OK");
-
-	kripto_block_decrypt(s, ct, t);
-	for(i = 0; i < 8; i++) if(t[i] != pt[i])
-	{
-		puts("decrypt: FAIL");
-		break;
-	}
-	if(i == 8) puts("decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_skipjack, vectors, 2);
 }

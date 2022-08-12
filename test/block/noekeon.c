@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -13,100 +13,52 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/noekeon.h>
 
-#if defined(_TEST) || defined(_PERF)
-
-#ifdef _PERF
-
-#ifndef _CPU
-#define _CPU 2000
-#endif
-
-#ifndef ITERATIONS
-#define ITERATIONS 10000000
-#endif
-
-#include <time.h>
-
-#endif
-
-#include <stdio.h>
+#include "test.h"
 
 int main(void)
 {
-	kripto_block_noekeon_t s;
-	unsigned int i;
-	uint8_t t[16] = {
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	};
-	const uint8_t kc[16] = {
-		0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C,
-		0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C
-	};
-	#ifdef _TEST
-	#ifdef NOEKEON_DIRECT
-	const uint8_t p[16] = {
-		0x61, 0x39, 0x6C, 0x93, 0x63, 0x74, 0x34, 0xB8,
-		0xFC, 0x65, 0x59, 0xA9, 0x5B, 0x64, 0x3F, 0x2C
-	};
-	#else
-	const uint8_t p[16] = {
-		0x7A, 0xFE, 0x55, 0x8A, 0x46, 0xFE, 0x07, 0x6E,
-		0x35, 0x62, 0x35, 0xF5, 0x9F, 0x32, 0xE7, 0xCC
-	};
-	#endif
-	#endif
-	#ifdef _PERF
-	clock_t c;
-	#endif
-
-	puts("Noekeon");
-
-	s.r = NOEKEON_DEFAULT_ROUNDS;
-	kripto_block_noekeon_setup(&s, kc, 16);
-
-	#ifdef _TEST
-	kripto_block_noekeon_encrypt(&s, p, t);
-	for(i = 0; i < 16; i++) if(t[i] != kc[i])
+	const struct vector vectors[4] =
 	{
-		puts("128-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("128-bit key encrypt: OK");
-	kripto_block_noekeon_decrypt(&s, kc, t);
-	for(i = 0; i < 16; i++) if(t[i] != p[i])
-	{
-		puts("128-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("128-bit key decrypt: OK");
-	#endif
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x2B\xD6\x45\x9F\x82\xC5\xB3\x00\x95\x2C\x49\x10\x48\x81\xFF\x48",
+			.pt = "\x47\x65\xF3\xDA\x10\xCD\x3D\x04\x73\x86\x77\x42\xB5\xE5\xCC\x3C",
+			.ct = "\xEA\x02\x47\x14\xAD\x5C\x4D\x84\xEA\x02\x47\x14\xAD\x5C\x4D\x84"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+			.pt = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+			.ct = "\xEA\x65\x52\xBA\x79\x35\x46\xC2\x61\xE4\xB3\xE9\x04\x33\xF5\xA2"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\x45\xE2\x70\x43\x4B\xB9\x92\xB5\x2C\xD8\xBF\xE5\x64\xB7\xE7\xD7",
+			.ct = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00",
+			.pt = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+			.ct = "\x51\x78\x6E\xC1\x49\x29\x20\xDE\x80\x5B\x4A\x20\xB7\x3E\x8E\x3F"
+		}
+	};
 
-	#ifdef _PERF
-	c = clock();
-	for(i = 0; i < ITERATIONS; i++) kripto_block_noekeon_encrypt(&s, t, t);
-	c = clock() - c;
-
-	printf("128 bit key encrypt: %.1f cycles/byte, %.1f MB/s\n",
-		(float)c / (float)(ITERATIONS * 16) * _CPU,
-		(float)(ITERATIONS * 16) / ((float)c / (float)CLOCKS_PER_SEC) / 1000000.0);
-
-	c = clock();
-	for(i = 0; i < ITERATIONS; i++) kripto_block_noekeon_decrypt(&s, t, t);
-	c = clock() - c;
-
-	printf("128 bit key decrypt: %.1f cycles/byte, %.1f MB/s\n",
-		(float)c / (float)(ITERATIONS * 16) * _CPU,
-		(float)(ITERATIONS * 16) / ((float)c / (float)CLOCKS_PER_SEC) / 1000000.0);
-	#endif
-
-	return(0);
+	return TEST(kripto_block_noekeon, vectors, 4);
 }
-
-#endif

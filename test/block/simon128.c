@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted.
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -13,118 +13,43 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/simon128.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[16];
-	const uint8_t k[32] =
+	const struct vector vectors[3] =
 	{
-		0x1F, 0x1E, 0x1D, 0x1C, 0x1B, 0x1A, 0x19, 0x18,
-		0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x11, 0x10,
-		0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08,
-		0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00
-	};
-	const uint8_t pt128[16] =
-	{
-		0x63, 0x73, 0x65, 0x64, 0x20, 0x73, 0x72, 0x65,
-		0x6C, 0x6C, 0x65, 0x76, 0x61, 0x72, 0x74, 0x20
-	};
-	const uint8_t pt192[16] =
-	{
-		0x20, 0x65, 0x72, 0x65, 0x68, 0x74, 0x20, 0x6E,
-		0x65, 0x68, 0x77, 0x20, 0x65, 0x62, 0x69, 0x72
-	};
-	const uint8_t pt256[16] =
-	{
-		0x74, 0x20, 0x6E, 0x69, 0x20, 0x6D, 0x6F, 0x6F,
-		0x6D, 0x69, 0x73, 0x20, 0x61, 0x20, 0x73, 0x69
-	};
-	const uint8_t ct128[16] =
-	{
-		0x49, 0x68, 0x1B, 0x1E, 0x1E, 0x54, 0xFE, 0x3F,
-		0x65, 0xAA, 0x83, 0x2A, 0xF8, 0x4E, 0x0B, 0xBC
-	};
-	const uint8_t ct192[16] =
-	{
-		0xC4, 0xAC, 0x61, 0xEF, 0xFC, 0xDC, 0x0D, 0x4F,
-		0x6C, 0x9C, 0x8D, 0x6E, 0x25, 0x97, 0xB8, 0x5B
-	};
-	const uint8_t ct256[16] =
-	{
-		0x8D, 0x2B, 0x55, 0x79, 0xAF, 0xC8, 0xA3, 0xA0,
-		0x3B, 0xF7, 0x2A, 0x87, 0xEF, 0xE7, 0xB8, 0x68
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.pt = "\x20\x74\x72\x61\x76\x65\x6C\x6C\x65\x72\x73\x20\x64\x65\x73\x63",
+			.ct = "\xBC\x0B\x4E\xF8\x2A\x83\xAA\x65\x3F\xFE\x54\x1E\x1E\x1B\x68\x49"
+		},
+		{
+			.key_len = 24,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17",
+			.pt = "\x72\x69\x62\x65\x20\x77\x68\x65\x6E\x20\x74\x68\x65\x72\x65\x20",
+			.ct = "\x5B\xB8\x97\x25\x6E\x8D\x9C\x6C\x4F\x0D\xDC\xFC\xEF\x61\xAC\xC4"
+		},
+		{
+			.key_len = 32,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F",
+			.pt = "\x69\x73\x20\x61\x20\x73\x69\x6D\x6F\x6F\x6D\x20\x69\x6E\x20\x74",
+			.ct = "\x68\xB8\xE7\xEF\x87\x2A\xF7\x3B\xA0\xA3\xC8\xAF\x79\x55\x2B\x8D"
+		}
 	};
 
-	puts("kripto_block_simon128");
-
-	/* 128-bit key */
-	s = kripto_block_create(kripto_block_simon128, 0, k + 16, 16);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt128, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct128[i])
-	{
-		puts("128-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("128-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct128, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt128[i])
-	{
-		puts("128-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("128-bit key decrypt: OK");
-
-	/* 192-bit key */
-	s = kripto_block_recreate(s, 0, k + 8, 24);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt192, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct192[i])
-	{
-		puts("192-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("192-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct192, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt192[i])
-	{
-		puts("192-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("192-bit key decrypt: OK");
-
-	/* 256-bit key */
-	s = kripto_block_recreate(s, 0, k, 32);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt256, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct256[i])
-	{
-		puts("256-bit key encrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("256-bit key encrypt: OK");
-
-	kripto_block_decrypt(s, ct256, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt256[i])
-	{
-		puts("256-bit key decrypt: FAIL");
-		break;
-	}
-	if(i == 16) puts("256-bit key decrypt: OK");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_simon128, vectors, 3);
 }

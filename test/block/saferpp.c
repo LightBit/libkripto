@@ -13,95 +13,52 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include <kripto/block.h>
 #include <kripto/block/saferpp.h>
 
+#include "test.h"
+
 int main(void)
 {
-	kripto_block *s;
-	unsigned int i;
-	uint8_t t[16];
-	const uint8_t k128[16] =
+	const struct vector vectors[4] =
 	{
-		 14, 124, 101,  64,  89, 188, 122, 187,
-		246, 253, 175, 117, 255, 129, 140, 227
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF",
+			.ct = "\x13\x82\x2B\x35\x73\x34\x20\xA1\x59\x32\x6A\x10\xB5\xEF\xE9\x5A"
+		},
+		{
+			.key_len = 16,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.ct = "\x30\x2B\xBA\x91\x56\xBB\xCB\x2B\xF6\xD9\xC7\xC0\x70\x86\xFB\x4D"
+		},
+		{
+			.key_len = 32,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1000,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F",
+			.pt = "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF",
+			.ct = "\x87\x79\x4A\x45\x29\x95\xEB\x74\xF7\x27\xE0\xE8\xDA\xD1\xD7\x96"
+		},
+		{
+			.key_len = 32,
+			.tweak_len = 0,
+			.rounds = 0,
+			.iterations = 1,
+			.key = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.pt = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+			.ct = "\x64\x21\xD4\x84\xEB\x3A\xF1\x8F\x71\xA6\xF2\xCD\x1B\x07\x00\x3B"
+		}
 	};
-	const uint8_t pt128[16] =
-	{
-		228, 132, 172,  71, 177, 114,  30, 129,
-		148,  87,  10,  40, 154, 151, 152, 217
-	};
-	const uint8_t ct128[16] =
-	{
-		172, 213, 197,  38, 238, 168, 124,  19,
-		 89,  29,   8, 168, 169, 239, 120, 215
-	};
-	const uint8_t k256[32] =
-	{
-		 37,  62,   2, 187, 247, 187, 241, 247,
-		 95, 108, 103,  64, 202, 151, 222,  47,
-		231, 196, 221, 136, 201,  51, 141, 171,
-		 73,  86,  77,  44,  81,  57, 102,  94
-	};
-	const uint8_t pt256[16] =
-	{
-		 91, 130, 138,  43, 142,  69, 112,  44,
-		176, 173,   7,  56,  91, 131,  69, 122
-	};
-	const uint8_t ct256[16] =
-	{
-		153,  67, 204, 235,  31,  58, 117,  85,
-		127,  71,  55,  73, 210, 217, 159, 186
-	};
 
-	puts("kripto_block_saferpp");
-
-	/* 128-bit */
-	s = kripto_block_create(kripto_block_saferpp, 0, k128, 16);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt128, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct128[i])
-	{
-		printf("128-bit key encrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("128-bit key encrypt: OK\n");
-
-	kripto_block_decrypt(s, ct128, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt128[i])
-	{
-		printf("128-bit key decrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("128-bit key decrypt: OK\n");
-
-	kripto_block_destroy(s);
-	
-	/* 256-bit */
-	s = kripto_block_create(kripto_block_saferpp, 0, k256, 32);
-	if(!s) puts("error");
-
-	kripto_block_encrypt(s, pt256, t);
-	for(i = 0; i < 16; i++) if(t[i] != ct256[i])
-	{
-		printf("256-bit key encrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("256-bit key encrypt: OK\n");
-
-	kripto_block_decrypt(s, ct256, t);
-	for(i = 0; i < 16; i++) if(t[i] != pt256[i])
-	{
-		printf("256-bit key decrypt: FAIL\n");
-		break;
-	}
-	if(i == 16) printf("256-bit key decrypt: OK\n");
-
-	kripto_block_destroy(s);
-
-	return 0;
+	return TEST(kripto_block_saferpp, vectors, 4);
 }
