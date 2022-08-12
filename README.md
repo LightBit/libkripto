@@ -22,7 +22,6 @@ Run "sh build.sh" to compile.
 * Noekeon
 * RC2
 * RC5
-* RC5/64
 * RC6
 * Rijndael128 (AES)
 * Rijndael256
