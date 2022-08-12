@@ -55,7 +55,7 @@ static inline void LOAD16L_ARRAY(const void *src, uint16_t *dst, unsigned int by
 	#else
 	for(unsigned int i = 0; i < bytes; i++)
 	{
-		dst[i >> 1] |= CU8(src)[i] << ((i & 1) << 3);
+		dst[i >> 1] |= (uint16_t)CU8(src)[i] << ((i & 1) << 3);
 	}
 	#endif
 }
@@ -67,7 +67,7 @@ static inline void LOAD16B_ARRAY(const void *src, uint16_t *dst, unsigned int by
 	#else
 	for(unsigned int i = 0; i < bytes; i++)
 	{
-		dst[i >> 1] |= CU8(src)[i] << (8 - ((i & 1) << 3));
+		dst[i >> 1] |= (uint16_t)CU8(src)[i] << (8 - ((i & 1) << 3));
 	}
 	#endif
 }
@@ -154,7 +154,7 @@ static inline void LOAD32L_ARRAY(const void *src, uint32_t *dst, unsigned int by
 	#else
 	for(unsigned int i = 0; i < bytes; i++)
 	{
-		dst[i >> 2] |= CU8(src)[i] << ((i & 3) << 3);
+		dst[i >> 2] |= (uint32_t)CU8(src)[i] << ((i & 3) << 3);
 	}
 	#endif
 }
@@ -166,7 +166,7 @@ static inline void LOAD32B_ARRAY(const void *src, uint32_t *dst, unsigned int by
 	#else
 	for(unsigned int i = 0; i < bytes; i++)
 	{
-		dst[i >> 2] |= CU8(src)[i] << (24 - ((i & 3) << 3));
+		dst[i >> 2] |= (uint32_t)CU8(src)[i] << (24 - ((i & 3) << 3));
 	}
 	#endif
 }
@@ -265,7 +265,7 @@ static inline void LOAD64L_ARRAY(const void *src, uint64_t *dst, unsigned int by
 	#else
 	for(unsigned int i = 0; i < bytes; i++)
 	{
-		dst[i >> 3] |= CU8(src)[i] << ((i & 7) << 3);
+		dst[i >> 3] |= (uint64_t)CU8(src)[i] << ((i & 7) << 3);
 	}
 	#endif
 }
@@ -277,7 +277,7 @@ static inline void LOAD64B_ARRAY(const void *src, uint64_t *dst, unsigned int by
 	#else
 	for(unsigned int i = 0; i < bytes; i++)
 	{
-		dst[i >> 3] |= CU8(src)[i] << (56 - ((i & 7) << 3));
+		dst[i >> 3] |= (uint64_t)CU8(src)[i] << (56 - ((i & 7) << 3));
 	}
 	#endif
 }
