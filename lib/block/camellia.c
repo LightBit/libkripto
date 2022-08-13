@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <assert.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -310,7 +310,7 @@ static const uint32_t SP4404[256] =
 	0xE3E300E3, 0xF4F400F4, 0xC7C700C7, 0x9E9E009E
 };
 
-static void rot128(const uint8_t *in, uint8_t *out, const uint8_t r)
+static inline void rot128(const uint8_t *in, uint8_t *out, const uint8_t r)
 {
 	const uint8_t w = r >> 3;
 	const uint8_t b = r & 7;
@@ -321,7 +321,7 @@ static void rot128(const uint8_t *in, uint8_t *out, const uint8_t r)
 			| (in[(i + w + 1) & 15] >> (8 - b));
 }
 
-static uint64_t F(const uint64_t x)
+static inline uint64_t F(const uint64_t x)
 {
 	uint32_t hi;
 	uint32_t lo;
@@ -342,7 +342,7 @@ static uint64_t F(const uint64_t x)
 	return (((uint64_t)hi) << 32) | (uint64_t)lo;
 }
 
-static uint64_t FL0(const uint64_t x, const uint64_t k)
+static inline uint64_t FL0(const uint64_t x, const uint64_t k)
 {
 	uint32_t hi;
 	uint32_t lo;
@@ -355,7 +355,7 @@ static uint64_t FL0(const uint64_t x, const uint64_t k)
 	return (((uint64_t)hi) << 32) | (uint64_t)lo;
 }
 
-static uint64_t FL1(const uint64_t x, const uint64_t k)
+static inline uint64_t FL1(const uint64_t x, const uint64_t k)
 {
 	uint32_t hi;
 	uint32_t lo;
@@ -371,7 +371,7 @@ static uint64_t FL1(const uint64_t x, const uint64_t k)
 static void camellia_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int key_len
 )
 {
@@ -385,7 +385,7 @@ static void camellia_setup
 	unsigned int i;
 	unsigned int j;
 
-	for(i = 0; i < key_len; i++) t[i] = key[i];
+	for(i = 0; i < key_len; i++) t[i] = CU8(key)[i];
 
 	while(i < 8) t[i++] = 0;
 
@@ -577,16 +577,10 @@ static void camellia_encrypt
 	void *ct
 )
 {
-	uint64_t l;
-	uint64_t r;
+	uint64_t l = LOAD64B(CU8(pt)    ) ^ s->kw[0];
+	uint64_t r = LOAD64B(CU8(pt) + 8) ^ s->kw[1];
 	unsigned int i = 0;
 	unsigned int j = 0;
-
-	l = LOAD64B(CU8(pt));
-	r = LOAD64B(CU8(pt) + 8);
-
-	l ^= s->kw[0];
-	r ^= s->kw[1];
 
 	for(;;)
 	{
@@ -604,11 +598,8 @@ static void camellia_encrypt
 		r = FL1(r, s->kl[j++]);
 	}
 
-	r ^= s->kw[2];
-	l ^= s->kw[3];
-
-	STORE64B(r, U8(ct));
-	STORE64B(l, U8(ct) + 8);
+	STORE64B(r ^ s->kw[2], U8(ct)    );
+	STORE64B(l ^ s->kw[3], U8(ct) + 8);
 }
 
 static void camellia_decrypt
@@ -618,16 +609,10 @@ static void camellia_decrypt
 	void *pt
 )
 {
-	uint64_t l;
-	uint64_t r;
+	uint64_t r = LOAD64B(CU8(ct)    ) ^ s->kw[2];
+	uint64_t l = LOAD64B(CU8(ct) + 8) ^ s->kw[3];
 	unsigned int i = s->rounds;
 	unsigned int j = s->rounds >> 2;
-
-	r = LOAD64B(CU8(ct));
-	l = LOAD64B(CU8(ct) + 8);
-
-	l ^= s->kw[3];
-	r ^= s->kw[2];
 
 	for(;;)
 	{
@@ -645,11 +630,8 @@ static void camellia_decrypt
 		l = FL1(l, s->kl[--j]);
 	}
 
-	l ^= s->kw[1];
-	r ^= s->kw[0];
-
-	STORE64B(r, U8(pt));
-	STORE64B(l, U8(pt) + 8);
+	STORE64B(l ^ s->kw[0], U8(pt)    );
+	STORE64B(r ^ s->kw[1], U8(pt) + 8);
 }
 
 static kripto_block *camellia_recreate
@@ -660,12 +642,13 @@ static kripto_block *camellia_recreate
 	unsigned int key_len
 )
 {
+	assert(!r);
 	(void)r;
 
 	if(key_len > 16) s->rounds = 24;
 	else s->rounds = 18;
 
-	camellia_setup(s, (const uint8_t *)key, key_len);
+	camellia_setup(s, key, key_len);
 
 	return s;
 }
@@ -680,11 +663,9 @@ static kripto_block *camellia_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	(void)r;
-
 	s->obj.desc = kripto_block_camellia;
 
-	camellia_recreate(s, 0, key, key_len);
+	camellia_recreate(s, r, key, key_len);
 
 	return s;
 }
