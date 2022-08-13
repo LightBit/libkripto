@@ -33,7 +33,7 @@ struct kripto_block
 	uint32_t *k;
 };
 
-static const uint32_t s0[256] =
+static const uint32_t S0[256] =
 {
 	0x2989A1A8, 0x05858184, 0x16C6D2D4, 0x13C3D3D0,
 	0x14445054, 0x1D0D111C, 0x2C8CA0AC, 0x25052124,
@@ -101,7 +101,7 @@ static const uint32_t s0[256] =
 	0x10809090, 0x2A4A6268, 0x2A0A2228, 0x1A8A9298
 };
 
-static const uint32_t s1[256] =
+static const uint32_t S1[256] =
 {
 	0x38380830, 0xE828C8E0, 0x2C2D0D21, 0xA42686A2,
 	0xCC0FCFC3, 0xDC1ECED2, 0xB03383B3, 0xB83888B0,
@@ -169,7 +169,7 @@ static const uint32_t s1[256] =
 	0xCC0ECEC2, 0x383B0B33, 0x480A4A42, 0xB43787B3
 };
 
-static const uint32_t s2[256] =
+static const uint32_t S2[256] =
 {
 	0xA1A82989, 0x81840585, 0xD2D416C6, 0xD3D013C3,
 	0x50541444, 0x111C1D0D, 0xA0AC2C8C, 0x21242505,
@@ -237,7 +237,7 @@ static const uint32_t s2[256] =
 	0x90901080, 0x62682A4A, 0x22282A0A, 0x92981A8A
 };
 
-static const uint32_t s3[256] =
+static const uint32_t S3[256] =
 {
 	0x08303838, 0xC8E0E828, 0x0D212C2D, 0x86A2A426,
 	0xCFC3CC0F, 0xCED2DC1E, 0x83B3B033, 0x88B0B838,
@@ -305,28 +305,30 @@ static const uint32_t s3[256] =
 	0xCEC2CC0E, 0x0B33383B, 0x4A42480A, 0x87B3B437
 };
 
-#define F(X)											\
-(														\
-	s0[(uint8_t)(X)] ^ s1[(uint8_t)((X) >> 8)] ^		\
-	s2[(uint8_t)((X) >> 16)] ^ s3[(uint8_t)((X) >> 24)]	\
+#define F(X)				\
+(					\
+	S0[(uint8_t)(X)] ^		\
+	S1[(uint8_t)((X) >> 8)] ^	\
+	S2[(uint8_t)((X) >> 16)] ^	\
+	S3[((X) >> 24)]			\
 )
 
-#define R(L0, L1, R0, R1, K)	\
-{				\
-	t0 = R0 ^ (K)[0];	\
-	t1 = R1 ^ (K)[1] ^ t0;	\
-	t1 = F(t1);		\
-	t0 += t1;		\
-	t0 = F(t0);		\
-	t1 += t0;		\
-	t1 = F(t1);		\
-	t0 += t1;		\
-	t0 ^= L0;		\
-	t1 ^= L1;		\
-	L0 = R0;		\
-	L1 = R1;		\
-	R0 = t0;		\
-	R1 = t1;		\
+#define R(L0, L1, R0, R1, K0, K1)	\
+{					\
+	uint32_t T0 = R0 ^ (K0);	\
+	uint32_t T1 = R1 ^ (K1) ^ T0;	\
+	T1 = F(T1);			\
+	T0 += T1;			\
+	T0 = F(T0);			\
+	T1 += T0;			\
+	T1 = F(T1);			\
+	T0 += T1;			\
+	T0 ^= L0;			\
+	T1 ^= L1;			\
+	L0 = R0;			\
+	L1 = R1;			\
+	R0 = T0;			\
+	R1 = T1;			\
 }
 
 static void seed_encrypt
@@ -336,25 +338,17 @@ static void seed_encrypt
 	void *ct
 )
 {
-	uint32_t l0;
-	uint32_t l1;
-	uint32_t r0;
-	uint32_t r1;
-	uint32_t t0;
-	uint32_t t1;
-	unsigned int i;
+	uint32_t l0 = LOAD32B(CU8(pt)     );
+	uint32_t l1 = LOAD32B(CU8(pt) +  4);
+	uint32_t r0 = LOAD32B(CU8(pt) +  8);
+	uint32_t r1 = LOAD32B(CU8(pt) + 12);
 
-	l0 = LOAD32B(CU8(pt));
-	l1 = LOAD32B(CU8(pt) + 4);
-	r0 = LOAD32B(CU8(pt) + 8);
-	r1 = LOAD32B(CU8(pt) + 12);
+	for(unsigned int i = 0; i < s->rounds << 1; i += 2)
+		R(l0, l1, r0, r1, s->k[i], s->k[i + 1]);
 
-	for(i = 0; i < s->rounds << 1; i += 2)
-		R(l0, l1, r0, r1, s->k + i);
-
-	STORE32B(r0, U8(ct));
-	STORE32B(r1, U8(ct) + 4);
-	STORE32B(l0, U8(ct) + 8);
+	STORE32B(r0, U8(ct)     );
+	STORE32B(r1, U8(ct) +  4);
+	STORE32B(l0, U8(ct) +  8);
 	STORE32B(l1, U8(ct) + 12);
 }
 
@@ -365,32 +359,24 @@ static void seed_decrypt
 	void *pt
 )
 {
-	uint32_t l0;
-	uint32_t l1;
-	uint32_t r0;
-	uint32_t r1;
-	uint32_t t0;
-	uint32_t t1;
-	unsigned int i;
+	uint32_t l0 = LOAD32B(CU8(ct)     );
+	uint32_t l1 = LOAD32B(CU8(ct) +  4);
+	uint32_t r0 = LOAD32B(CU8(ct) +  8);
+	uint32_t r1 = LOAD32B(CU8(ct) + 12);
 
-	l0 = LOAD32B(CU8(ct));
-	l1 = LOAD32B(CU8(ct) + 4);
-	r0 = LOAD32B(CU8(ct) + 8);
-	r1 = LOAD32B(CU8(ct) + 12);
+	for(unsigned int i = (s->rounds << 1); i; i -= 2)
+		R(l0, l1, r0, r1, s->k[i - 2], s->k[i - 1]);
 
-	for(i = (s->rounds << 1) - 2; i + 2; i -= 2)
-		R(l0, l1, r0, r1, s->k + i);
-
-	STORE32B(l0, U8(pt));
-	STORE32B(l1, U8(pt) + 4);
-	STORE32B(r0, U8(pt) + 8);
-	STORE32B(r1, U8(pt) + 12);
+	STORE32B(r0, U8(pt)     );
+	STORE32B(r1, U8(pt) +  4);
+	STORE32B(l0, U8(pt) +  8);
+	STORE32B(l1, U8(pt) + 12);
 }
 
 static void seed_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int key_len
 )
 {
@@ -398,11 +384,10 @@ static void seed_setup
 	uint32_t t0;
 	uint32_t t1;
 	uint32_t kc = 0x9E3779B9;
-	unsigned int i;
 
 	LOAD32B_ARRAY(key, k, key_len);
 
-	for(i = 0; i < s->rounds; i++)
+	for(unsigned int i = 0; i < s->rounds; i++)
 	{
 		t0 = k[0] + k[2] - kc;
 		t1 = k[1] - k[3] + kc;
@@ -449,7 +434,7 @@ static kripto_block *seed_create
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
-	seed_setup(s, (const uint8_t *)key, key_len);
+	seed_setup(s, key, key_len);
 
 	return s;
 }
@@ -477,7 +462,7 @@ static kripto_block *seed_recreate
 	}
 	else
 	{
-		seed_setup(s, (const uint8_t *)key, key_len);
+		seed_setup(s, key, key_len);
 	}
 
 	return s;
