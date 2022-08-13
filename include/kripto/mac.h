@@ -3,12 +3,12 @@
 
 #include <stddef.h>
 
-typedef struct kripto_mac_desc kripto_mac_desc;
+typedef struct kripto_desc_mac kripto_desc_mac;
 typedef struct kripto_mac kripto_mac;
 
 extern kripto_mac *kripto_mac_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -49,7 +49,7 @@ extern void kripto_mac_destroy(kripto_mac *s);
 
 extern int kripto_mac_all
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -59,10 +59,10 @@ extern int kripto_mac_all
 	unsigned int tag_len
 );
 
-extern const kripto_mac_desc *kripto_mac_getdesc(const kripto_mac *s);
+extern const kripto_desc_mac *kripto_mac_getdesc(const kripto_mac *s);
 
-extern unsigned int kripto_mac_maxtag(const kripto_mac_desc *desc);
+extern unsigned int kripto_mac_maxtag(const kripto_desc_mac *desc);
 
-extern unsigned int kripto_mac_maxkey(const kripto_mac_desc *desc);
+extern unsigned int kripto_mac_maxkey(const kripto_desc_mac *desc);
 
 #endif

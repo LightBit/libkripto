@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <limits.h>
 #include <assert.h>
 
 #include <kripto/cast.h>
@@ -25,13 +24,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/sha2_256.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	uint64_t len;
 	uint32_t h[8];
 	uint8_t buf[64];
@@ -270,6 +268,7 @@ static void sha2_256_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *sha2_256_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -279,11 +278,9 @@ static kripto_hash *sha2_256_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_sha2_256;
+	s->desc = desc;
 
-	(void)sha2_256_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return sha2_256_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void sha2_256_destroy(kripto_hash *s)
@@ -294,6 +291,7 @@ static void sha2_256_destroy(kripto_hash *s)
 
 static int sha2_256_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -304,6 +302,7 @@ static int sha2_256_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)sha2_256_recreate(&s, r, salt, salt_len, out_len);
 	sha2_256_input(&s, in, in_len);
@@ -314,7 +313,7 @@ static int sha2_256_hash
 	return 0;
 }
 
-static const kripto_hash_desc sha2_256 =
+static const kripto_desc_hash sha2_256 =
 {
 	&sha2_256_create,
 	&sha2_256_recreate,
@@ -327,4 +326,4 @@ static const kripto_hash_desc sha2_256 =
 	0 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_sha2_256 = &sha2_256;
+const kripto_desc_hash *const kripto_hash_sha2_256 = &sha2_256;

@@ -23,13 +23,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/aria.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t *k;
 	uint32_t *dk;
@@ -655,7 +654,7 @@ static void aria_setup
 
 static kripto_block *aria_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -673,7 +672,7 @@ static kripto_block *aria_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
@@ -707,7 +706,7 @@ static kripto_block *aria_recreate
 	if(r != s->rounds)
 	{
 		aria_destroy(s);
-		s = aria_create(s->obj.desc, r, key, key_len);
+		s = aria_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -717,7 +716,7 @@ static kripto_block *aria_recreate
 	return s;
 }
 
-static const kripto_block_desc aria =
+static const kripto_desc_block aria =
 {
 	&aria_create,
 	&aria_recreate,
@@ -730,4 +729,4 @@ static const kripto_block_desc aria =
 	0, /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_aria = &aria;
+const kripto_desc_block *const kripto_block_aria = &aria;

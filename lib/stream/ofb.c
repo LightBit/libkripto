@@ -22,13 +22,13 @@
 #include <kripto/block.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
-#include <kripto/object/stream.h>
 
 #include <kripto/stream/ofb.h>
 
 struct kripto_stream
 {
-	struct kripto_stream_object obj;
+	const kripto_desc_stream *desc;
+	unsigned int multof;
 	kripto_block *block;
 	uint8_t *prev;
 	unsigned int blocksize;
@@ -87,15 +87,15 @@ static void ofb_destroy(kripto_stream *s)
 
 struct ext
 {
-	kripto_stream_desc desc;
-	const kripto_block_desc *block;
+	kripto_desc_stream desc;
+	const kripto_desc_block *block;
 };
 
 #define EXT(X) ((const struct ext *)(X))
 
 static kripto_stream *ofb_create
 (
-	const kripto_stream_desc *desc,
+	const kripto_desc_stream *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -106,8 +106,8 @@ static kripto_stream *ofb_create
 	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream) + desc->maxiv);
 	if(!s) return 0;
 
-	s->obj.desc = desc;
-	s->obj.multof = 1;
+	s->desc = desc;
+	s->multof = 1;
 
 	s->used = s->blocksize = desc->maxiv;
 
@@ -157,7 +157,7 @@ static kripto_stream *ofb_recreate
 	return s;
 }
 
-kripto_stream_desc *kripto_stream_ofb(const kripto_block_desc *block)
+kripto_desc_stream *kripto_stream_ofb(const kripto_desc_block *block)
 {
 	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
@@ -173,5 +173,5 @@ kripto_stream_desc *kripto_stream_ofb(const kripto_block_desc *block)
 	s->desc.maxkey = kripto_block_maxkey(block);
 	s->desc.maxiv = kripto_block_size(block);
 
-	return (kripto_stream_desc *)s;
+	return (kripto_desc_stream *)s;
 }

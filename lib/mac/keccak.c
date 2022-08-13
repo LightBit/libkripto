@@ -24,14 +24,13 @@
 #include <kripto/hash/keccak800.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
-#include <kripto/object/mac.h>
 
 #include <kripto/mac/keccak1600.h>
 #include <kripto/mac/keccak800.h>
 
 struct kripto_mac
 {
-	struct kripto_mac_object obj;
+	const kripto_desc_mac *desc;
 	kripto_hash *hash;
 };
 
@@ -68,7 +67,7 @@ static kripto_mac *keccak_recreate
 
 static kripto_mac *keccak1600_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -78,9 +77,7 @@ static kripto_mac *keccak1600_create
 	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac));
 	if(!s) return 0;
 
-	(void)desc;
-
-	s->obj.desc = kripto_mac_keccak1600;
+	s->desc = desc;
 
 	s->hash = kripto_hash_create(kripto_hash_keccak1600, r, 0, 0, tag_len);
 	if(!s->hash)
@@ -96,7 +93,7 @@ static kripto_mac *keccak1600_create
 
 static kripto_mac *keccak800_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -106,9 +103,7 @@ static kripto_mac *keccak800_create
 	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac));
 	if(!s) return 0;
 
-	(void)desc;
-
-	s->obj.desc = kripto_mac_keccak800;
+	s->desc = desc;
 
 	s->hash = kripto_hash_create(kripto_hash_keccak800, r, 0, 0, tag_len);
 	if(!s->hash)
@@ -128,7 +123,7 @@ static void keccak_destroy(kripto_mac *s)
 	free(s);
 }
 
-static const kripto_mac_desc keccak1600 =
+static const kripto_desc_mac keccak1600 =
 {
 	&keccak1600_create,
 	&keccak_recreate,
@@ -139,9 +134,9 @@ static const kripto_mac_desc keccak1600 =
 	UINT_MAX /* max key */
 };
 
-const kripto_mac_desc *const kripto_mac_keccak1600 = &keccak1600;
+const kripto_desc_mac *const kripto_mac_keccak1600 = &keccak1600;
 
-static const kripto_mac_desc keccak800 =
+static const kripto_desc_mac keccak800 =
 {
 	&keccak800_create,
 	&keccak_recreate,
@@ -152,4 +147,4 @@ static const kripto_mac_desc keccak800 =
 	UINT_MAX /* max key */
 };
 
-const kripto_mac_desc *const kripto_mac_keccak800 = &keccak800;
+const kripto_desc_mac *const kripto_mac_keccak800 = &keccak800;

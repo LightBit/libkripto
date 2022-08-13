@@ -54,7 +54,7 @@ static const uint8_t tag64[16] =
 
 int main(void)
 {
-	kripto_mac_desc *desc;
+	kripto_desc_mac *desc;
 	uint8_t t[16];
 	unsigned int i;
 

@@ -20,12 +20,12 @@
 
 struct kripto_hash
 {
-	const kripto_hash_desc *desc;
+	const kripto_desc_hash *desc;
 };
 
 kripto_hash *kripto_hash_create
 (
-	const kripto_hash_desc *desc,
+	const kripto_desc_hash *desc,
 	unsigned int rounds,
 	const void *salt,
 	unsigned int salt_len,
@@ -37,7 +37,7 @@ kripto_hash *kripto_hash_create
 	assert(salt_len <= desc->maxsalt);
 	assert(!desc->maxout || out_len <= desc->maxout);
 
-	return desc->create(rounds, salt, salt_len, out_len);
+	return desc->create(desc, rounds, salt, salt_len, out_len);
 }
 
 kripto_hash *kripto_hash_recreate
@@ -88,7 +88,7 @@ void kripto_hash_destroy(kripto_hash *s)
 
 int kripto_hash_all
 (
-	const kripto_hash_desc *desc,
+	const kripto_desc_hash *desc,
 	unsigned int rounds,
 	const void *salt,
 	unsigned int salt_len,
@@ -103,10 +103,10 @@ int kripto_hash_all
 	assert(salt_len <= desc->maxsalt);
 	assert(!desc->maxout || out_len <= desc->maxout);
 
-	return desc->hash_all(rounds, salt, salt_len, in, in_len, out, out_len);
+	return desc->hash_all(desc, rounds, salt, salt_len, in, in_len, out, out_len);
 }
 
-const kripto_hash_desc *kripto_hash_getdesc(const kripto_hash *s)
+const kripto_desc_hash *kripto_hash_getdesc(const kripto_hash *s)
 {
 	assert(s);
 	assert(s->desc);
@@ -114,21 +114,21 @@ const kripto_hash_desc *kripto_hash_getdesc(const kripto_hash *s)
 	return s->desc;
 }
 
-unsigned int kripto_hash_maxout(const kripto_hash_desc *desc)
+unsigned int kripto_hash_maxout(const kripto_desc_hash *desc)
 {
 	assert(desc);
 
 	return desc->maxout;
 }
 
-unsigned int kripto_hash_maxsalt(const kripto_hash_desc *desc)
+unsigned int kripto_hash_maxsalt(const kripto_desc_hash *desc)
 {
 	assert(desc);
 
 	return desc->maxsalt;
 }
 
-unsigned int kripto_hash_blocksize(const kripto_hash_desc *desc)
+unsigned int kripto_hash_blocksize(const kripto_desc_hash *desc)
 {
 	assert(desc);
 

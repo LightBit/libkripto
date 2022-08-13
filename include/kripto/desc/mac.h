@@ -1,11 +1,11 @@
 #ifndef KRIPTO_MAC_DESC_H
 #define KRIPTO_MAC_DESC_H
 
-struct kripto_mac_desc
+struct kripto_desc_mac
 {
 	kripto_mac *(*create)
 	(
-		const kripto_mac_desc *,
+		const kripto_desc_mac *,
 		unsigned int,
 		const void *,
 		unsigned int,

@@ -21,13 +21,13 @@
 
 struct kripto_ae
 {
-	const kripto_ae_desc *desc;
+	const kripto_desc_ae *desc;
 	unsigned int multof;
 };
 
 kripto_ae *kripto_ae_create
 (
-	const kripto_ae_desc *desc,
+	const kripto_desc_ae *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -163,7 +163,7 @@ unsigned int kripto_ae_multof(const kripto_ae *s)
 	return s->multof;
 }
 
-const kripto_ae_desc *kripto_ae_getdesc(const kripto_ae *s)
+const kripto_desc_ae *kripto_ae_getdesc(const kripto_ae *s)
 {
 	assert(s);
 	assert(s->desc);
@@ -171,7 +171,7 @@ const kripto_ae_desc *kripto_ae_getdesc(const kripto_ae *s)
 	return s->desc;
 }
 
-unsigned int kripto_ae_maxkey(const kripto_ae_desc *desc)
+unsigned int kripto_ae_maxkey(const kripto_desc_ae *desc)
 {
 	assert(desc);
 	assert(desc->maxkey);
@@ -179,14 +179,14 @@ unsigned int kripto_ae_maxkey(const kripto_ae_desc *desc)
 	return desc->maxkey;
 }
 
-unsigned int kripto_ae_maxiv(const kripto_ae_desc *desc)
+unsigned int kripto_ae_maxiv(const kripto_desc_ae *desc)
 {
 	assert(desc);
 
 	return desc->maxiv;
 }
 
-unsigned int kripto_ae_maxtag(const kripto_ae_desc *desc)
+unsigned int kripto_ae_maxtag(const kripto_desc_ae *desc)
 {
 	assert(desc);
 

@@ -23,13 +23,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/rc6.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t *k;
 };
@@ -158,7 +157,7 @@ static void rc6_decrypt(const kripto_block *s, const void *ct, void *pt)
 
 static kripto_block *rc6_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -171,7 +170,7 @@ static kripto_block *rc6_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (RC6_K_LEN(r) << 2));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
@@ -199,7 +198,7 @@ static kripto_block *rc6_recreate
 	if(r != s->rounds)
 	{
 		rc6_destroy(s);
-		s = rc6_create(s->obj.desc, r, key, key_len);
+		s = rc6_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -209,7 +208,7 @@ static kripto_block *rc6_recreate
 	return s;
 }
 
-static const kripto_block_desc rc6 =
+static const kripto_desc_block rc6 =
 {
 	&rc6_create,
 	&rc6_recreate,
@@ -222,4 +221,4 @@ static const kripto_block_desc rc6 =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_rc6 = &rc6;
+const kripto_desc_block *const kripto_block_rc6 = &rc6;

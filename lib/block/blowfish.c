@@ -22,13 +22,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/blowfish.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t s0[256];
 	uint32_t s1[256];
@@ -480,7 +479,7 @@ static void blowfish_setup
 
 static kripto_block *blowfish_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -493,7 +492,7 @@ static kripto_block *blowfish_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 2) << 2));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->p = (uint32_t *)(s + 1);
 
@@ -521,7 +520,7 @@ static kripto_block *blowfish_recreate
 	if(r != s->rounds)
 	{
 		blowfish_destroy(s);
-		s = blowfish_create(s->obj.desc, r, key, key_len);
+		s = blowfish_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -531,7 +530,7 @@ static kripto_block *blowfish_recreate
 	return s;
 }
 
-static const kripto_block_desc blowfish =
+static const kripto_desc_block blowfish =
 {
 	&blowfish_create,
 	&blowfish_recreate,
@@ -544,4 +543,4 @@ static const kripto_block_desc blowfish =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_blowfish = &blowfish;
+const kripto_desc_block *const kripto_block_blowfish = &blowfish;

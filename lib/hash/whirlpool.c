@@ -34,13 +34,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/whirlpool.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	unsigned int r;
 	uint64_t h[8];
 	uint8_t buf[64];
@@ -986,6 +985,7 @@ static void whirlpool_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *whirlpool_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -995,11 +995,9 @@ static kripto_hash *whirlpool_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_whirlpool;
+	s->desc = desc;
 
-	(void)whirlpool_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return whirlpool_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void whirlpool_destroy(kripto_hash *s)
@@ -1010,6 +1008,7 @@ static void whirlpool_destroy(kripto_hash *s)
 
 static int whirlpool_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -1020,6 +1019,7 @@ static int whirlpool_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)whirlpool_recreate(&s, r, salt, salt_len, out_len);
 	whirlpool_input(&s, in, in_len);
@@ -1030,7 +1030,7 @@ static int whirlpool_hash
 	return 0;
 }
 
-static const kripto_hash_desc whirlpool =
+static const kripto_desc_hash whirlpool =
 {
 	&whirlpool_create,
 	&whirlpool_recreate,
@@ -1043,4 +1043,4 @@ static const kripto_hash_desc whirlpool =
 	0 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_whirlpool = &whirlpool;
+const kripto_desc_hash *const kripto_hash_whirlpool = &whirlpool;

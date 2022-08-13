@@ -23,13 +23,12 @@
 #include <kripto/block.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
-#include <kripto/object/mac.h>
 
 #include <kripto/mac/omac.h>
 
 struct kripto_mac
 {
-	struct kripto_mac_object obj;
+	const kripto_desc_mac *desc;
 	kripto_block *block;
 	uint8_t *lu;
 	uint8_t *lu2;
@@ -430,15 +429,15 @@ static void omac_destroy(kripto_mac *s)
 
 struct ext
 {
-	kripto_mac_desc desc;
-	const kripto_block_desc *block;
+	kripto_desc_mac desc;
+	const kripto_desc_block *block;
 };
 
 #define EXT(X) ((const struct ext *)(X))
 
 static kripto_mac *omac_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -450,7 +449,7 @@ static kripto_mac *omac_create
 
 	(void)tag_len;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->len = desc->maxtag;
 	s->prev = (uint8_t *)s + sizeof(kripto_mac);
 	s->buf = s->prev + s->len;
@@ -482,7 +481,7 @@ static kripto_mac *omac_recreate
 	s->block = kripto_block_recreate(s->block, r, key, key_len);
 	if(!s->block)
 	{
-		kripto_memory_wipe(s, sizeof(kripto_mac) + s->obj.desc->maxtag * 4);
+		kripto_memory_wipe(s, sizeof(kripto_mac) + s->desc->maxtag * 4);
 		free(s);
 		return 0;
 	}
@@ -492,7 +491,7 @@ static kripto_mac *omac_recreate
 	return s;
 }
 
-kripto_mac_desc *kripto_mac_omac(const kripto_block_desc *block)
+kripto_desc_mac *kripto_mac_omac(const kripto_desc_block *block)
 {
 	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
@@ -509,5 +508,5 @@ kripto_mac_desc *kripto_mac_omac(const kripto_block_desc *block)
 
 	assert(s->desc.maxtag <= 255);
 
-	return (kripto_mac_desc *)s;
+	return (kripto_desc_mac *)s;
 }

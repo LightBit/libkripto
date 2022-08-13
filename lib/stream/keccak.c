@@ -24,14 +24,14 @@
 #include <kripto/hash/keccak800.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
-#include <kripto/object/stream.h>
 
 #include <kripto/stream/keccak1600.h>
 #include <kripto/stream/keccak800.h>
 
 struct kripto_stream
 {
-	struct kripto_stream_object obj;
+	const kripto_desc_stream *desc;
+	unsigned int multof;
 	kripto_hash *hash;
 };
 
@@ -97,7 +97,7 @@ static void keccak_destroy(kripto_stream *s)
 /* 1600 */
 static kripto_stream *keccak1600_create
 (
-	const kripto_stream_desc *desc,
+	const kripto_desc_stream *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -110,8 +110,8 @@ static kripto_stream *keccak1600_create
 
 	(void)desc;
 
-	s->obj.desc = kripto_stream_keccak1600;
-	s->obj.multof = 1;
+	s->desc = desc;
+	s->multof = 1;
 
 	s->hash = kripto_hash_create(kripto_hash_keccak1600, r, 0, 0, key_len);
 	if(!s->hash)
@@ -126,7 +126,7 @@ static kripto_stream *keccak1600_create
 	return s;
 }
 
-static const kripto_stream_desc keccak1600 =
+static const kripto_desc_stream keccak1600 =
 {
 	&keccak1600_create,
 	&keccak_recreate,
@@ -138,12 +138,12 @@ static const kripto_stream_desc keccak1600 =
 	UINT_MAX /* max iv */
 };
 
-const kripto_stream_desc *const kripto_stream_keccak1600 = &keccak1600;
+const kripto_desc_stream *const kripto_stream_keccak1600 = &keccak1600;
 
 /* 800 */
 static kripto_stream *keccak800_create
 (
-	const kripto_stream_desc *desc,
+	const kripto_desc_stream *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -154,10 +154,8 @@ static kripto_stream *keccak800_create
 	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
 	if(!s) return 0;
 
-	(void)desc;
-
-	s->obj.desc = kripto_stream_keccak800;
-	s->obj.multof = 1;
+	s->desc = desc;
+	s->multof = 1;
 
 	s->hash = kripto_hash_create(kripto_hash_keccak800, r, 0, 0, key_len);
 	if(!s->hash)
@@ -172,7 +170,7 @@ static kripto_stream *keccak800_create
 	return s;
 }
 
-static const kripto_stream_desc keccak800 =
+static const kripto_desc_stream keccak800 =
 {
 	&keccak800_create,
 	&keccak_recreate,
@@ -184,4 +182,4 @@ static const kripto_stream_desc keccak800 =
 	UINT_MAX /* max iv */
 };
 
-const kripto_stream_desc *const kripto_stream_keccak800 = &keccak800;
+const kripto_desc_stream *const kripto_stream_keccak800 = &keccak800;

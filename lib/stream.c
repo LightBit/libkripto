@@ -21,13 +21,13 @@
 
 struct kripto_stream
 {
-	const kripto_stream_desc *desc;
+	const kripto_desc_stream *desc;
 	unsigned int multof;
 };
 
 kripto_stream *kripto_stream_create
 (
-	const kripto_stream_desc *desc,
+	const kripto_desc_stream *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -133,7 +133,7 @@ unsigned int kripto_stream_multof(const kripto_stream *s)
 	return s->multof;
 }
 
-const kripto_stream_desc *kripto_stream_getdesc(const kripto_stream *s)
+const kripto_desc_stream *kripto_stream_getdesc(const kripto_stream *s)
 {
 	assert(s);
 	assert(s->desc);
@@ -141,7 +141,7 @@ const kripto_stream_desc *kripto_stream_getdesc(const kripto_stream *s)
 	return s->desc;
 }
 
-unsigned int kripto_stream_maxkey(const kripto_stream_desc *desc)
+unsigned int kripto_stream_maxkey(const kripto_desc_stream *desc)
 {
 	assert(desc);
 	assert(desc->maxkey);
@@ -149,7 +149,7 @@ unsigned int kripto_stream_maxkey(const kripto_stream_desc *desc)
 	return desc->maxkey;
 }
 
-unsigned int kripto_stream_maxiv(const kripto_stream_desc *desc)
+unsigned int kripto_stream_maxiv(const kripto_desc_stream *desc)
 {
 	assert(desc);
 

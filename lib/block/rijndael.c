@@ -33,7 +33,6 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/aes.h>
 #include <kripto/block/rijndael128.h>
@@ -41,7 +40,7 @@
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t *k;
 	uint32_t *dk;
@@ -886,7 +885,7 @@ static void rijndael128_decrypt
 
 static kripto_block *rijndael128_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -903,7 +902,7 @@ static kripto_block *rijndael128_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
@@ -936,7 +935,7 @@ static kripto_block *rijndael128_recreate
 	if(r != s->rounds)
 	{
 		rijndael128_destroy(s);
-		s = rijndael128_create(s->obj.desc, r, key, key_len);
+		s = rijndael128_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -946,7 +945,7 @@ static kripto_block *rijndael128_recreate
 	return s;
 }
 
-static const kripto_block_desc rijndael128 =
+static const kripto_desc_block rijndael128 =
 {
 	&rijndael128_create,
 	&rijndael128_recreate,
@@ -959,8 +958,8 @@ static const kripto_block_desc rijndael128 =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_rijndael128 = &rijndael128;
-const kripto_block_desc *const kripto_block_aes = &rijndael128;
+const kripto_desc_block *const kripto_block_rijndael128 = &rijndael128;
+const kripto_desc_block *const kripto_block_aes = &rijndael128;
 
 
 /* rijndael256 */
@@ -1119,7 +1118,7 @@ static void rijndael256_decrypt
 
 static kripto_block *rijndael256_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -1136,7 +1135,7 @@ static kripto_block *rijndael256_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 6));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 3);
@@ -1169,7 +1168,7 @@ static kripto_block *rijndael256_recreate
 	if(r != s->rounds)
 	{
 		rijndael256_destroy(s);
-		s = rijndael256_create(s->obj.desc, r, key, key_len);
+		s = rijndael256_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -1179,7 +1178,7 @@ static kripto_block *rijndael256_recreate
 	return s;
 }
 
-static const kripto_block_desc rijndael256 =
+static const kripto_desc_block rijndael256 =
 {
 	&rijndael256_create,
 	&rijndael256_recreate,
@@ -1192,4 +1191,4 @@ static const kripto_block_desc rijndael256 =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_rijndael256 = &rijndael256;
+const kripto_desc_block *const kripto_block_rijndael256 = &rijndael256;

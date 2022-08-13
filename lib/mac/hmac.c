@@ -22,13 +22,12 @@
 #include <kripto/hash.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
-#include <kripto/object/mac.h>
 
 #include <kripto/mac/hmac.h>
 
 struct kripto_mac
 {
-	struct kripto_mac_object obj;
+	const kripto_desc_mac *desc;
 	kripto_hash *hash;
 	size_t size;
 	unsigned int r;
@@ -39,7 +38,7 @@ struct kripto_mac
 static int hmac_init
 (
 	kripto_mac *s,
-	const kripto_hash_desc *hash,
+	const kripto_desc_hash *hash,
 	const void *key,
 	unsigned int key_len,
 	unsigned int tag_len
@@ -109,15 +108,15 @@ static void hmac_destroy(kripto_mac *s)
 
 struct ext
 {
-	kripto_mac_desc desc;
-	const kripto_hash_desc *hash;
+	kripto_desc_mac desc;
+	const kripto_desc_hash *hash;
 };
 
 #define EXT(X) ((const struct ext *)(X))
 
 static kripto_mac *hmac_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -129,7 +128,7 @@ static kripto_mac *hmac_create
 
 	s->key = (uint8_t *)s + sizeof(kripto_mac);
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->size = sizeof(kripto_mac) + kripto_hash_blocksize(EXT(desc)->hash);
 	s->r = r;
 	s->hash = kripto_hash_create(EXT(desc)->hash, r, 0, 0, tag_len);
@@ -167,7 +166,7 @@ static kripto_mac *hmac_recreate
 
 	s->r = r;
 
-	if(hmac_init(s, EXT(s->obj.desc)->hash, key, key_len, tag_len))
+	if(hmac_init(s, EXT(s->desc)->hash, key, key_len, tag_len))
 	{
 		hmac_destroy(s);
 		return 0;
@@ -176,7 +175,7 @@ static kripto_mac *hmac_recreate
 	return s;
 }
 
-kripto_mac_desc *kripto_mac_hmac(const kripto_hash_desc *hash)
+kripto_desc_mac *kripto_mac_hmac(const kripto_desc_hash *hash)
 {
 	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
@@ -191,5 +190,5 @@ kripto_mac_desc *kripto_mac_hmac(const kripto_hash_desc *hash)
 	s->desc.maxtag = kripto_hash_maxout(hash);
 	s->desc.maxkey = UINT_MAX;
 
-	return (kripto_mac_desc *)s;
+	return (kripto_desc_mac *)s;
 }

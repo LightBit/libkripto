@@ -26,13 +26,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/serpent.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t *k;
 };
@@ -668,7 +667,7 @@ static void serpent_setup
 
 static kripto_block *serpent_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -681,7 +680,7 @@ static kripto_block *serpent_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 4));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
@@ -709,7 +708,7 @@ static kripto_block *serpent_recreate
 	if(r != s->rounds)
 	{
 		serpent_destroy(s);
-		s = serpent_create(s->obj.desc, r, key, key_len);
+		s = serpent_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -719,7 +718,7 @@ static kripto_block *serpent_recreate
 	return s;
 }
 
-static const kripto_block_desc serpent =
+static const kripto_desc_block serpent =
 {
 	&serpent_create,
 	&serpent_recreate,
@@ -732,4 +731,4 @@ static const kripto_block_desc serpent =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_serpent = &serpent;
+const kripto_desc_block *const kripto_block_serpent = &serpent;

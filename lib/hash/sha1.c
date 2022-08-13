@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <limits.h>
 #include <assert.h>
 
 #include <kripto/cast.h>
@@ -25,13 +24,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/sha1.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	uint64_t len;
 	uint32_t h[5];
 	uint8_t buf[64];
@@ -46,7 +44,7 @@ struct kripto_hash
 #define G0(A, B, C, D, E, W)					\
 {								\
 	E += ROL32_05(A) + F0(B, C, D) + W + 0x5A827999;	\
-	B = ROL32_30(B);									\
+	B = ROL32_30(B);					\
 }
 
 #define G1(A, B, C, D, E, W)					\
@@ -223,6 +221,7 @@ static void sha1_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *sha1_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -232,11 +231,9 @@ static kripto_hash *sha1_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_sha1;
+	s->desc = desc;
 
-	(void)sha1_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return sha1_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void sha1_destroy(kripto_hash *s)
@@ -247,6 +244,7 @@ static void sha1_destroy(kripto_hash *s)
 
 static int sha1_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -257,6 +255,7 @@ static int sha1_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)sha1_recreate(&s, r, salt, salt_len, out_len);
 	sha1_input(&s, in, in_len);
@@ -267,7 +266,7 @@ static int sha1_hash
 	return 0;
 }
 
-static const kripto_hash_desc sha1 =
+static const kripto_desc_hash sha1 =
 {
 	&sha1_create,
 	&sha1_recreate,
@@ -280,4 +279,4 @@ static const kripto_hash_desc sha1 =
 	0 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_sha1 = &sha1;
+const kripto_desc_hash *const kripto_hash_sha1 = &sha1;

@@ -3,11 +3,11 @@
 
 #include <stddef.h>
 
-struct kripto_ae_desc
+struct kripto_desc_ae
 {
 	kripto_ae *(*create)
 	(
-		const kripto_ae_desc *,
+		const kripto_desc_ae *,
 		unsigned int,
 		const void *,
 		unsigned int,

@@ -37,13 +37,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/des.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	int tdes;
 	uint32_t ek[3][32];
 	uint32_t dk[3][32];
@@ -488,7 +487,7 @@ static void des_decrypt
 
 static kripto_block *des_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -499,7 +498,7 @@ static kripto_block *des_create
 
 	(void)r;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 
 	des_setup(s, (const uint8_t *)key, key_len);
 
@@ -527,7 +526,7 @@ static kripto_block *des_recreate
 	return s;
 }
 
-static const kripto_block_desc des =
+static const kripto_desc_block des =
 {
 	&des_create,
 	&des_recreate,
@@ -540,4 +539,4 @@ static const kripto_block_desc des =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_des = &des;
+const kripto_desc_block *const kripto_block_des = &des;

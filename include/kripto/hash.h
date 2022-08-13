@@ -3,12 +3,12 @@
 
 #include <stddef.h>
 
-typedef struct kripto_hash_desc kripto_hash_desc;
+typedef struct kripto_desc_hash kripto_desc_hash;
 typedef struct kripto_hash kripto_hash;
 
 extern kripto_hash *kripto_hash_create
 (
-	const kripto_hash_desc *desc,
+	const kripto_desc_hash *desc,
 	unsigned int rounds,
 	const void *salt,
 	unsigned int salt_len,
@@ -42,7 +42,7 @@ extern void kripto_hash_destroy(kripto_hash *s);
 
 extern int kripto_hash_all
 (
-	const kripto_hash_desc *desc,
+	const kripto_desc_hash *desc,
 	unsigned int rounds,
 	const void *salt,
 	unsigned int salt_len,
@@ -52,12 +52,12 @@ extern int kripto_hash_all
 	size_t out_len
 );
 
-extern const kripto_hash_desc *kripto_hash_getdesc(const kripto_hash *s);
+extern const kripto_desc_hash *kripto_hash_getdesc(const kripto_hash *s);
 
-extern unsigned int kripto_hash_maxout(const kripto_hash_desc *desc);
+extern unsigned int kripto_hash_maxout(const kripto_desc_hash *desc);
 
-extern unsigned int kripto_hash_maxsalt(const kripto_hash_desc *desc);
+extern unsigned int kripto_hash_maxsalt(const kripto_desc_hash *desc);
 
-extern unsigned int kripto_hash_blocksize(const kripto_hash_desc *desc);
+extern unsigned int kripto_hash_blocksize(const kripto_desc_hash *desc);
 
 #endif

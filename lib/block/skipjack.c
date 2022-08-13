@@ -23,13 +23,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/skipjack.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	uint8_t k[10];
 };
 
@@ -217,7 +216,7 @@ static kripto_block *skipjack_recreate
 
 static kripto_block *skipjack_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -226,7 +225,7 @@ static kripto_block *skipjack_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 
 	return skipjack_recreate(s, r, key, key_len);
 }
@@ -237,7 +236,7 @@ static void skipjack_destroy(kripto_block *s)
 	free(s);
 }
 
-static const kripto_block_desc skipjack =
+static const kripto_desc_block skipjack =
 {
 	&skipjack_create,
 	&skipjack_recreate,
@@ -250,4 +249,4 @@ static const kripto_block_desc skipjack =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_skipjack = &skipjack;
+const kripto_desc_block *const kripto_block_skipjack = &skipjack;

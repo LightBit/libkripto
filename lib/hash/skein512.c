@@ -26,13 +26,12 @@
 #include <kripto/block/threefish512.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/skein512.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	kripto_block *block;
 	unsigned int r;
 	unsigned int i;
@@ -194,6 +193,7 @@ static void skein512_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *skein512_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -203,7 +203,7 @@ static kripto_hash *skein512_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_skein512;
+	s->desc = desc;
 
 	s->block = kripto_block_create(kripto_block_threefish512, r, "", 1);
 	if(!s->block)
@@ -212,9 +212,7 @@ static kripto_hash *skein512_create
 		return 0;
 	}
 
-	(void)skein512_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return skein512_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void skein512_destroy(kripto_hash *s)
@@ -226,6 +224,7 @@ static void skein512_destroy(kripto_hash *s)
 
 static int skein512_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -236,6 +235,7 @@ static int skein512_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	s.block = kripto_block_create(kripto_block_threefish512, r, "", 1);
 	if(!s.block) return -1;
@@ -250,7 +250,7 @@ static int skein512_hash
 	return 0;
 }
 
-static const kripto_hash_desc skein512 =
+static const kripto_desc_hash skein512 =
 {
 	&skein512_create,
 	&skein512_recreate,
@@ -263,4 +263,4 @@ static const kripto_hash_desc skein512 =
 	UINT_MAX /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_skein512 = &skein512;
+const kripto_desc_hash *const kripto_hash_skein512 = &skein512;

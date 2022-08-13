@@ -1,10 +1,11 @@
 #ifndef KRIPTO_HASH_DESC_H
 #define KRIPTO_HASH_DESC_H
 
-struct kripto_hash_desc
+struct kripto_desc_hash
 {
 	kripto_hash *(*create)
 	(
+		const kripto_desc_hash *,
 		unsigned int,
 		const void *,
 		unsigned int,
@@ -28,6 +29,7 @@ struct kripto_hash_desc
 
 	int (*hash_all)
 	(
+		const kripto_desc_hash *,
 		const unsigned int,
 		const void *,
 		unsigned int,

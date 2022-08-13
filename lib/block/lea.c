@@ -23,13 +23,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/lea.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int r;
 	uint32_t *k;
 };
@@ -203,7 +202,7 @@ static void lea_setup
 
 static kripto_block *lea_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -219,7 +218,7 @@ static kripto_block *lea_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block) + r * 24);
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->k = (uint32_t *)(s + 1);
 	s->r = r;
 	lea_setup(s, key, key_len);
@@ -251,7 +250,7 @@ static kripto_block *lea_recreate
 	if(r != s->r)
 	{
 		lea_destroy(s);
-		s = lea_create(s->obj.desc, r, key, key_len);
+		s = lea_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -261,7 +260,7 @@ static kripto_block *lea_recreate
 	return s;
 }
 
-static const kripto_block_desc lea =
+static const kripto_desc_block lea =
 {
 	&lea_create,
 	&lea_recreate,
@@ -274,4 +273,4 @@ static const kripto_block_desc lea =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_lea = &lea;
+const kripto_desc_block *const kripto_block_lea = &lea;

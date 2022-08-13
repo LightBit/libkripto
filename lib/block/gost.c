@@ -22,13 +22,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/gost.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int r;
 	const unsigned char *s0;
 	const unsigned char *s1;
@@ -141,7 +140,7 @@ struct gost
 
 static kripto_block *gost_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -154,7 +153,7 @@ static kripto_block *gost_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->r = r;
 	s->k = (uint32_t *)(s + 1);
 
@@ -192,7 +191,7 @@ static kripto_block *gost_recreate
 	if(r != s->r)
 	{
 		gost_destroy(s);
-		s = gost_create(s->obj.desc, r, key, key_len);
+		s = gost_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -202,9 +201,9 @@ static kripto_block *gost_recreate
 	return s;
 }
 
-kripto_block_desc *kripto_block_gost(const unsigned char (*sboxes)[16])
+kripto_desc_block *kripto_block_gost(const unsigned char (*sboxes)[16])
 {
-	kripto_block_desc *desc = (kripto_block_desc *)malloc(sizeof(kripto_block_desc) + sizeof(struct gost));
+	kripto_desc_block *desc = (kripto_desc_block *)malloc(sizeof(kripto_desc_block) + sizeof(struct gost));
 
 	desc->create = &gost_create;
 	desc->recreate = &gost_recreate;
@@ -234,7 +233,7 @@ static const unsigned char CBR[8][16] =
 	{0x1, 0xF, 0xD, 0x0, 0x5, 0x7, 0xA, 0x4, 0x9, 0x2, 0x3, 0xE, 0x6, 0xB, 0x8, 0xC}
 };
 
-kripto_block_desc *kripto_block_gost_cbr(void)
+kripto_desc_block *kripto_block_gost_cbr(void)
 {
 	return kripto_block_gost(CBR);
 }
@@ -251,7 +250,7 @@ static const unsigned char R34_12_2015[8][16] =
 	{0x1, 0x7, 0xE, 0xD, 0x0, 0x5, 0x8, 0x3, 0x4, 0xF, 0xA, 0x6, 0x9, 0xC, 0xB, 0x2}
 };
 
-kripto_block_desc *kripto_block_gost_r34_12_2015(void)
+kripto_desc_block *kripto_block_gost_r34_12_2015(void)
 {
 	return kripto_block_gost(R34_12_2015);
 }

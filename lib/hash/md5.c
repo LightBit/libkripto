@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <limits.h>
 #include <assert.h>
 
 #include <kripto/cast.h>
@@ -25,13 +24,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/md5.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	uint64_t len;
 	uint32_t h[4];
 	uint8_t buf[64];
@@ -237,6 +235,7 @@ static void md5_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *md5_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -246,11 +245,9 @@ static kripto_hash *md5_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_md5;
+	s->desc = desc;
 
-	(void)md5_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return md5_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void md5_destroy(kripto_hash *s)
@@ -261,6 +258,7 @@ static void md5_destroy(kripto_hash *s)
 
 static int md5_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -271,6 +269,7 @@ static int md5_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)md5_recreate(&s, r, salt, salt_len, out_len);
 	md5_input(&s, in, in_len);
@@ -281,7 +280,7 @@ static int md5_hash
 	return 0;
 }
 
-static const kripto_hash_desc md5 =
+static const kripto_desc_hash md5 =
 {
 	&md5_create,
 	&md5_recreate,
@@ -294,4 +293,4 @@ static const kripto_hash_desc md5 =
 	0 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_md5 = &md5;
+const kripto_desc_hash *const kripto_hash_md5 = &md5;

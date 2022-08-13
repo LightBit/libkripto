@@ -23,13 +23,13 @@
 #include <kripto/mac.h>
 #include <kripto/ae.h>
 #include <kripto/desc/ae.h>
-#include <kripto/object/ae.h>
 
 #include <kripto/ae/eax2.h>
 
 struct kripto_ae
 {
-	struct kripto_ae_object obj;
+	const kripto_desc_ae *desc;
+	unsigned int multof;
 	kripto_stream *stream;
 	kripto_mac *mac;
 	kripto_mac *header;
@@ -102,16 +102,16 @@ static void eax2_destroy(kripto_ae *s)
 
 struct ext
 {
-	kripto_ae_desc desc;
-	const kripto_stream_desc *stream;
-	const kripto_mac_desc *mac;
+	kripto_desc_ae desc;
+	const kripto_desc_stream *stream;
+	const kripto_desc_mac *mac;
 };
 
 #define EXT(X) ((const struct ext *)(X))
 
 static kripto_ae *eax2_create
 (
-	const kripto_ae_desc *desc,
+	const kripto_desc_ae *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -131,7 +131,7 @@ static kripto_ae *eax2_create
 	s = (kripto_ae *)malloc(sizeof(kripto_ae) + tag_len);
 	if(!s) goto err1;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->iv = (uint8_t *)s + sizeof(kripto_ae);
 	s->len = tag_len;
 
@@ -164,7 +164,7 @@ static kripto_ae *eax2_create
 	);
 	if(!s->stream) goto err4;
 
-	s->obj.multof = kripto_stream_multof(s->stream);
+	s->multof = kripto_stream_multof(s->stream);
 
 	/* create MAC for header */
 	s->header = kripto_mac_create(EXT(desc)->mac, rounds, key, mac_key, tag_len);
@@ -198,11 +198,11 @@ static kripto_ae *eax2_recreate
 	uint8_t *buf;
 	unsigned int mac_key; /* K1 */
 	unsigned int stream_key; /* K2 */
-	const kripto_ae_desc *desc;
+	const kripto_desc_ae *desc;
 
 	if(tag_len > s->len)
 	{
-		desc = s->obj.desc;
+		desc = s->desc;
 		eax2_destroy(s);
 		return eax2_create(desc, rounds, key, key_len, iv, iv_len, tag_len);
 	}
@@ -217,8 +217,8 @@ static kripto_ae *eax2_recreate
 
 	/* split key */
 	stream_key = (key_len + 1) >> 1;
-	if(stream_key > kripto_stream_maxkey(EXT(s->obj.desc)->stream))
-		stream_key = kripto_stream_maxkey(EXT(s->obj.desc)->stream);
+	if(stream_key > kripto_stream_maxkey(EXT(s->desc)->stream))
+		stream_key = kripto_stream_maxkey(EXT(s->desc)->stream);
 	mac_key = key_len - stream_key;
 
 	/* MAC IV */
@@ -244,7 +244,7 @@ static kripto_ae *eax2_recreate
 	);
 	if(!s->stream) goto err2;
 
-	s->obj.multof = kripto_stream_multof(s->stream);
+	s->multof = kripto_stream_multof(s->stream);
 
 	/* recreate MAC for header */
 	s->header = kripto_mac_recreate(s->header, rounds, key, mac_key, tag_len);
@@ -265,10 +265,10 @@ err0:
 	return 0;
 }
 
-kripto_ae_desc *kripto_ae_eax2
+kripto_desc_ae *kripto_ae_eax2
 (
-	const kripto_stream_desc *stream,
-	const kripto_mac_desc *mac
+	const kripto_desc_stream *stream,
+	const kripto_desc_mac *mac
 )
 {
 	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
@@ -288,5 +288,5 @@ kripto_ae_desc *kripto_ae_eax2
 	s->desc.maxiv = kripto_stream_maxiv(stream);
 	s->desc.maxtag = kripto_mac_maxtag(mac);
 
-	return (kripto_ae_desc *)s;
+	return (kripto_desc_ae *)s;
 }

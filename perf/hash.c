@@ -49,7 +49,7 @@ int main(void)
 	struct
 	{
 		const char *name;
-		const kripto_hash_desc *desc;
+		const kripto_desc_hash *desc;
 		unsigned int out_len;
 	} hashes[20] =
 	{

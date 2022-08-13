@@ -26,15 +26,15 @@
 #include <kripto/mac/omac.h>
 #include <kripto/ae.h>
 #include <kripto/desc/ae.h>
-#include <kripto/object/ae.h>
 
 #include <kripto/ae/eax.h>
 
 struct kripto_ae
 {
-	struct kripto_ae_object obj;
-	kripto_stream_desc *ctr_desc;
-	kripto_mac_desc *omac_desc;
+	const kripto_desc_ae *desc;
+	unsigned int multof;
+	kripto_desc_stream *ctr_desc;
+	kripto_desc_mac *omac_desc;
 	kripto_stream *ctr;
 	kripto_mac *omac;
 	kripto_mac *header;
@@ -110,15 +110,15 @@ static void eax_destroy(kripto_ae *s)
 
 struct ext
 {
-	kripto_ae_desc desc;
-	const kripto_block_desc *block;
+	kripto_desc_ae desc;
+	const kripto_desc_block *block;
 };
 
 #define EXT(X) ((const struct ext *)(X))
 
 static kripto_ae *eax_create
 (
-	const kripto_ae_desc *desc,
+	const kripto_desc_ae *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -140,8 +140,8 @@ static kripto_ae *eax_create
 	s = (kripto_ae *)malloc(sizeof(kripto_ae) + len);
 	if(!s) goto err1;
 
-	s->obj.desc = desc;
-	s->obj.multof = 1;
+	s->desc = desc;
+	s->multof = 1;
 	s->iv = (uint8_t *)s + sizeof(kripto_ae);
 	s->len = len;
 
@@ -248,7 +248,7 @@ err0:
 	return 0;
 }
 
-kripto_ae_desc *kripto_ae_eax(const kripto_block_desc *block)
+kripto_desc_ae *kripto_ae_eax(const kripto_desc_block *block)
 {
 	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
@@ -266,5 +266,5 @@ kripto_ae_desc *kripto_ae_eax(const kripto_block_desc *block)
 	s->desc.maxiv = kripto_block_size(block);
 	s->desc.maxtag = s->desc.maxiv;
 
-	return (kripto_ae_desc *)s;
+	return (kripto_desc_ae *)s;
 }

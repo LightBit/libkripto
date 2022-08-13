@@ -22,13 +22,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/tea.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	uint32_t c;
 	uint32_t k[4];
 };
@@ -87,7 +86,7 @@ static kripto_block *tea_recreate
 
 static kripto_block *tea_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -96,7 +95,7 @@ static kripto_block *tea_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 
 	return tea_recreate(s, r, key, key_len);
 }
@@ -107,7 +106,7 @@ static void tea_destroy(kripto_block *s)
 	free(s);
 }
 
-static const kripto_block_desc tea =
+static const kripto_desc_block tea =
 {
 	&tea_create,
 	&tea_recreate,
@@ -120,4 +119,4 @@ static const kripto_block_desc tea =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_tea = &tea;
+const kripto_desc_block *const kripto_block_tea = &tea;

@@ -26,13 +26,13 @@
 #include <kripto/block/threefish1024.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
-#include <kripto/object/stream.h>
 
 #include <kripto/stream/skein1024.h>
 
 struct kripto_stream
 {
-	struct kripto_stream_object obj;
+	const kripto_desc_stream *desc;
+	unsigned int multof;
 	kripto_block *block;
 	unsigned int r;
 	unsigned int i;
@@ -237,7 +237,7 @@ static void skein1024_prng(kripto_stream *s, void *out, size_t len)
 
 static kripto_stream *skein1024_create
 (
-	const kripto_stream_desc *desc,
+	const kripto_desc_stream *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -248,10 +248,8 @@ static kripto_stream *skein1024_create
 	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
 	if(!s) return 0;
 
-	(void)desc;
-
-	s->obj.desc = kripto_stream_skein1024;
-	s->obj.multof = 1;
+	s->desc = desc;
+	s->multof = 1;
 
 	s->block = kripto_block_create(kripto_block_threefish1024, r, "", 1);
 	if(!s->block)
@@ -260,9 +258,7 @@ static kripto_stream *skein1024_create
 		return 0;
 	}
 
-	(void)skein1024_recreate(s, r, key, key_len, iv, iv_len);
-
-	return s;
+	return skein1024_recreate(s, r, key, key_len, iv, iv_len);
 }
 
 static void skein1024_destroy(kripto_stream *s)
@@ -272,7 +268,7 @@ static void skein1024_destroy(kripto_stream *s)
 	free(s);
 }
 
-static const kripto_stream_desc skein1024 =
+static const kripto_desc_stream skein1024 =
 {
 	&skein1024_create,
 	&skein1024_recreate,
@@ -284,4 +280,4 @@ static const kripto_stream_desc skein1024 =
 	UINT_MAX /* max iv */
 };
 
-const kripto_stream_desc *const kripto_stream_skein1024 = &skein1024;
+const kripto_desc_stream *const kripto_stream_skein1024 = &skein1024;

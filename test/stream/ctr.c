@@ -26,10 +26,10 @@
 
 struct kripto_block
 {
-	kripto_block_desc *desc;
+	kripto_desc_block *desc;
 };
 
-kripto_block_desc *const kripto_block_dummy;
+kripto_desc_block *const kripto_block_dummy;
 
 void dummy_crypt(const kripto_block *s, const void *pt, void *ct)
 {
@@ -57,7 +57,7 @@ void dummy_destroy(kripto_block *s)
 	free(s);
 }
 
-const struct kripto_block_desc dummy =
+const struct kripto_desc_block dummy =
 {
 	&dummy_crypt,
 	&dummy_crypt,
@@ -69,7 +69,7 @@ const struct kripto_block_desc dummy =
 	0
 };
 
-kripto_block_desc *const kripto_block_dummy = &dummy;
+kripto_desc_block *const kripto_block_dummy = &dummy;
 
 int main(void)
 {

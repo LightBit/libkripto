@@ -3,11 +3,11 @@
 
 #include <stddef.h>
 
-struct kripto_stream_desc
+struct kripto_desc_stream
 {
 	kripto_stream *(*create)
 	(
-		const kripto_stream_desc *,
+		const kripto_desc_stream *,
 		unsigned int,
 		const void *,
 		unsigned int,

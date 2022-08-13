@@ -21,13 +21,13 @@
 #include <kripto/memory.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
-#include <kripto/object/stream.h>
 
 #include <kripto/stream/rc4.h>
 
 struct kripto_stream
 {
-	struct kripto_stream_object obj;
+	const kripto_desc_stream *desc;
+	unsigned int multof;
 	uint8_t p[256];
 	uint8_t i;
 	uint8_t j;
@@ -134,7 +134,7 @@ static kripto_stream *rc4_recreate
 
 static kripto_stream *rc4_create
 (
-	const kripto_stream_desc *desc,
+	const kripto_desc_stream *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -145,14 +145,10 @@ static kripto_stream *rc4_create
 	kripto_stream *s = (kripto_stream *)malloc(sizeof(kripto_stream));
 	if(!s) return 0;
 
-	(void)desc;
+	s->desc = desc;
+	s->multof = 1;
 
-	s->obj.desc = kripto_stream_rc4;
-	s->obj.multof = 1;
-
-	(void)rc4_recreate(s, r, key, key_len, iv, iv_len);
-
-	return s;
+	return rc4_recreate(s, r, key, key_len, iv, iv_len);
 }
 
 static void rc4_destroy(kripto_stream *s)
@@ -161,7 +157,7 @@ static void rc4_destroy(kripto_stream *s)
 	free(s);
 }
 
-static const struct kripto_stream_desc rc4_desc =
+static const struct kripto_desc_stream rc4_desc =
 {
 	&rc4_create,
 	&rc4_recreate,
@@ -173,4 +169,4 @@ static const struct kripto_stream_desc rc4_desc =
 	0 /* max iv */
 };
 
-const kripto_stream_desc *const kripto_stream_rc4 = &rc4_desc;
+const kripto_desc_stream *const kripto_stream_rc4 = &rc4_desc;

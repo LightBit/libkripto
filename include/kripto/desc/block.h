@@ -1,11 +1,11 @@
 #ifndef KRIPTO_BLOCK_DESC_H
 #define KRIPTO_BLOCK_DESC_H
 
-struct kripto_block_desc
+struct kripto_desc_block
 {
 	kripto_block *(*create)
 	(
-		const kripto_block_desc *const desc,
+		const kripto_desc_block *const desc,
 		unsigned int,
 		const void *,
 		unsigned int

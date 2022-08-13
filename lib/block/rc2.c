@@ -26,13 +26,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/rc2.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	uint16_t k[64];
 };
 
@@ -190,7 +189,7 @@ static void rc2_decrypt(const kripto_block *s, const void *ct, void *pt)
 
 static kripto_block *rc2_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -199,7 +198,7 @@ static kripto_block *rc2_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 
 	return rc2_recreate(s, r, key, key_len);
 }
@@ -210,7 +209,7 @@ static void rc2_destroy(kripto_block *s)
 	free(s);
 }
 
-static const kripto_block_desc rc2 =
+static const kripto_desc_block rc2 =
 {
 	&rc2_create,
 	&rc2_recreate,
@@ -223,4 +222,4 @@ static const kripto_block_desc rc2 =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_rc2 = &rc2;
+const kripto_desc_block *const kripto_block_rc2 = &rc2;

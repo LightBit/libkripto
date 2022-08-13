@@ -25,13 +25,12 @@ The original code and all modifications are in the public domain. */
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/3way.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int r;
 	uint32_t k[3];
 	uint32_t dk[3];
@@ -202,7 +201,7 @@ static kripto_block *threeway_recreate
 
 static kripto_block *threeway_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -211,7 +210,7 @@ static kripto_block *threeway_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 
 	return threeway_recreate(s, r, key, key_len);
 }
@@ -222,7 +221,7 @@ static void threeway_destroy(kripto_block *s)
 	free(s);
 }
 
-static const kripto_block_desc threeway =
+static const kripto_desc_block threeway =
 {
 	&threeway_create,
 	&threeway_recreate,
@@ -235,4 +234,4 @@ static const kripto_block_desc threeway =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_3way = &threeway;
+const kripto_desc_block *const kripto_block_3way = &threeway;

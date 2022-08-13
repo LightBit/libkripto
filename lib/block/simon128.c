@@ -22,13 +22,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/simon128.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint64_t *k;
 };
@@ -127,7 +126,7 @@ static void simon128_setup
 
 static kripto_block *simon128_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -148,7 +147,7 @@ static kripto_block *simon128_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 3));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->k = (uint64_t *)(s + 1);
 	s->rounds = r;
 
@@ -184,7 +183,7 @@ static kripto_block *simon128_recreate
 	if(r != s->rounds)
 	{
 		simon128_destroy(s);
-		s = simon128_create(s->obj.desc, r, key, key_len);
+		s = simon128_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -194,7 +193,7 @@ static kripto_block *simon128_recreate
 	return s;
 }
 
-static const kripto_block_desc simon128 =
+static const kripto_desc_block simon128 =
 {
 	&simon128_create,
 	&simon128_recreate,
@@ -207,4 +206,4 @@ static const kripto_block_desc simon128 =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_simon128 = &simon128;
+const kripto_desc_block *const kripto_block_simon128 = &simon128;

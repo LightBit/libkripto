@@ -24,14 +24,13 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/safer.h>
 #include <kripto/block/safer_sk.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint8_t *k;
 };
@@ -308,7 +307,7 @@ static void safer_destroy(kripto_block *s)
 
 static kripto_block *safer_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -325,7 +324,7 @@ static kripto_block *safer_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 4) + 8);
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint8_t *)(s + 1);
 
@@ -350,7 +349,7 @@ static kripto_block *safer_recreate
 	if(r != s->rounds)
 	{
 		safer_destroy(s);
-		s = safer_create(s->obj.desc, r, key, key_len);
+		s = safer_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -362,7 +361,7 @@ static kripto_block *safer_recreate
 
 static kripto_block *safer_sk_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -378,7 +377,7 @@ static kripto_block *safer_sk_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 4) + 8);
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint8_t *)(s + 1);
 
@@ -403,7 +402,7 @@ static kripto_block *safer_sk_recreate
 	if(r != s->rounds)
 	{
 		safer_destroy(s);
-		s = safer_sk_create(s->obj.desc, r, key, key_len);
+		s = safer_sk_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -413,7 +412,7 @@ static kripto_block *safer_sk_recreate
 	return s;
 }
 
-static const kripto_block_desc safer =
+static const kripto_desc_block safer =
 {
 	&safer_create,
 	&safer_recreate,
@@ -426,7 +425,7 @@ static const kripto_block_desc safer =
 	0 /* max tweak */
 };
 
-static const kripto_block_desc safer_sk =
+static const kripto_desc_block safer_sk =
 {
 	&safer_sk_create,
 	&safer_sk_recreate,
@@ -439,5 +438,5 @@ static const kripto_block_desc safer_sk =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_safer = &safer;
-const kripto_block_desc *const kripto_block_safer_sk = &safer_sk;
+const kripto_desc_block *const kripto_block_safer = &safer;
+const kripto_desc_block *const kripto_block_safer_sk = &safer_sk;

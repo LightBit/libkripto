@@ -26,13 +26,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/anubis.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t *k;
 	uint32_t *dk;
@@ -722,7 +721,7 @@ static void anubis_decrypt
 
 static kripto_block *anubis_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -739,7 +738,7 @@ static kripto_block *anubis_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
@@ -772,7 +771,7 @@ static kripto_block *anubis_recreate
 	if(r != s->rounds)
 	{
 		anubis_destroy(s);
-		s = anubis_create(s->obj.desc, r, key, key_len);
+		s = anubis_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -782,7 +781,7 @@ static kripto_block *anubis_recreate
 	return s;
 }
 
-static const kripto_block_desc anubis =
+static const kripto_desc_block anubis =
 {
 	&anubis_create,
 	&anubis_recreate,
@@ -795,4 +794,4 @@ static const kripto_block_desc anubis =
 	0, /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_anubis = &anubis;
+const kripto_desc_block *const kripto_block_anubis = &anubis;

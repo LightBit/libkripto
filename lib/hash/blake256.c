@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <limits.h>
 #include <assert.h>
 
 #include <kripto/cast.h>
@@ -25,13 +24,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/blake256.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	unsigned int r;
 	uint32_t h[8];
 	uint32_t s[4];
@@ -256,6 +254,7 @@ static void blake256_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *blake256_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -265,11 +264,9 @@ static kripto_hash *blake256_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_blake256;
+	s->desc = desc;
 
-	(void)blake256_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return blake256_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void blake256_destroy(kripto_hash *s)
@@ -280,6 +277,7 @@ static void blake256_destroy(kripto_hash *s)
 
 static int blake256_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -290,6 +288,7 @@ static int blake256_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)blake256_recreate(&s, r, salt, salt_len, out_len);
 	blake256_input(&s, in, in_len);
@@ -300,7 +299,7 @@ static int blake256_hash
 	return 0;
 }
 
-static const kripto_hash_desc blake256 =
+static const kripto_desc_hash blake256 =
 {
 	&blake256_create,
 	&blake256_recreate,
@@ -313,4 +312,4 @@ static const kripto_hash_desc blake256 =
 	16 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_blake256 = &blake256;
+const kripto_desc_hash *const kripto_hash_blake256 = &blake256;

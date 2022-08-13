@@ -23,13 +23,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/tiger.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	unsigned int passes;
 	uint64_t h[3];
 	uint8_t buf[64];
@@ -752,6 +751,7 @@ static void tiger_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *tiger_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -761,7 +761,7 @@ static kripto_hash *tiger_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_tiger;
+	s->desc = desc;
 
 	return tiger_recreate(s, r, salt, salt_len, out_len);
 }
@@ -774,6 +774,7 @@ static void tiger_destroy(kripto_hash *s)
 
 static int tiger_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -784,6 +785,7 @@ static int tiger_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)tiger_recreate(&s, r, salt, salt_len, out_len);
 	tiger_input(&s, in, in_len);
@@ -794,7 +796,7 @@ static int tiger_hash
 	return 0;
 }
 
-static const kripto_hash_desc tiger =
+static const kripto_desc_hash tiger =
 {
 	&tiger_create,
 	&tiger_recreate,
@@ -807,4 +809,4 @@ static const kripto_hash_desc tiger =
 	0 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_tiger = &tiger;
+const kripto_desc_hash *const kripto_hash_tiger = &tiger;

@@ -26,13 +26,12 @@
 #include <kripto/block/threefish512.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
-#include <kripto/object/mac.h>
 
 #include <kripto/mac/skein512.h>
 
 struct kripto_mac
 {
-	struct kripto_mac_object obj;
+	const kripto_desc_mac *desc;
 	kripto_block *block;
 	unsigned int r;
 	unsigned int i;
@@ -190,7 +189,7 @@ static void skein512_tag(kripto_mac *s, void *tag, unsigned int len)
 
 static kripto_mac *skein512_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -200,9 +199,7 @@ static kripto_mac *skein512_create
 	kripto_mac *s = (kripto_mac *)malloc(sizeof(kripto_mac));
 	if(!s) return 0;
 
-	(void)desc;
-
-	s->obj.desc = kripto_mac_skein512;
+	s->desc = desc;
 
 	s->block = kripto_block_create(kripto_block_threefish512, r, "", 1);
 	if(!s->block)
@@ -223,7 +220,7 @@ static void skein512_destroy(kripto_mac *s)
 	free(s);
 }
 
-static const kripto_mac_desc skein512 =
+static const kripto_desc_mac skein512 =
 {
 	&skein512_create,
 	&skein512_recreate,
@@ -234,4 +231,4 @@ static const kripto_mac_desc skein512 =
 	UINT_MAX /* max key */
 };
 
-const kripto_mac_desc *const kripto_mac_skein512 = &skein512;
+const kripto_desc_mac *const kripto_mac_skein512 = &skein512;

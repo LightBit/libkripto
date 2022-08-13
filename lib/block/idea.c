@@ -23,13 +23,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/idea.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int r;
 	uint16_t *ek;
 	uint16_t *dk;
@@ -172,7 +171,7 @@ static void idea_decrypt
 
 static kripto_block *idea_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -185,7 +184,7 @@ static kripto_block *idea_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + r * 24 + 16);
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->ek = (uint16_t *)(s + 1);
 	s->dk = s->ek + r * 6 + 4;
 	s->r = r;
@@ -214,7 +213,7 @@ static kripto_block *idea_recreate
 	if(r != s->r)
 	{
 		idea_destroy(s);
-		s = idea_create(s->obj.desc, r, key, key_len);
+		s = idea_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -224,7 +223,7 @@ static kripto_block *idea_recreate
 	return s;
 }
 
-static const kripto_block_desc idea =
+static const kripto_desc_block idea =
 {
 	&idea_create,
 	&idea_recreate,
@@ -237,4 +236,4 @@ static const kripto_block_desc idea =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_idea = &idea;
+const kripto_desc_block *const kripto_block_idea = &idea;

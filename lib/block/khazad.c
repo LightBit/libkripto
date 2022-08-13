@@ -21,13 +21,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/khazad.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int r;
 	uint64_t *k;
 	uint64_t *dk;
@@ -707,7 +706,7 @@ static void khazad_decrypt
 
 static kripto_block *khazad_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -720,7 +719,7 @@ static kripto_block *khazad_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 4));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->r = r;
 	s->k = (uint64_t *)(s + 1);
 	s->dk = s->k + r + 1;
@@ -749,7 +748,7 @@ static kripto_block *khazad_recreate
 	if(r != s->r)
 	{
 		khazad_destroy(s);
-		s = khazad_create(s->obj.desc, r, key, key_len);
+		s = khazad_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -759,7 +758,7 @@ static kripto_block *khazad_recreate
 	return s;
 }
 
-static const kripto_block_desc khazad =
+static const kripto_desc_block khazad =
 {
 	&khazad_create,
 	&khazad_recreate,
@@ -772,4 +771,4 @@ static const kripto_block_desc khazad =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_khazad = &khazad;
+const kripto_desc_block *const kripto_block_khazad = &khazad;

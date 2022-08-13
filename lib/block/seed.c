@@ -22,13 +22,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/seed.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t *k;
 };
@@ -418,7 +417,7 @@ static void seed_setup
 
 static kripto_block *seed_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -431,7 +430,7 @@ static kripto_block *seed_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 3));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
@@ -459,7 +458,7 @@ static kripto_block *seed_recreate
 	if(r != s->rounds)
 	{
 		seed_destroy(s);
-		s = seed_create(s->obj.desc, r, key, key_len);
+		s = seed_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -469,7 +468,7 @@ static kripto_block *seed_recreate
 	return s;
 }
 
-static const kripto_block_desc seed =
+static const kripto_desc_block seed =
 {
 	&seed_create,
 	&seed_recreate,
@@ -482,4 +481,4 @@ static const kripto_block_desc seed =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_seed = &seed;
+const kripto_desc_block *const kripto_block_seed = &seed;

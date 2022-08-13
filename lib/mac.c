@@ -21,12 +21,12 @@
 
 struct kripto_mac
 {
-	const kripto_mac_desc *desc;
+	const kripto_desc_mac *desc;
 };
 
 kripto_mac *kripto_mac_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -101,7 +101,7 @@ void kripto_mac_destroy(kripto_mac *s)
 
 int kripto_mac_all
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int rounds,
 	const void *key,
 	unsigned int key_len,
@@ -126,7 +126,7 @@ int kripto_mac_all
 	return 0;
 }
 
-const kripto_mac_desc *kripto_mac_getdesc(const kripto_mac *s)
+const kripto_desc_mac *kripto_mac_getdesc(const kripto_mac *s)
 {
 	assert(s);
 	assert(s->desc);
@@ -134,14 +134,14 @@ const kripto_mac_desc *kripto_mac_getdesc(const kripto_mac *s)
 	return s->desc;
 }
 
-unsigned int kripto_mac_maxtag(const kripto_mac_desc *desc)
+unsigned int kripto_mac_maxtag(const kripto_desc_mac *desc)
 {
 	assert(desc);
 
 	return desc->maxtag;
 }
 
-unsigned int kripto_mac_maxkey(const kripto_mac_desc *desc)
+unsigned int kripto_mac_maxkey(const kripto_desc_mac *desc)
 {
 	assert(desc);
 

@@ -50,7 +50,7 @@ int main(void)
 	};
 	uint8_t t[32];
 
-	kripto_ae_desc *desc = kripto_ae_eax(kripto_block_rijndael128);
+	kripto_desc_ae *desc = kripto_ae_eax(kripto_block_rijndael128);
 
 	/* create */
 	kripto_ae *s = kripto_ae_create(desc, 0, k, 16, k, 16, 16);

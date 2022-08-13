@@ -24,14 +24,13 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/keccak1600.h>
 #include <kripto/hash/sha3.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	unsigned int r;
 	unsigned int rate;
 	unsigned int i;
@@ -370,6 +369,7 @@ static void keccak1600_output
 
 static kripto_hash *keccak1600_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -379,11 +379,9 @@ static kripto_hash *keccak1600_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_keccak1600;
+	s->desc = desc;
 
-	(void)keccak1600_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return keccak1600_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void keccak1600_destroy(kripto_hash *s) 
@@ -394,6 +392,7 @@ static void keccak1600_destroy(kripto_hash *s)
 
 static int keccak1600_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -404,6 +403,7 @@ static int keccak1600_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)keccak1600_recreate(&s, r, salt, salt_len, out_len);
 	keccak1600_input(&s, in, in_len);
@@ -414,7 +414,7 @@ static int keccak1600_hash
 	return 0;
 }
 
-static const kripto_hash_desc keccak1600 =
+static const kripto_desc_hash keccak1600 =
 {
 	&keccak1600_create,
 	&keccak1600_recreate,
@@ -427,7 +427,7 @@ static const kripto_hash_desc keccak1600 =
 	0 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_keccak1600 = &keccak1600;
+const kripto_desc_hash *const kripto_hash_keccak1600 = &keccak1600;
 
 /* SHA3 */
 static void sha3_output
@@ -459,6 +459,7 @@ static void sha3_output
 
 static int sha3_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -469,6 +470,7 @@ static int sha3_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)keccak1600_recreate(&s, r, salt, salt_len, out_len);
 	keccak1600_input(&s, in, in_len);
@@ -479,7 +481,7 @@ static int sha3_hash
 	return 0;
 }
 
-static const kripto_hash_desc sha3 =
+static const kripto_desc_hash sha3 =
 {
 	&keccak1600_create,
 	&keccak1600_recreate,
@@ -492,4 +494,4 @@ static const kripto_hash_desc sha3 =
 	0, /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_sha3 = &sha3;
+const kripto_desc_hash *const kripto_hash_sha3 = &sha3;

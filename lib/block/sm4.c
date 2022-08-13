@@ -23,13 +23,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/sm4.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int r;
 	uint32_t *k;
 };
@@ -186,7 +185,7 @@ static void sm4_setup
 
 static kripto_block *sm4_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -197,7 +196,7 @@ static kripto_block *sm4_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->k = (uint32_t *)(s + 1);
 	s->r = r;
 	sm4_setup(s, key, key_len);
@@ -224,7 +223,7 @@ static kripto_block *sm4_recreate
 	if(r != s->r)
 	{
 		sm4_destroy(s);
-		s = sm4_create(s->obj.desc, r, key, key_len);
+		s = sm4_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -234,7 +233,7 @@ static kripto_block *sm4_recreate
 	return s;
 }
 
-static const kripto_block_desc sm4 =
+static const kripto_desc_block sm4 =
 {
 	&sm4_create,
 	&sm4_recreate,
@@ -247,4 +246,4 @@ static const kripto_block_desc sm4 =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_sm4 = &sm4;
+const kripto_desc_block *const kripto_block_sm4 = &sm4;

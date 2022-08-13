@@ -34,7 +34,7 @@ int test
 (
 	const char *file,
 	unsigned int line,
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	const struct vector *vectors,
 	unsigned int vectors_len
 );
@@ -44,7 +44,7 @@ int test
 (
 	const char *file,
 	unsigned int line,
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	const struct vector *vectors,
 	unsigned int vectors_len
 )

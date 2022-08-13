@@ -24,7 +24,6 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/threefish1024.h>
 
@@ -32,7 +31,7 @@
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint64_t t[3];
 	uint64_t k[17];
@@ -400,7 +399,7 @@ static kripto_block *threefish1024_recreate
 
 static kripto_block *threefish1024_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -409,7 +408,7 @@ static kripto_block *threefish1024_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 
 	return threefish1024_recreate(s, r, key, key_len);
 }
@@ -420,7 +419,7 @@ static void threefish1024_destroy(kripto_block *s)
 	free(s);
 }
 
-static const kripto_block_desc threefish1024 =
+static const kripto_desc_block threefish1024 =
 {
 	&threefish1024_create,
 	&threefish1024_recreate,
@@ -433,4 +432,4 @@ static const kripto_block_desc threefish1024 =
 	16 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_threefish1024 = &threefish1024;
+const kripto_desc_block *const kripto_block_threefish1024 = &threefish1024;

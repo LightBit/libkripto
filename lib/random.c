@@ -74,7 +74,7 @@ struct kripto_random
 struct kripto_random
 {
 	kripto_stream *stream;
-	kripto_mac_desc *mac;
+	kripto_desc_mac *mac;
 	time_t time;
 	size_t output;
 };

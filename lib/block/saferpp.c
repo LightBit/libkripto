@@ -22,13 +22,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/saferpp.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint8_t *k;
 };
@@ -369,7 +368,7 @@ static void saferpp_destroy(kripto_block *s)
 
 static kripto_block *saferpp_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -386,7 +385,7 @@ static kripto_block *saferpp_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 5) + 16);
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint8_t *)(s + 1);
 
@@ -412,7 +411,7 @@ static kripto_block *saferpp_recreate
 	if(r != s->rounds)
 	{
 		saferpp_destroy(s);
-		s = saferpp_create(s->obj.desc, r, key, key_len);
+		s = saferpp_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -422,7 +421,7 @@ static kripto_block *saferpp_recreate
 	return s;
 }
 
-static const kripto_block_desc saferpp =
+static const kripto_desc_block saferpp =
 {
 	&saferpp_create,
 	&saferpp_recreate,
@@ -435,5 +434,4 @@ static const kripto_block_desc saferpp =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_saferpp = &saferpp;
-
+const kripto_desc_block *const kripto_block_saferpp = &saferpp;

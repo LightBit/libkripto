@@ -26,7 +26,7 @@
 
 int kripto_pbkdf2
 (
-	const kripto_mac_desc *mac,
+	const kripto_desc_mac *mac,
 	unsigned int mac_rounds,
 	unsigned int iter,
 	const void *pass,

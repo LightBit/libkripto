@@ -25,7 +25,7 @@
 
 int main(void)
 {
-	kripto_mac_desc *desc;
+	kripto_desc_mac *desc;
 	uint8_t hash[32];
 	unsigned int i;
 

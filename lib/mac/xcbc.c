@@ -23,13 +23,12 @@
 #include <kripto/block.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
-#include <kripto/object/mac.h>
 
 #include <kripto/mac/xcbc.h>
 
 struct kripto_mac
 {
-	struct kripto_mac_object obj;
+	const kripto_desc_mac *desc;
 	kripto_block *block;
 	uint8_t *buf;
 	uint8_t *k2;
@@ -127,15 +126,15 @@ static void xcbc_destroy(kripto_mac *s)
 
 struct ext
 {
-	kripto_mac_desc desc;
-	const kripto_block_desc *block;
+	kripto_desc_mac desc;
+	const kripto_desc_block *block;
 };
 
 #define EXT(X) ((const struct ext *)(X))
 
 static kripto_mac *xcbc_create
 (
-	const kripto_mac_desc *desc,
+	const kripto_desc_mac *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len,
@@ -147,7 +146,7 @@ static kripto_mac *xcbc_create
 
 	(void)tag_len;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->len = desc->maxtag;
 	s->buf = (uint8_t *)s + sizeof(kripto_mac);
 	s->k2 = s->buf + s->len;
@@ -187,12 +186,12 @@ static kripto_mac *xcbc_recreate
 	return s;
 
 err:
-	kripto_memory_wipe(s, sizeof(kripto_mac) + s->obj.desc->maxtag * 3);
+	kripto_memory_wipe(s, sizeof(kripto_mac) + s->desc->maxtag * 3);
 	free(s);
 	return 0;
 }
 
-kripto_mac_desc *kripto_mac_xcbc(const kripto_block_desc *block)
+kripto_desc_mac *kripto_mac_xcbc(const kripto_desc_block *block)
 {
 	struct ext *s = (struct ext *)malloc(sizeof(struct ext));
 	if(!s) return 0;
@@ -207,5 +206,5 @@ kripto_mac_desc *kripto_mac_xcbc(const kripto_block_desc *block)
 	s->desc.maxtag = kripto_block_size(block);
 	s->desc.maxkey = kripto_block_maxkey(block);
 
-	return (kripto_mac_desc *)s;
+	return (kripto_desc_mac *)s;
 }

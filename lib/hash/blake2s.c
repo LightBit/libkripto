@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <limits.h>
 #include <assert.h>
 
 #include <kripto/cast.h>
@@ -25,13 +24,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/blake2s.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	unsigned int r;
 	uint32_t h[8];
 	uint32_t len[2];
@@ -222,6 +220,7 @@ static void blake2s_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *blake2s_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -231,11 +230,9 @@ static kripto_hash *blake2s_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_blake2s;
+	s->desc = desc;
 
-	(void)blake2s_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return blake2s_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void blake2s_destroy(kripto_hash *s)
@@ -246,6 +243,7 @@ static void blake2s_destroy(kripto_hash *s)
 
 static int blake2s_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -256,6 +254,7 @@ static int blake2s_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)blake2s_recreate(&s, r, salt, salt_len, out_len);
 	blake2s_input(&s, in, in_len);
@@ -266,7 +265,7 @@ static int blake2s_hash
 	return 0;
 }
 
-static const kripto_hash_desc blake2s =
+static const kripto_desc_hash blake2s =
 {
 	&blake2s_create,
 	&blake2s_recreate,
@@ -279,4 +278,4 @@ static const kripto_hash_desc blake2s =
 	8 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_blake2s = &blake2s;
+const kripto_desc_hash *const kripto_hash_blake2s = &blake2s;

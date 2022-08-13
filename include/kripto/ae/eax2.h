@@ -1,10 +1,10 @@
 #ifndef KRIPTO_AE_EAX2_H
 #define KRIPTO_AE_EAX2_H
 
-extern kripto_ae_desc *kripto_ae_eax2
+extern kripto_desc_ae *kripto_ae_eax2
 (
-	const kripto_stream_desc *stream,
-	const kripto_mac_desc *mac
+	const kripto_desc_stream *stream,
+	const kripto_desc_mac *mac
 );
 
 #endif

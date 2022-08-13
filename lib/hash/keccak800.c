@@ -24,13 +24,12 @@
 #include <kripto/memory.h>
 #include <kripto/hash.h>
 #include <kripto/desc/hash.h>
-#include <kripto/object/hash.h>
 
 #include <kripto/hash/keccak800.h>
 
 struct kripto_hash
 {
-	struct kripto_hash_object obj;
+	const kripto_desc_hash *desc;
 	unsigned int r;
 	unsigned int rate;
 	unsigned int i;
@@ -350,6 +349,7 @@ static void keccak800_output(kripto_hash *s, void *out, size_t len)
 
 static kripto_hash *keccak800_create
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -359,11 +359,9 @@ static kripto_hash *keccak800_create
 	kripto_hash *s = (kripto_hash *)malloc(sizeof(kripto_hash));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_hash_keccak800;
+	s->desc = desc;
 
-	(void)keccak800_recreate(s, r, salt, salt_len, out_len);
-
-	return s;
+	return keccak800_recreate(s, r, salt, salt_len, out_len);
 }
 
 static void keccak800_destroy(kripto_hash *s) 
@@ -374,6 +372,7 @@ static void keccak800_destroy(kripto_hash *s)
 
 static int keccak800_hash
 (
+	const kripto_desc_hash *desc,
 	unsigned int r,
 	const void *salt,
 	unsigned int salt_len,
@@ -384,6 +383,7 @@ static int keccak800_hash
 )
 {
 	kripto_hash s;
+	(void)desc;
 
 	(void)keccak800_recreate(&s, r, salt, salt_len, out_len);
 	keccak800_input(&s, in, in_len);
@@ -394,7 +394,7 @@ static int keccak800_hash
 	return 0;
 }
 
-static const kripto_hash_desc keccak800 =
+static const kripto_desc_hash keccak800 =
 {
 	&keccak800_create,
 	&keccak800_recreate,
@@ -407,4 +407,4 @@ static const kripto_hash_desc keccak800 =
 	0 /* max salt */
 };
 
-const kripto_hash_desc *const kripto_hash_keccak800 = &keccak800;
+const kripto_desc_hash *const kripto_hash_keccak800 = &keccak800;

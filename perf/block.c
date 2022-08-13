@@ -84,7 +84,7 @@ int main(void)
 	struct
 	{
 		const char *name;
-		const kripto_block_desc *desc;
+		const kripto_desc_block *desc;
 	} ciphers[37] =
 	{
 		{"3-Way", kripto_block_3way},

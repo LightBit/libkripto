@@ -17,7 +17,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -25,13 +24,12 @@
 #include <kripto/memory.h>
 #include <kripto/block.h>
 #include <kripto/desc/block.h>
-#include <kripto/object/block.h>
 
 #include <kripto/block/twofish.h>
 
 struct kripto_block
 {
-	struct kripto_block_object obj;
+	const kripto_desc_block *desc;
 	unsigned int rounds;
 	uint32_t s0[256];
 	uint32_t s1[256];
@@ -1186,7 +1184,7 @@ static void twofish_decrypt
 
 static kripto_block *twofish_create
 (
-	const kripto_block_desc *desc,
+	const kripto_desc_block *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -1199,7 +1197,7 @@ static kripto_block *twofish_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (TWOFISH_K_LEN(r) << 2));
 	if(!s) return 0;
 
-	s->obj.desc = desc;
+	s->desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
@@ -1227,7 +1225,7 @@ static kripto_block *twofish_recreate
 	if(r != s->rounds)
 	{
 		twofish_destroy(s);
-		s = twofish_create(s->obj.desc, r, key, key_len);
+		s = twofish_create(s->desc, r, key, key_len);
 	}
 	else
 	{
@@ -1237,7 +1235,7 @@ static kripto_block *twofish_recreate
 	return s;
 }
 
-static const kripto_block_desc twofish =
+static const kripto_desc_block twofish =
 {
 	&twofish_create,
 	&twofish_recreate,
@@ -1250,4 +1248,4 @@ static const kripto_block_desc twofish =
 	0 /* max tweak */
 };
 
-const kripto_block_desc *const kripto_block_twofish = &twofish;
+const kripto_desc_block *const kripto_block_twofish = &twofish;
