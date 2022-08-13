@@ -203,6 +203,7 @@ static void lea_setup
 
 static kripto_block *lea_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -218,7 +219,7 @@ static kripto_block *lea_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block) + r * 24);
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_lea;
+	s->obj.desc = desc;
 	s->k = (uint32_t *)(s + 1);
 	s->r = r;
 	lea_setup(s, key, key_len);
@@ -250,7 +251,7 @@ static kripto_block *lea_recreate
 	if(r != s->r)
 	{
 		lea_destroy(s);
-		s = lea_create(r, key, key_len);
+		s = lea_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

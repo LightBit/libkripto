@@ -194,6 +194,7 @@ static void shacal2_setup
 
 static kripto_block *shacal2_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -206,7 +207,7 @@ static kripto_block *shacal2_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_shacal2;
+	s->obj.desc = desc;
 	s->k = (uint32_t *)(s + 1);
 	s->r = r;
 	shacal2_setup(s, key, key_len);
@@ -235,7 +236,7 @@ static kripto_block *shacal2_recreate
 	if(r != s->r)
 	{
 		shacal2_destroy(s);
-		s = shacal2_create(r, key, key_len);
+		s = shacal2_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

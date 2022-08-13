@@ -117,6 +117,7 @@ static void rc5_decrypt(const kripto_block *s, const void *ct, void *pt)
 
 static kripto_block *rc5_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -129,7 +130,7 @@ static kripto_block *rc5_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 3));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_rc5;
+	s->obj.desc = desc;
 	s->r = r;
 	s->k = (uint32_t *)(s + 1);
 
@@ -157,7 +158,7 @@ static kripto_block *rc5_recreate
 	if(r != s->r)
 	{
 		rc5_destroy(s);
-		s = rc5_create(r, key, key_len);
+		s = rc5_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

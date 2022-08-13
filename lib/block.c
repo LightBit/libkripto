@@ -38,7 +38,7 @@ kripto_block *kripto_block_create
 	assert(key_len);
 	assert(key_len <= kripto_block_maxkey(desc));
 
-	return desc->create(rounds, key, key_len);
+	return desc->create(desc, rounds, key, key_len);
 }
 
 kripto_block *kripto_block_recreate

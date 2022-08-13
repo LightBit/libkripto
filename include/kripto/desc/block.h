@@ -5,6 +5,7 @@ struct kripto_block_desc
 {
 	kripto_block *(*create)
 	(
+		const kripto_block_desc *const desc,
 		unsigned int,
 		const void *,
 		unsigned int

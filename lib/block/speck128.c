@@ -105,6 +105,7 @@ static void speck128_setup
 
 static kripto_block *speck128_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -117,7 +118,7 @@ static kripto_block *speck128_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 3));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_speck128;
+	s->obj.desc = desc;
 	s->k = (uint64_t *)(s + 1);
 	s->rounds = r;
 
@@ -145,7 +146,7 @@ static kripto_block *speck128_recreate
 	if(r != s->rounds)
 	{
 		speck128_destroy(s);
-		s = speck128_create(r, key, key_len);
+		s = speck128_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

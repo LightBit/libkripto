@@ -94,7 +94,7 @@ int main(void)
 		{"Camellia", kripto_block_camellia},
 		{"CAST5", kripto_block_cast5},
 		{"DES", kripto_block_des},
-		{"GOST", kripto_block_gost},
+		{"GOST 28147-89", kripto_block_gost_r34_12_2015()},
 		{"IDEA", kripto_block_idea},
 		{"KHAZAD", kripto_block_khazad},
 		{"LEA", kripto_block_khazad},

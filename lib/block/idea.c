@@ -172,6 +172,7 @@ static void idea_decrypt
 
 static kripto_block *idea_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -184,7 +185,7 @@ static kripto_block *idea_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + r * 24 + 16);
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_idea;
+	s->obj.desc = desc;
 	s->ek = (uint16_t *)(s + 1);
 	s->dk = s->ek + r * 6 + 4;
 	s->r = r;
@@ -213,7 +214,7 @@ static kripto_block *idea_recreate
 	if(r != s->r)
 	{
 		idea_destroy(s);
-		s = idea_create(r, key, key_len);
+		s = idea_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

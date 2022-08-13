@@ -308,6 +308,7 @@ static void safer_destroy(kripto_block *s)
 
 static kripto_block *safer_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -324,7 +325,7 @@ static kripto_block *safer_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 4) + 8);
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_safer;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint8_t *)(s + 1);
 
@@ -349,7 +350,7 @@ static kripto_block *safer_recreate
 	if(r != s->rounds)
 	{
 		safer_destroy(s);
-		s = safer_create(r, key, key_len);
+		s = safer_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{
@@ -361,6 +362,7 @@ static kripto_block *safer_recreate
 
 static kripto_block *safer_sk_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -376,7 +378,7 @@ static kripto_block *safer_sk_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 4) + 8);
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_safer_sk;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint8_t *)(s + 1);
 
@@ -401,7 +403,7 @@ static kripto_block *safer_sk_recreate
 	if(r != s->rounds)
 	{
 		safer_destroy(s);
-		s = safer_sk_create(r, key, key_len);
+		s = safer_sk_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

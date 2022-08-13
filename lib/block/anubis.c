@@ -722,6 +722,7 @@ static void anubis_decrypt
 
 static kripto_block *anubis_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -738,7 +739,7 @@ static kripto_block *anubis_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_anubis;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
@@ -771,7 +772,7 @@ static kripto_block *anubis_recreate
 	if(r != s->rounds)
 	{
 		anubis_destroy(s);
-		s = anubis_create(r, key, key_len);
+		s = anubis_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

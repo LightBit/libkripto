@@ -886,6 +886,7 @@ static void rijndael128_decrypt
 
 static kripto_block *rijndael128_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -902,7 +903,7 @@ static kripto_block *rijndael128_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_rijndael128;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
@@ -935,7 +936,7 @@ static kripto_block *rijndael128_recreate
 	if(r != s->rounds)
 	{
 		rijndael128_destroy(s);
-		s = rijndael128_create(r, key, key_len);
+		s = rijndael128_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{
@@ -1118,6 +1119,7 @@ static void rijndael256_decrypt
 
 static kripto_block *rijndael256_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -1134,7 +1136,7 @@ static kripto_block *rijndael256_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 6));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_rijndael256;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 3);
@@ -1167,7 +1169,7 @@ static kripto_block *rijndael256_recreate
 	if(r != s->rounds)
 	{
 		rijndael256_destroy(s);
-		s = rijndael256_create(r, key, key_len);
+		s = rijndael256_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

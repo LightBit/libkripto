@@ -480,6 +480,7 @@ static void blowfish_setup
 
 static kripto_block *blowfish_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -492,7 +493,7 @@ static kripto_block *blowfish_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 2) << 2));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_blowfish;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->p = (uint32_t *)(s + 1);
 
@@ -520,7 +521,7 @@ static kripto_block *blowfish_recreate
 	if(r != s->rounds)
 	{
 		blowfish_destroy(s);
-		s = blowfish_create(r, key, key_len);
+		s = blowfish_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

@@ -190,6 +190,7 @@ static void rc2_decrypt(const kripto_block *s, const void *ct, void *pt)
 
 static kripto_block *rc2_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -198,7 +199,7 @@ static kripto_block *rc2_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_rc2;
+	s->obj.desc = desc;
 
 	return rc2_recreate(s, r, key, key_len);
 }

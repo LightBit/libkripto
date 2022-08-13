@@ -585,7 +585,7 @@ static void serpent_decrypt
 static void serpent_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int key_len
 )
 {
@@ -668,6 +668,7 @@ static void serpent_setup
 
 static kripto_block *serpent_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -680,11 +681,11 @@ static kripto_block *serpent_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 4));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_serpent;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
-	serpent_setup(s, (const uint8_t *)key, key_len);
+	serpent_setup(s, key, key_len);
 
 	return s;
 }
@@ -708,11 +709,11 @@ static kripto_block *serpent_recreate
 	if(r != s->rounds)
 	{
 		serpent_destroy(s);
-		s = serpent_create(r, key, key_len);
+		s = serpent_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{
-		serpent_setup(s, (const uint8_t *)key, key_len);
+		serpent_setup(s, key, key_len);
 	}
 
 	return s;

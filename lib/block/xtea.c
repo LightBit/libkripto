@@ -38,7 +38,7 @@ struct kripto_block
 static void xtea_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int key_len
 )
 {
@@ -103,6 +103,7 @@ static void xtea_decrypt(const kripto_block *s, const void *ct, void *pt)
 
 static kripto_block *xtea_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -115,11 +116,11 @@ static kripto_block *xtea_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_xtea;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
-	xtea_setup(s, (const uint8_t *)key, key_len);
+	xtea_setup(s, key, key_len);
 
 	return s;
 }
@@ -143,11 +144,11 @@ static kripto_block *xtea_recreate
 	if(r != s->rounds)
 	{
 		xtea_destroy(s);
-		s = xtea_create(r, key, key_len);
+		s = xtea_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{
-		xtea_setup(s, (const uint8_t *)key, key_len);
+		xtea_setup(s, key, key_len);
 	}
 
 	return s;

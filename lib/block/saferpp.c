@@ -369,6 +369,7 @@ static void saferpp_destroy(kripto_block *s)
 
 static kripto_block *saferpp_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -385,7 +386,7 @@ static kripto_block *saferpp_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 5) + 16);
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_saferpp;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint8_t *)(s + 1);
 
@@ -411,7 +412,7 @@ static kripto_block *saferpp_recreate
 	if(r != s->rounds)
 	{
 		saferpp_destroy(s);
-		s = saferpp_create(r, key, key_len);
+		s = saferpp_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

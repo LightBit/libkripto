@@ -186,6 +186,7 @@ static void sm4_setup
 
 static kripto_block *sm4_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -196,7 +197,7 @@ static kripto_block *sm4_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_sm4;
+	s->obj.desc = desc;
 	s->k = (uint32_t *)(s + 1);
 	s->r = r;
 	sm4_setup(s, key, key_len);
@@ -223,7 +224,7 @@ static kripto_block *sm4_recreate
 	if(r != s->r)
 	{
 		sm4_destroy(s);
-		s = sm4_create(r, key, key_len);
+		s = sm4_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

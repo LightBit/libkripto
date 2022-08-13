@@ -655,6 +655,7 @@ static void aria_setup
 
 static kripto_block *aria_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -672,7 +673,7 @@ static kripto_block *aria_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + ((r + 1) << 5));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_aria;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 	s->dk = s->k + ((r + 1) << 2);
@@ -706,7 +707,7 @@ static kripto_block *aria_recreate
 	if(r != s->rounds)
 	{
 		aria_destroy(s);
-		s = aria_create(r, key, key_len);
+		s = aria_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

@@ -158,6 +158,7 @@ static void rc6_decrypt(const kripto_block *s, const void *ct, void *pt)
 
 static kripto_block *rc6_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -170,7 +171,7 @@ static kripto_block *rc6_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (RC6_K_LEN(r) << 2));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_rc6;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
@@ -198,7 +199,7 @@ static kripto_block *rc6_recreate
 	if(r != s->rounds)
 	{
 		rc6_destroy(s);
-		s = rc6_create(r, key, key_len);
+		s = rc6_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

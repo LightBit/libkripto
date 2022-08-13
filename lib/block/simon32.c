@@ -115,6 +115,7 @@ static void simon32_setup
 
 static kripto_block *simon32_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -127,7 +128,7 @@ static kripto_block *simon32_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 1));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_simon32;
+	s->obj.desc = desc;
 	s->k = (uint16_t *)(s + 1);
 	s->rounds = r;
 
@@ -155,7 +156,7 @@ static kripto_block *simon32_recreate
 	if(r != s->rounds)
 	{
 		simon32_destroy(s);
-		s = simon32_create(r, key, key_len);
+		s = simon32_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{

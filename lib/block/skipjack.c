@@ -217,6 +217,7 @@ static kripto_block *skipjack_recreate
 
 static kripto_block *skipjack_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -225,7 +226,7 @@ static kripto_block *skipjack_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_skipjack;
+	s->obj.desc = desc;
 
 	return skipjack_recreate(s, r, key, key_len);
 }

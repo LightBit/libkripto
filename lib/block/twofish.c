@@ -997,7 +997,7 @@ static uint32_t h
 static void twofish_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int key_len
 )
 {
@@ -1009,7 +1009,7 @@ static void twofish_setup
 	uint32_t B;
 
 	/* copy key */
-	for(x = 0; x < key_len; x++) K[x] = key[x];
+	for(x = 0; x < key_len; x++) K[x] = CU8(key)[x];
 	key_len = (key_len + 7) >> 3;
 	while(x < (key_len << 3)) K[x++] = 0;
 
@@ -1186,6 +1186,7 @@ static void twofish_decrypt
 
 static kripto_block *twofish_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -1198,11 +1199,11 @@ static kripto_block *twofish_create
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (TWOFISH_K_LEN(r) << 2));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_twofish;
+	s->obj.desc = desc;
 	s->rounds = r;
 	s->k = (uint32_t *)(s + 1);
 
-	twofish_setup(s, (const uint8_t *)key, key_len);
+	twofish_setup(s, key, key_len);
 
 	return s;
 }
@@ -1226,11 +1227,11 @@ static kripto_block *twofish_recreate
 	if(r != s->rounds)
 	{
 		twofish_destroy(s);
-		s = twofish_create(r, key, key_len);
+		s = twofish_create(s->obj.desc, r, key, key_len);
 	}
 	else
 	{
-		twofish_setup(s, (const uint8_t *)key, key_len);
+		twofish_setup(s, key, key_len);
 	}
 
 	return s;

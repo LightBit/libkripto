@@ -202,6 +202,7 @@ static kripto_block *threeway_recreate
 
 static kripto_block *threeway_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -210,7 +211,7 @@ static kripto_block *threeway_create
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block));
 	if(!s) return 0;
 
-	s->obj.desc = kripto_block_3way;
+	s->obj.desc = desc;
 
 	return threeway_recreate(s, r, key, key_len);
 }

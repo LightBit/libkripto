@@ -488,6 +488,7 @@ static void des_decrypt
 
 static kripto_block *des_create
 (
+	const kripto_block_desc *desc,
 	unsigned int r,
 	const void *key,
 	unsigned int key_len
@@ -498,7 +499,7 @@ static kripto_block *des_create
 
 	(void)r;
 
-	s->obj.desc = kripto_block_des;
+	s->obj.desc = desc;
 
 	des_setup(s, (const uint8_t *)key, key_len);
 
