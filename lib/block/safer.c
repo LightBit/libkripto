@@ -263,40 +263,36 @@ static void safer_setup
 	uint8_t *k = s->k;
 	uint8_t ka[9];
 	uint8_t kb[9];
-	unsigned int i;
-	unsigned int j;
 
 	kb[8] = ka[8] = 0;
 
 	if(len > 8) key2 = key + 8; /* 128-bit */
 	else key2 = key; /* 64-bit */
 
-	for(i = 0; i < 8; i++)
+	for(unsigned int i = 0; i < 8; i++)
 	{
 		ka[8] ^= ka[i] = ROL8_5(key[i]);
 		kb[8] ^= kb[i] = *k++ = key2[i];
 	}
 
-	for(i = 1; i <= s->rounds; i++)
+	for(unsigned int i = 2; i <= s->rounds << 1; i += 2)
 	{
-		for(j = 0; j <= 8; j++)
+		for(unsigned int j = 0; j <= 8; j++)
 		{
 			ka[j] = ROL8_6(ka[j]);
 			kb[j] = ROL8_6(kb[j]);
 		}
 
-		for(j = 0; j < 8; j++)
+		for(unsigned int j = 0; j < 8; j++)
 		{
-			if(sk) *k++ = ka[((i << 1) + j - 1) % 9]
-				+ EXP(EXP(18 * i + j + 1));
-			else *k++ = ka[j] + EXP(EXP(18 * i + j + 1));
+			*k = sk ? ka[(i - 1 + j) % 9] : ka[j];
+			*k++ += EXP(EXP(9 * i + 1 + j));
 		}
 
-		for(j = 0; j < 8; j++)
+		for(unsigned int j = 0; j < 8; j++)
 		{
-			if(sk) *k++ = kb[((i << 1) + j) % 9]
-				+ EXP(EXP(18 * i + j + 10));
-			else *k++ = kb[j] + EXP(EXP(18 * i + j + 10));
+			*k = sk ? kb[(i + j) % 9] : kb[j];
+			*k++ += EXP(EXP(9 * i + 10 + j));
 		}
 	}
 
@@ -347,8 +343,7 @@ static kripto_block *safer_recreate
 {
 	if(!r)
 	{
-		if(key_len > 8) r = 10;
-		else r = 6;
+		r = key_len > 8 ? 10 : 6;
 	}
 
 	if(r != s->rounds)
@@ -375,8 +370,7 @@ static kripto_block *safer_sk_create
 
 	if(!r)
 	{
-		if(key_len > 8) r = 10;
-		else r = 8;
+		r = key_len > 8 ? 10 : 6;
 	}
 
 	s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 4) + 8);
@@ -401,8 +395,7 @@ static kripto_block *safer_sk_recreate
 {
 	if(!r)
 	{
-		if(key_len > 8) r = 10;
-		else r = 8;
+		r = key_len > 8 ? 10 : 6;
 	}
 
 	if(r != s->rounds)
