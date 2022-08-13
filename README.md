@@ -18,7 +18,6 @@ Run "sh build.sh" to compile.
 * IDEA
 * KHAZAD
 * LEA
-* MARS
 * Noekeon
 * RC2
 * RC5

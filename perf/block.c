@@ -34,7 +34,6 @@
 #include <kripto/block/idea.h>
 #include <kripto/block/khazad.h>
 #include <kripto/block/lea.h>
-#include <kripto/block/mars.h>
 #include <kripto/block/noekeon.h>
 #include <kripto/block/rc2.h>
 #include <kripto/block/rc5.h>
@@ -86,7 +85,7 @@ int main(void)
 	{
 		const char *name;
 		const kripto_block_desc *desc;
-	} ciphers[38] =
+	} ciphers[37] =
 	{
 		{"3-Way", kripto_block_3way},
 		{"Anubis", kripto_block_anubis},
@@ -99,7 +98,6 @@ int main(void)
 		{"IDEA", kripto_block_idea},
 		{"KHAZAD", kripto_block_khazad},
 		{"LEA", kripto_block_khazad},
-		{"MARS", kripto_block_mars},
 		{"Noekeon", kripto_block_noekeon},
 		{"RC2", kripto_block_rc2},
 		{"RC5", kripto_block_rc5},
@@ -134,7 +132,7 @@ int main(void)
 	uint8_t k[MAXKEY];
 	memset(k, 0x5A, MAXKEY);
 
-	for(unsigned int i = 0; i < 38; i++)
+	for(unsigned int i = 0; i < 37; i++)
 	{
 		puts(ciphers[i].name);
 
