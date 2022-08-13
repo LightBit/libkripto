@@ -639,18 +639,17 @@ static void khazad_crypt
 static void khazad_setup
 (
 	kripto_block *s,
-	const uint8_t *key,
+	const void *key,
 	unsigned int key_len
 )
 {
 	uint64_t k[2] = {0, 0};
-	unsigned int i;
 
-	for(i = 0; i < key_len; i++)
-		k[1 - (i >> 3)] |= (uint64_t)key[i] << (56 - ((i & 3) << 3));
+	for(unsigned int i = 0; i < key_len; i++)
+		k[1 - (i >> 3)] |= (uint64_t)CU8(key)[i] << (56 - ((i & 7) << 3));
 
 	/* generate rounds + 1 round keys  */
-	for(i = 0; i <= s->r; i++)
+	for(unsigned int i = 0; i <= s->r; i++)
 	{
 		s->k[i] =
 			T0(*k >> 56) ^
@@ -668,7 +667,7 @@ static void khazad_setup
 
 	/* inverse key */
 	s->dk[0] = s->k[s->r];
-	for(i = 1; i < s->r; i++)
+	for(unsigned int i = 1; i < s->r; i++)
 	{
 		*k = s->k[s->r - i];
 		s->dk[i] =
@@ -725,7 +724,7 @@ static kripto_block *khazad_create
 	s->k = (uint64_t *)(s + 1);
 	s->dk = s->k + r + 1;
 
-	khazad_setup(s, (const uint8_t *)key, key_len);
+	khazad_setup(s, key, key_len);
 
 	return s;
 }
@@ -753,7 +752,7 @@ static kripto_block *khazad_recreate
 	}
 	else
 	{
-		khazad_setup(s, (const uint8_t *)key, key_len);
+		khazad_setup(s, key, key_len);
 	}
 
 	return s;
