@@ -13,11 +13,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* Based on Tom St Denis's implementation */
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -70,179 +69,126 @@ static const uint8_t S[256] =
 	0xBD, 0xA8, 0x3A, 0x01, 0x05, 0x59, 0x2A, 0x46
 };
 
-/* i + 1 (mod 10) */
-static const uint8_t plus1mod10[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
-
-/* i - 1 (mod 10) */
-static const uint8_t minus1mod10[10] = {9, 0, 1, 2, 3, 4, 5, 6, 7, 8};
-
-static inline uint16_t F
-(
-	const uint16_t x,
-	const uint8_t *k,
-	uint8_t *i
-)
-{
-	uint8_t hi;
-	uint8_t lo;
-
-	hi = x >> 8;
-	lo = x;
-
-	hi ^= S[lo ^ k[*i]]; *i = plus1mod10[*i];
-	lo ^= S[hi ^ k[*i]]; *i = plus1mod10[*i];
-	hi ^= S[lo ^ k[*i]]; *i = plus1mod10[*i];
-	lo ^= S[hi ^ k[*i]]; *i = plus1mod10[*i];
-
-	return ((uint16_t)hi << 8) | (uint16_t)lo;
+#define G(X, K0, K1, K2, K3)				\
+{							\
+	X ^= (uint16_t)S[((uint8_t)X) ^ s->k[K0]] << 8;	\
+	X ^= (uint16_t)S[(X >>     8) ^ s->k[K1]];	\
+	X ^= (uint16_t)S[((uint8_t)X) ^ s->k[K2]] << 8;	\
+	X ^= (uint16_t)S[(X >>     8) ^ s->k[K3]];	\
 }
 
-static inline uint16_t invF
-(
-	const uint16_t x,
-	const uint8_t *k,
-	uint8_t *i
-)
-{
-	uint8_t hi;
-	uint8_t lo;
-
-	hi = x >> 8;
-	lo = x;
-
-	*i = minus1mod10[*i]; lo ^= S[hi ^ k[*i]];
-	*i = minus1mod10[*i]; hi ^= S[lo ^ k[*i]];
-	*i = minus1mod10[*i]; lo ^= S[hi ^ k[*i]];
-	*i = minus1mod10[*i]; hi ^= S[lo ^ k[*i]];
-
-	return ((uint16_t)hi << 8) | (uint16_t)lo;
+#define IG(X, K0, K1, K2, K3)				\
+{							\
+	X ^= (uint16_t)S[(X >>     8) ^ s->k[K3]];	\
+	X ^= (uint16_t)S[((uint8_t)X) ^ s->k[K2]] << 8;	\
+	X ^= (uint16_t)S[(X >>     8) ^ s->k[K1]];	\
+	X ^= (uint16_t)S[((uint8_t)X) ^ s->k[K0]] << 8;	\
 }
 
 static void skipjack_encrypt(const kripto_block *s, const void *pt, void *ct)
 {
-	uint16_t x0;
-	uint16_t x1;
-	uint16_t x2;
-	uint16_t x3;
-	uint16_t t0;
-	uint16_t t1;
+	uint16_t x0 = LOAD16L(CU8(pt) + 6);
+	uint16_t x1 = LOAD16L(CU8(pt) + 4);
+	uint16_t x2 = LOAD16L(CU8(pt) + 2);
+	uint16_t x3 = LOAD16L(CU8(pt)    );
 
-	unsigned int r = 0;
-	uint8_t i = 0;
+	/* Rule A */
+	G(x0, 0, 1, 2, 3); x3 ^= x0 ^ 1;
+	G(x3, 4, 5, 6, 7); x2 ^= x3 ^ 2;
+	G(x2, 8, 9, 0, 1); x1 ^= x2 ^ 3;
+	G(x1, 2, 3, 4, 5); x0 ^= x1 ^ 4;
+	G(x0, 6, 7, 8, 9); x3 ^= x0 ^ 5;
+	G(x3, 0, 1, 2, 3); x2 ^= x3 ^ 6;
+	G(x2, 4, 5, 6, 7); x1 ^= x2 ^ 7;
+	G(x1, 8, 9, 0, 1); x0 ^= x1 ^ 8;
 
-	x0 = LOAD16B(CU8(pt));
-	x1 = LOAD16B(CU8(pt) + 2);
-	x2 = LOAD16B(CU8(pt) + 4);
-	x3 = LOAD16B(CU8(pt) + 6);
+	/* Rule B */
+	x1 ^= x0 ^  9; G(x0, 2, 3, 4, 5);
+	x0 ^= x3 ^ 10; G(x3, 6, 7, 8, 9);
+	x3 ^= x2 ^ 11; G(x2, 0, 1, 2, 3);
+	x2 ^= x1 ^ 12; G(x1, 4, 5, 6, 7);
+	x1 ^= x0 ^ 13; G(x0, 8, 9, 0, 1);
+	x0 ^= x3 ^ 14; G(x3, 2, 3, 4, 5);
+	x3 ^= x2 ^ 15; G(x2, 6, 7, 8, 9);
+	x2 ^= x1 ^ 16; G(x1, 0, 1, 2, 3);
 
-	/* RULE A */
-	while(r < 8)
-	{
-		t0 = F(x0, s->k, &i);
-		x0 = t0 ^ x3 ^ ++r;
-		x3 = x2;
-		x2 = x1;
-		x1 = t0;
-	}
+	/* Rule A */
+	G(x0, 4, 5, 6, 7); x3 ^= x0 ^ 17;
+	G(x3, 8, 9, 0, 1); x2 ^= x3 ^ 18;
+	G(x2, 2, 3, 4, 5); x1 ^= x2 ^ 19;
+	G(x1, 6, 7, 8, 9); x0 ^= x1 ^ 20;
+	G(x0, 0, 1, 2, 3); x3 ^= x0 ^ 21;
+	G(x3, 4, 5, 6, 7); x2 ^= x3 ^ 22;
+	G(x2, 8, 9, 0, 1); x1 ^= x2 ^ 23;
+	G(x1, 2, 3, 4, 5); x0 ^= x1 ^ 24;
 
-	/* RULE B */
-	while(r < 16)
-	{
-		t0 = F(x0, s->k, &i);
-		t1 = x3;
-		x3 = x2;
-		x2 = x0 ^ x1 ^ ++r;
-		x0 = t1;
-		x1 = t0;
-	}
+	/* Rule B */
+	x1 ^= x0 ^ 25; G(x0, 6, 7, 8, 9);
+	x0 ^= x3 ^ 26; G(x3, 0, 1, 2, 3);
+	x3 ^= x2 ^ 27; G(x2, 4, 5, 6, 7);
+	x2 ^= x1 ^ 28; G(x1, 8, 9, 0, 1);
+	x1 ^= x0 ^ 29; G(x0, 2, 3, 4, 5);
+	x0 ^= x3 ^ 30; G(x3, 6, 7, 8, 9);
+	x3 ^= x2 ^ 31; G(x2, 0, 1, 2, 3);
+	x2 ^= x1 ^ 32; G(x1, 4, 5, 6, 7);
 
-	/* RULE A */
-	while(r < 24)
-	{
-		t0 = F(x0, s->k, &i);
-		x0 = t0 ^ x3 ^ ++r;
-		x3 = x2;
-		x2 = x1;
-		x1 = t0;
-	}
-
-	/* RULE B */
-	while(r < 32)
-	{
-		t0 = F(x0, s->k, &i);
-		t1 = x3;
-		x3 = x2;
-		x2 = x0 ^ x1 ^ ++r;
-		x0 = t1;
-		x1 = t0;
-	}
-
-	STORE16B(x0, U8(ct));
-	STORE16B(x1, U8(ct) + 2);
-	STORE16B(x2, U8(ct) + 4);
-	STORE16B(x3, U8(ct) + 6);
+	STORE16L(x0, U8(ct) + 6);
+	STORE16L(x1, U8(ct) + 4);
+	STORE16L(x2, U8(ct) + 2);
+	STORE16L(x3, U8(ct)    );
 }
 
 static void skipjack_decrypt(const kripto_block *s, const void *ct, void *pt)
 {
-	uint16_t x0;
-	uint16_t x1;
-	uint16_t x2;
-	uint16_t x3;
-	uint16_t t;
+	uint16_t x0 = LOAD16L(CU8(ct) + 6);
+	uint16_t x1 = LOAD16L(CU8(ct) + 4);
+	uint16_t x2 = LOAD16L(CU8(ct) + 2);
+	uint16_t x3 = LOAD16L(CU8(ct)    );
 
-	unsigned int r = 32;
-	uint8_t i = 8; /* (r * 4) % 10 */
+	/* Rule A */
+	IG(x1, 4, 5, 6, 7); x2 ^= x1 ^ 32;
+	IG(x2, 0, 1, 2, 3); x3 ^= x2 ^ 31;
+	IG(x3, 6, 7, 8, 9); x0 ^= x3 ^ 30;
+	IG(x0, 2, 3, 4, 5); x1 ^= x0 ^ 29;
+	IG(x1, 8, 9, 0, 1); x2 ^= x1 ^ 28;
+	IG(x2, 4, 5, 6, 7); x3 ^= x2 ^ 27;
+	IG(x3, 0, 1, 2, 3); x0 ^= x3 ^ 26;
+	IG(x0, 6, 7, 8, 9); x1 ^= x0 ^ 25;
 
-	x0 = LOAD16B(CU8(ct));
-	x1 = LOAD16B(CU8(ct) + 2);
-	x2 = LOAD16B(CU8(ct) + 4);
-	x3 = LOAD16B(CU8(ct) + 6);
+	/* Rule B */
+	x0 ^= x1 ^ 24; IG(x1, 2, 3, 4, 5);
+	x1 ^= x2 ^ 23; IG(x2, 8, 9, 0, 1);
+	x2 ^= x3 ^ 22; IG(x3, 4, 5, 6, 7);
+	x3 ^= x0 ^ 21; IG(x0, 0, 1, 2, 3);
+	x0 ^= x1 ^ 20; IG(x1, 6, 7, 8, 9);
+	x1 ^= x2 ^ 19; IG(x2, 2, 3, 4, 5);
+	x2 ^= x3 ^ 18; IG(x3, 8, 9, 0, 1);
+	x3 ^= x0 ^ 17; IG(x0, 4, 5, 6, 7);
 
-	/* RULE B */
-	while(r > 24)
-	{
-		t = invF(x1, s->k, &i);
-		x1 = t ^ x2 ^ r--;
-		x2 = x3;
-		x3 = x0;
-		x0 = t;
-	}
+	/* Rule A */
+	IG(x1, 0, 1, 2, 3); x2 ^= x1 ^ 16;
+	IG(x2, 6, 7, 8, 9); x3 ^= x2 ^ 15;
+	IG(x3, 2, 3, 4, 5); x0 ^= x3 ^ 14;
+	IG(x0, 8, 9, 0, 1); x1 ^= x0 ^ 13;
+	IG(x1, 4, 5, 6, 7); x2 ^= x1 ^ 12;
+	IG(x2, 0, 1, 2, 3); x3 ^= x2 ^ 11;
+	IG(x3, 6, 7, 8, 9); x0 ^= x3 ^ 10;
+	IG(x0, 2, 3, 4, 5); x1 ^= x0 ^  9;
 
-	/* RULE A */
-	while(r > 16)
-	{
-		t = x0 ^ x1 ^ r--;
-		x0 = invF(x1, s->k, &i);
-		x1 = x2;
-		x2 = x3;
-		x3 = t;
-	}
+	/* Rule B */
+	x0 ^= x1 ^ 8; IG(x1, 8, 9, 0, 1);
+	x1 ^= x2 ^ 7; IG(x2, 4, 5, 6, 7);
+	x2 ^= x3 ^ 6; IG(x3, 0, 1, 2, 3);
+	x3 ^= x0 ^ 5; IG(x0, 6, 7, 8, 9);
+	x0 ^= x1 ^ 4; IG(x1, 2, 3, 4, 5);
+	x1 ^= x2 ^ 3; IG(x2, 8, 9, 0, 1);
+	x2 ^= x3 ^ 2; IG(x3, 4, 5, 6, 7);
+	x3 ^= x0 ^ 1; IG(x0, 0, 1, 2, 3);
 
-	/* RULE B */
-	while(r > 8)
-	{
-		t = invF(x1, s->k, &i);
-		x1 = t ^ x2 ^ r--;
-		x2 = x3;
-		x3 = x0;
-		x0 = t;
-	}
-
-	/* RULE A */
-	while(r)
-	{
-		t = x0 ^ x1 ^ r--;
-		x0 = invF(x1, s->k, &i);
-		x1 = x2;
-		x2 = x3;
-		x3 = t;
-	}
-
-	STORE16B(x0, U8(pt));
-	STORE16B(x1, U8(pt) + 2);
-	STORE16B(x2, U8(pt) + 4);
-	STORE16B(x3, U8(pt) + 6);
+	STORE16L(x0, U8(pt) + 6);
+	STORE16L(x1, U8(pt) + 4);
+	STORE16L(x2, U8(pt) + 2);
+	STORE16L(x3, U8(pt)    );
 }
 
 static kripto_block *skipjack_recreate
@@ -253,11 +199,18 @@ static kripto_block *skipjack_recreate
 	unsigned int key_len
 )
 {
+	assert(!r || r == 32);
 	(void)r;
 
-	memcpy(s->k, key, key_len);
+	for(unsigned int i = 0; i < key_len; i++)
+	{
+		s->k[9 - i] = CU8(key)[i];
+	}
 
-	if(key_len < 10) memset(s->k + key_len, 0, 10 - key_len);
+	for(unsigned int i = key_len; i < 10; i++)
+	{
+		s->k[9 - i] = 0;
+	}
 
 	return s;
 }
@@ -274,9 +227,7 @@ static kripto_block *skipjack_create
 
 	s->obj.desc = kripto_block_skipjack;
 
-	skipjack_recreate(s, r, key, key_len);
-
-	return s;
+	return skipjack_recreate(s, r, key, key_len);
 }
 
 static void skipjack_destroy(kripto_block *s)
