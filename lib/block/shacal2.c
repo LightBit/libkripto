@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
@@ -176,15 +178,8 @@ static void shacal2_setup
 	unsigned int key_len
 )
 {
-	for(unsigned int i = 0; i < 16; i++)
-	{
-		s->k[i] = 0;
-	}
-
-	for(unsigned int i = 0; i < key_len; i++)
-	{
-		s->k[i >> 2] |= CU8(key)[i] << (24 - ((i & 3) << 3));
-	}
+	memset(s->k, 0, 64);
+	LOAD32B_ARRAY(key, s->k, key_len);
 
 	for(unsigned int i = 16; i < s->r; i++)
 	{
@@ -204,6 +199,8 @@ static kripto_block *shacal2_create
 	unsigned int key_len
 )
 {
+	assert(r < 128);
+
 	if(!r) r = 64;
 
 	kripto_block *s = (kripto_block *)malloc(sizeof(kripto_block) + (r << 2));
@@ -231,6 +228,8 @@ static kripto_block *shacal2_recreate
 	unsigned int key_len
 )
 {
+	assert(r < 128);
+
 	if(!r) r = 64;
 
 	if(r != s->r)
