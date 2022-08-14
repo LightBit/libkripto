@@ -324,13 +324,13 @@ static void keccak1600_input
 	/* input */
 	for(size_t i = 0; i < len; i++)
 	{
+		s->s[s->i++] ^= CU8(in)[i];
+
 		if(s->i == s->rate)
 		{
 			keccak1600_F(s);
 			s->i = 0;
 		}
-
-		s->s[s->i++] ^= CU8(in)[i];
 	}
 }
 

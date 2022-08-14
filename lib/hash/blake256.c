@@ -248,6 +248,7 @@ static void blake256_output(kripto_hash *s, void *out, size_t len)
 {
 	if(s->o) blake256_finish(s);
 
+	assert(s->i + len <= 32);
 	STORE32B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

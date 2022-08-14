@@ -253,6 +253,7 @@ static void blake512_output(kripto_hash *s, void *out, size_t len)
 {
 	if(s->o) blake512_finish(s);
 
+	assert(s->i + len <= 64);
 	STORE64B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

@@ -229,6 +229,7 @@ static void md5_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) md5_finish(s);
 
+	assert(s->i + len <= 16);
 	STORE32L_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

@@ -74,6 +74,7 @@ static kripto_hash *sha1_recreate
 	unsigned int out_len
 )
 {
+	assert(!r);
 	(void)r;
 	(void)salt;
 	(void)salt_len;
@@ -202,7 +203,6 @@ static void sha1_finish(kripto_hash *s)
 	while(s->i < 56) s->buf[s->i++] = 0;
 
 	/* add length */
-	//s->len << 3;
 	STORE64B(s->len, s->buf + 56);
 
 	sha1_process(s, s->buf);
@@ -215,6 +215,7 @@ static void sha1_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->o) sha1_finish(s);
 
+	assert(s->i + len <= 20);
 	STORE32B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

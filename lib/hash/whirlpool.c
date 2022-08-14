@@ -897,6 +897,7 @@ static kripto_hash *whirlpool_recreate
 	unsigned int out_len
 )
 {
+	assert(r < 10);
 	(void)salt;
 	(void)salt_len;
 	(void)out_len;
@@ -912,6 +913,22 @@ static kripto_hash *whirlpool_recreate
 	return s;
 }
 
+static void len_add(kripto_hash *s, unsigned int len)
+{
+	s->len[3] += len;
+	if(s->len[3] < len)
+	{
+		if(!++s->len[2])
+		{
+			if(!++s->len[1])
+			{
+				s->len[0]++;
+				assert(s->len[0]);
+			}
+		}
+	}
+}
+
 static void whirlpool_input
 (
 	kripto_hash *s,
@@ -921,35 +938,20 @@ static void whirlpool_input
 {
 	for(size_t i = 0; i < len; i++)
 	{
+		s->buf[s->i++] = CU8(in)[i];
+
 		if(s->i == 64)
 		{
-			s->len[3] += 512;
-			if(s->len[3] < 512)
-				if(!++s->len[2])
-					if(!++s->len[1])
-					{
-						s->len[0]++;
-						assert(s->len[0]);
-					}
-
+			len_add(s, 512);
 			whirlpool_process(s, s->buf);
 			s->i = 0;
 		}
-
-		s->buf[s->i++] = CU8(in)[i];
 	}
 }
 
 static void whirlpool_finish(kripto_hash *s)
 {
-	s->len[3] += s->i << 3;
-	if(s->len[3] < (s->i << 3))
-		if(!++s->len[2])
-			if(!++s->len[1])
-			{
-				s->len[0]++;
-				assert(s->len[0]);
-			}
+	len_add(s, s->i << 3);
 
 	/* pad */
 	s->buf[s->i++] = 0x80;
@@ -979,6 +981,7 @@ static void whirlpool_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) whirlpool_finish(s);
 
+	assert(s->i + len <= 64);
 	STORE64B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

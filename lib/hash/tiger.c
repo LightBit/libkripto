@@ -702,6 +702,8 @@ static void tiger_input
 {
 	for(size_t i = 0; i < len; i++)
 	{
+		s->buf[s->i++] = CU8(in)[i];
+
 		if(s->i == 64)
 		{
 			s->len += 512;
@@ -710,8 +712,6 @@ static void tiger_input
 			tiger_process(s, s->buf);
 			s->i = 0;
 		}
-
-		s->buf[s->i++] = CU8(in)[i];
 	}
 }
 
@@ -745,6 +745,7 @@ static void tiger_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) tiger_finish(s);
 
+	assert(s->i + len <= 24);
 	STORE64L_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

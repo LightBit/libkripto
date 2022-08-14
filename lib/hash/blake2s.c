@@ -175,6 +175,8 @@ static void blake2s_input
 {
 	for(size_t i = 0; i < len; i++)
 	{
+		s->buf[s->i++] = CU8(in)[i];
+
 		if(s->i == 64)
 		{
 			s->len[0] += 64;
@@ -187,8 +189,6 @@ static void blake2s_input
 			blake2s_process(s, s->buf);
 			s->i = 0;
 		}
-
-		s->buf[s->i++] = CU8(in)[i];
 	}
 }
 
@@ -214,6 +214,7 @@ static void blake2s_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) blake2s_finish(s);
 
+	assert(s->i + len <= 32);
 	STORE32L_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

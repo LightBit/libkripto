@@ -319,6 +319,7 @@ static void sha2_512_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->o) sha2_512_finish(s);
 
+	assert(s->i + len <= 64);
 	STORE64B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }
