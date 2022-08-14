@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -13,106 +13,133 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdint.h>
-
 #include <kripto/hash.h>
 #include <kripto/hash/keccak1600.h>
 
-#include "../test.h"
+#include "test.h"
 
 int main(void)
 {
-	const uint8_t msg[256] =
+	const struct vector vectors[13] =
 	{
-		0x72, 0x46, 0x27, 0x91, 0x6C, 0x50, 0x33, 0x86,
-		0x43, 0xE6, 0x99, 0x6F, 0x07, 0x87, 0x7E, 0xAF,
-		0xD9, 0x6B, 0xDF, 0x01, 0xDA, 0x7E, 0x99, 0x1D,
-		0x41, 0x55, 0xB9, 0xBE, 0x12, 0x95, 0xEA, 0x7D,
-		0x21, 0xC9, 0x39, 0x1F, 0x4C, 0x4A, 0x41, 0xC7,
-		0x5F, 0x77, 0xE5, 0xD2, 0x73, 0x89, 0x25, 0x33,
-		0x93, 0x72, 0x5F, 0x14, 0x27, 0xF5, 0x79, 0x14,
-		0xB2, 0x73, 0xAB, 0x86, 0x2B, 0x9E, 0x31, 0xDA,
-		0xBC, 0xE5, 0x06, 0xE5, 0x58, 0x72, 0x05, 0x20,
-		0xD3, 0x33, 0x52, 0xD1, 0x19, 0xF6, 0x99, 0xE7,
-		0x84, 0xF9, 0xE5, 0x48, 0xFF, 0x91, 0xBC, 0x35,
-		0xCA, 0x14, 0x70, 0x42, 0x12, 0x87, 0x09, 0x82,
-		0x0D, 0x69, 0xA8, 0x28, 0x7E, 0xA3, 0x25, 0x78,
-		0x57, 0x61, 0x5E, 0xB0, 0x32, 0x12, 0x70, 0xE9,
-		0x4B, 0x84, 0xF4, 0x46, 0x94, 0x27, 0x65, 0xCE,
-		0x88, 0x2B, 0x19, 0x1F, 0xAE, 0xE7, 0xE1, 0xC8,
-		0x7E, 0x0F, 0x0B, 0xD4, 0xE0, 0xCD, 0x8A, 0x92,
-		0x77, 0x03, 0x52, 0x4B, 0x55, 0x9B, 0x76, 0x9C,
-		0xA4, 0xEC, 0xE1, 0xF6, 0xDB, 0xF3, 0x13, 0xFD,
-		0xCF, 0x67, 0xC5, 0x72, 0xEC, 0x41, 0x85, 0xC1,
-		0xA8, 0x8E, 0x86, 0xEC, 0x11, 0xB6, 0x45, 0x4B,
-		0x37, 0x19, 0x80, 0x02, 0x0F, 0x19, 0x63, 0x3B,
-		0x6B, 0x95, 0xBD, 0x28, 0x0E, 0x4F, 0xBC, 0xB0,
-		0x16, 0x1E, 0x1A, 0x82, 0x47, 0x03, 0x20, 0xCE,
-		0xC6, 0xEC, 0xFA, 0x25, 0xAC, 0x73, 0xD0, 0x9F,
-		0x15, 0x36, 0xF2, 0x86, 0xD3, 0xF9, 0xDA, 0xCA,
-		0xFB, 0x2C, 0xD1, 0xD0, 0xCE, 0x72, 0xD6, 0x4D,
-		0x19, 0x7F, 0x5C, 0x75, 0x20, 0xB3, 0xCC, 0xB2,
-		0xFD, 0x74, 0xEB, 0x72, 0x66, 0x4B, 0xA9, 0x38,
-		0x53, 0xEF, 0x41, 0xEA, 0xBF, 0x52, 0xF0, 0x15,
-		0xDD, 0x59, 0x15, 0x00, 0xD0, 0x18, 0xDD, 0x16,
-		0x28, 0x15, 0xCC, 0x99, 0x35, 0x95, 0xB1, 0x95
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\xF7\x18\x37\x50\x2B\xA8\xE1\x08\x37\xBD\xD8\xD3\x65\xAD\xB8\x55\x91\x89\x56\x02\xFC\x55\x2B\x48\xB7\x39\x0A\xBD",
+			.hash_len = 28
+		},
+		{
+			.message = "The quick brown fox jumps over the lazy dog",
+			.message_len = 43,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x31\x0A\xEE\x6B\x30\xC4\x73\x50\x57\x6A\xC2\x87\x3F\xA8\x9F\xD1\x90\xCD\xC4\x88\x44\x2F\x3E\xF6\x54\xCF\x23\xFE",
+			.hash_len = 28
+		},
+		{
+			.message = "a",
+			.message_len = 1,
+			.message_repeat = 1000000,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x19\xF9\x16\x7B\xE2\xA0\x4C\x43\xAB\xD0\xED\x55\x47\x88\x10\x1B\x9C\x33\x90\x31\xAC\xC8\xE1\x46\x85\x31\x30\x3F",
+			.hash_len = 28
+		},
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\xC5\xD2\x46\x01\x86\xF7\x23\x3C\x92\x7E\x7D\xB2\xDC\xC7\x03\xC0\xE5\x00\xB6\x53\xCA\x82\x27\x3B\x7B\xFA\xD8\x04\x5D\x85\xA4\x70",
+			.hash_len = 32
+		},
+		{
+			.message = "The quick brown fox jumps over the lazy dog",
+			.message_len = 43,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x4D\x74\x1B\x6F\x1E\xB2\x9C\xB2\xA9\xB9\x91\x1C\x82\xF5\x6F\xA8\xD7\x3B\x04\x95\x9D\x3D\x9D\x22\x28\x95\xDF\x6C\x0B\x28\xAA\x15",
+			.hash_len = 32
+		},
+		{
+			.message = "a",
+			.message_len = 1,
+			.message_repeat = 1000000,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\xFA\xDA\xE6\xB4\x9F\x12\x9B\xBB\x81\x2B\xE8\x40\x7B\x7B\x28\x94\xF3\x4A\xEC\xF6\xDB\xD1\xF9\xB0\xF0\xC7\xE9\x85\x30\x98\xFC\x96",
+			.hash_len = 32
+		},
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x2C\x23\x14\x6A\x63\xA2\x9A\xCF\x99\xE7\x3B\x88\xF8\xC2\x4E\xAA\x7D\xC6\x0A\xA7\x71\x78\x0C\xCC\x00\x6A\xFB\xFA\x8F\xE2\x47\x9B\x2D\xD2\xB2\x13\x62\x33\x74\x41\xAC\x12\xB5\x15\x91\x19\x57\xFF",
+			.hash_len = 48
+		},
+		{
+			.message = "The quick brown fox jumps over the lazy dog",
+			.message_len = 43,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x28\x39\x90\xFA\x9D\x5F\xB7\x31\xD7\x86\xC5\xBB\xEE\x94\xEA\x4D\xB4\x91\x0F\x18\xC6\x2C\x03\xD1\x73\xFC\x0A\x5E\x49\x44\x22\xE8\xA0\xB3\xDA\x75\x74\xDA\xE7\xFA\x0B\xAF\x00\x5E\x50\x40\x63\xB3",
+			.hash_len = 48
+		},
+		{
+			.message = "a",
+			.message_len = 1,
+			.message_repeat = 1000000,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x0C\x83\x24\xE1\xEB\xC1\x82\x82\x2C\x5E\x2A\x08\x6C\xAC\x07\xC2\xFE\x00\xE3\xBC\xE6\x1D\x01\xBA\x8A\xD6\xB7\x17\x80\xE2\xDE\xC5\xFB\x89\xE5\xAE\x90\xCB\x59\x3E\x57\xBC\x62\x58\xFD\xD9\x4E\x17",
+			.hash_len = 48
+		},
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x0E\xAB\x42\xDE\x4C\x3C\xEB\x92\x35\xFC\x91\xAC\xFF\xE7\x46\xB2\x9C\x29\xA8\xC3\x66\xB7\xC6\x0E\x4E\x67\xC4\x66\xF3\x6A\x43\x04\xC0\x0F\xA9\xCA\xF9\xD8\x79\x76\xBA\x46\x9B\xCB\xE0\x67\x13\xB4\x35\xF0\x91\xEF\x27\x69\xFB\x16\x0C\xDA\xB3\x3D\x36\x70\x68\x0E",
+			.hash_len = 64
+		},
+		{
+			.message = "The quick brown fox jumps over the lazy dog",
+			.message_len = 43,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\xD1\x35\xBB\x84\xD0\x43\x9D\xBA\xC4\x32\x24\x7E\xE5\x73\xA2\x3E\xA7\xD3\xC9\xDE\xB2\xA9\x68\xEB\x31\xD4\x7C\x4F\xB4\x5F\x1E\xF4\x42\x2D\x6C\x53\x1B\x5B\x9B\xD6\xF4\x49\xEB\xCC\x44\x9E\xA9\x4D\x0A\x8F\x05\xF6\x21\x30\xFD\xA6\x12\xDA\x53\xC7\x96\x59\xF6\x09",
+			.hash_len = 64
+		},
+		{
+			.message = "a",
+			.message_len = 1,
+			.message_repeat = 1000000,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x5C\xF5\x3F\x2E\x55\x6B\xE5\xA6\x24\x42\x5E\xDE\x23\xD0\xE8\xB2\xC7\x81\x4B\x4B\xA0\xE4\xE0\x9C\xBB\xF3\xC2\xFA\xC7\x05\x6F\x61\xE0\x48\xFC\x34\x12\x62\x87\x5E\xBC\x58\xA5\x18\x3F\xEA\x65\x14\x47\x12\x43\x70\xC1\xEB\xF4\xD6\xC8\x9B\xC9\xA7\x73\x10\x63\xBB",
+			.hash_len = 64
+		},
+		{
+			.message = "\xCC",
+			.message_len = 1,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x86\x30\xC1\x3C\xBD\x06\x6E\xA7\x4B\xBE\x7F\xE4\x68\xFE\xC1\xDE\xE1\x0E\xDC\x12\x54\xFB\x4C\x1B\x7C\x5F\xD6\x9B\x64\x6E\x44\x16\x0B\x8C\xE0\x1D\x05\xA0\x90\x8C\xA7\x90\xDF\xB0\x80\xF4\xB5\x13\xBC\x3B\x62\x25\xEC\xE7\xA8\x10\x37\x14\x41\xA5\xAC\x66\x6E\xB9",
+			.hash_len = 64
+		}
 	};
-	const uint8_t hash224[28] =
-	{
-		0xE9, 0x0F, 0x81, 0xAE, 0x86, 0xD7, 0x2D, 0xCC,
-		0x21, 0x90, 0xAF, 0x54, 0x5A, 0x34, 0x51, 0x50,
-		0xA6, 0x29, 0xEE, 0x7D, 0xC7, 0x23, 0x7C, 0x19,
-		0x58, 0xCF, 0xCD, 0xBC
-	};
-	const uint8_t hash256[32] =
-	{
-		0xEA, 0x0E, 0x41, 0x6C, 0x0F, 0x7B, 0x4F, 0x11,
-		0xE3, 0xF0, 0x04, 0x79, 0xFD, 0xDF, 0x95, 0x4F,
-		0x25, 0x39, 0xE5, 0xE5, 0x57, 0x75, 0x3B, 0xD5,
-		0x46, 0xF6, 0x9E, 0xE3, 0x75, 0xA5, 0xDE, 0x29
-	};
-	const uint8_t hash384[48] =
-	{
-		0x86, 0xB7, 0xCC, 0x35, 0x44, 0xE5, 0xF9, 0x1F,
-		0x12, 0xA9, 0x10, 0xA5, 0x6A, 0xDD, 0xD6, 0xB5,
-		0xE7, 0xDC, 0x7D, 0xF5, 0x1F, 0xAE, 0xCC, 0x2F,
-		0xC5, 0x15, 0xEE, 0x66, 0x9B, 0x59, 0x12, 0xDD,
-		0x11, 0x6A, 0xA1, 0x30, 0x52, 0x56, 0x9E, 0xAB,
-		0x59, 0x7C, 0xEC, 0xA9, 0x22, 0xB1, 0xED, 0x32
-	};
-	const uint8_t hash512[64] =
-	{
-		0x4E, 0x98, 0x77, 0x68, 0x46, 0x9F, 0x54, 0x62,
-		0x96, 0xAD, 0x1A, 0x43, 0xD5, 0x4C, 0x0A, 0x0A,
-		0x6C, 0x87, 0xE7, 0xE4, 0xE2, 0x6B, 0x68, 0x66,
-		0x12, 0xB1, 0xE5, 0xB1, 0x55, 0x4B, 0x68, 0x9B,
-		0xFF, 0xD5, 0x6D, 0x6A, 0x4B, 0x45, 0x4C, 0xE4,
-		0xA5, 0x71, 0x76, 0x25, 0xBB, 0xAD, 0x32, 0x1F,
-		0x8D, 0x05, 0xF1, 0x9C, 0x22, 0x52, 0x59, 0x64,
-		0x6F, 0x21, 0x41, 0x6A, 0xA2, 0xD7, 0xC2, 0xED
-	};
 
-	uint8_t t[64];
-
-	/* 224 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 28))
-		TEST_ERROR("kripto_hash_keccak1600: 224-bit");
-	TEST_CMP(t, hash224, 28, "kripto_hash_keccak1600: 224-bit");
-
-	/* 256 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 32))
-		TEST_ERROR("kripto_hash_keccak1600: 256-bit");
-	TEST_CMP(t, hash256, 32, "kripto_hash_keccak1600: 256-bit");
-
-	/* 384 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 48))
-		TEST_ERROR("kripto_hash_keccak1600: 384-bit");
-	TEST_CMP(t, hash384, 48, "kripto_hash_keccak1600: 384-bit");
-
-	/* 512 */
-	if(kripto_hash_all(kripto_hash_keccak1600, 0, 0, 0, msg, 256, t, 64))
-		TEST_ERROR("kripto_hash_keccak1600: 512-bit");
-	TEST_CMP(t, hash512, 64, "kripto_hash_keccak1600: 512-bit");
-
-	return test_result;
+	return TEST(kripto_hash_keccak1600, vectors, 13);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -13,27 +13,61 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-
 #include <kripto/hash.h>
 #include <kripto/hash/whirlpool.h>
 
+#include "test.h"
+
 int main(void)
 {
-	uint8_t hash[64];
-	unsigned int i;
+	const struct vector vectors[5] =
+	{
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x19\xFA\x61\xD7\x55\x22\xA4\x66\x9B\x44\xE3\x9C\x1D\x2E\x17\x26\xC5\x30\x23\x21\x30\xD4\x07\xF8\x9A\xFE\xE0\x96\x49\x97\xF7\xA7\x3E\x83\xBE\x69\x8B\x28\x8F\xEB\xCF\x88\xE3\xE0\x3C\x4F\x07\x57\xEA\x89\x64\xE5\x9B\x63\xD9\x37\x08\xB1\x38\xCC\x42\xA6\x6E\xB3",
+			.hash_len = 64
+		},
+		{
+			.message = "a",
+			.message_len = 1,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x8A\xCA\x26\x02\x79\x2A\xEC\x6F\x11\xA6\x72\x06\x53\x1F\xB7\xD7\xF0\xDF\xF5\x94\x13\x14\x5E\x69\x73\xC4\x50\x01\xD0\x08\x7B\x42\xD1\x1B\xC6\x45\x41\x3A\xEF\xF6\x3A\x42\x39\x1A\x39\x14\x5A\x59\x1A\x92\x20\x0D\x56\x01\x95\xE5\x3B\x47\x85\x84\xFD\xAE\x23\x1A",
+			.hash_len = 64
+		},
+		{
+			.message = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+			.message_len = 62,
+			.message_repeat = 1,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\xDC\x37\xE0\x08\xCF\x9E\xE6\x9B\xF1\x1F\x00\xED\x9A\xBA\x26\x90\x1D\xD7\xC2\x8C\xDE\xC0\x66\xCC\x6A\xF4\x2E\x40\xF8\x2F\x3A\x1E\x08\xEB\xA2\x66\x29\x12\x9D\x8F\xB7\xCB\x57\x21\x1B\x92\x81\xA6\x55\x17\xCC\x87\x9D\x7B\x96\x21\x42\xC6\x5F\x5A\x7A\xF0\x14\x67",
+			.hash_len = 64
+		},
+		{
+			.message = "a",
+			.message_len = 1,
+			.message_repeat = 1000000,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x0C\x99\x00\x5B\xEB\x57\xEF\xF5\x0A\x7C\xF0\x05\x56\x0D\xDF\x5D\x29\x05\x7F\xD8\x6B\x20\xBF\xD6\x2D\xEC\xA0\xF1\xCC\xEA\x4A\xF5\x1F\xC1\x54\x90\xED\xDC\x47\xAF\x32\xBB\x2B\x66\xC3\x4F\xF9\xAD\x8C\x60\x08\xAD\x67\x7F\x77\x12\x69\x53\xB2\x26\xE4\xED\x8B\x01",
+			.hash_len = 64
+		},
+		{
+			.message = "1234567890",
+			.message_len = 10,
+			.message_repeat = 8,
+			.salt_len = 0,
+			.rounds = 0,
+			.hash = "\x46\x6E\xF1\x8B\xAB\xB0\x15\x4D\x25\xB9\xD3\x8A\x64\x14\xF5\xC0\x87\x84\x37\x2B\xCC\xB2\x04\xD6\x54\x9C\x4A\xFA\xDB\x60\x14\x29\x4D\x5B\xD8\xDF\x2A\x6C\x44\xE5\x38\xCD\x04\x7B\x26\x81\xA5\x1A\x2C\x60\x48\x1E\x88\xC5\xA2\x0B\x2C\x2A\x80\xCF\x3A\x9A\x08\x3B",
+			.hash_len = 64
+		}
+	};
 
-	puts("19FA61D75522A4669B44E39C1D2E1726C530232130D407F89AFEE0964997F7A73E83BE698B288FEBCF88E3E03C4F0757EA8964E59B63D93708B138CC42A66EB3");
-	kripto_hash_all(kripto_hash_whirlpool, 0, 0, 0, "", 0, hash, 64);
-	for(i = 0; i < 64; i++) printf("%.2X", hash[i]);
-	putchar('\n');
-
-	puts("DC37E008CF9EE69BF11F00ED9ABA26901DD7C28CDEC066CC6AF42E40F82F3A1E08EBA26629129D8FB7CB57211B9281A65517CC879D7B962142C65F5A7AF01467");
-	kripto_hash_all(kripto_hash_whirlpool, 0, 0, 0, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 62, hash, 64);
-	for(i = 0; i < 64; i++) printf("%.2X", hash[i]);
-	putchar('\n');
-
-	return 0;
+	return TEST(kripto_hash_whirlpool, vectors, 5);
 }
