@@ -125,9 +125,7 @@ static void salsa20_crypt
 	size_t len
 )
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->used == 64)
 		{
@@ -136,7 +134,7 @@ static void salsa20_crypt
 
 			if(!++s->x[8])
 			{
-				++s->x[9];
+				s->x[9]++;
 				assert(s->x[9]);
 			}
 		}
@@ -152,9 +150,7 @@ static void salsa20_prng
 	size_t len
 )
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->used == 64)
 		{
@@ -163,7 +159,7 @@ static void salsa20_prng
 
 			if(!++s->x[8])
 			{
-				++s->x[9];
+				s->x[9]++;
 				assert(s->x[9]);
 			}
 		}
@@ -197,7 +193,10 @@ static kripto_stream *salsa20_recreate
 
 	/* KEY */
 	s->x[1] = s->x[2] = s->x[3] = s->x[4] = 0;
-	LOAD32L_ARRAY(key, s->x + 1, key_len > 16 ? 16 : key_len);
+	for(unsigned int i = 0; i < 16; i++)
+	{
+		s->x[1 + (i >> 2)] |= (uint32_t)CU8(key)[i % key_len] << ((i & 3) << 3);
+	}
 
 	/* IV */
 	s->x[6] = s->x[7] = s->x[8] = s->x[9] = 0;
@@ -205,12 +204,10 @@ static kripto_stream *salsa20_recreate
 
 	/* KEY */
 	s->x[11] = s->x[12] = s->x[13] = s->x[14] = 0;
-	LOAD32L_ARRAY
-	(
-		key_len > 16 ? CU8(key) + 16 : key,
-		s->x + 11,
-		key_len > 16 ? key_len - 16 : key_len
-	);
+	for(unsigned int i = 16; i < 32; i++)
+	{
+		s->x[7 + (i >> 2)] |= (uint32_t)CU8(key)[i % key_len] << ((i & 3) << 3);
+	}
 
 	s->r = r;
 	if(!s->r) s->r = 20;

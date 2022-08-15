@@ -125,9 +125,7 @@ static void chacha_crypt
 	size_t len
 )
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->used == 64)
 		{
@@ -136,7 +134,7 @@ static void chacha_crypt
 
 			if(!++s->x[12])
 			{
-				++s->x[13];
+				s->x[13]++;
 				assert(s->x[13]);
 			}
 		}
@@ -152,9 +150,7 @@ static void chacha_prng
 	size_t len
 )
 {
-	size_t i;
-
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
 		if(s->used == 64)
 		{
@@ -163,7 +159,7 @@ static void chacha_prng
 
 			if(!++s->x[12])
 			{
-				++s->x[13];
+				s->x[13]++;
 				assert(s->x[13]);
 			}
 		}
@@ -198,21 +194,24 @@ static kripto_stream *chacha_recreate
 	/* KEY */
 	s->x[4] = s->x[5] = s->x[ 6] = s->x[ 7] = 0;
 	s->x[8] = s->x[9] = s->x[10] = s->x[11] = 0;
-	LOAD32L_ARRAY(key, s->x + 4, key_len);
+	for(unsigned int i = 0; i < 32; i++)
+	{
+		s->x[4 + (i >> 2)] |= (uint32_t)CU8(key)[i % key_len] << ((i & 3) << 3);
+	}
 
 	/* IV */
 	s->x[12] = s->x[13] = s->x[14] = s->x[15] = 0;
 	LOAD32L_ARRAY
 	(
 		iv,
-		s->x + (iv_len > 8 ? 12 : 14),
+		s->x + (iv_len > 8 ? (iv_len > 12 ? 12 : 13) : 14),
 		iv_len > 16 ? 16 : iv_len
 	);
 
 	s->r = r;
 	if(!s->r) s->r = 20;
 
-	if(iv_len > 8) /* XChaCha */
+	if(iv_len > 12) /* XChaCha */
 	{
 		for(unsigned int i = 0; i < s->r; i++)
 		{
@@ -242,7 +241,7 @@ static kripto_stream *chacha_recreate
 		/* IV */
 		if(iv_len > 16)
 		{
-			LOAD32L_ARRAY(CU8(iv) + 16, s->x + 12, iv_len - 16);
+			LOAD32L_ARRAY(CU8(iv) + 16, s->x + 14, iv_len - 16);
 		}
 	}
 
