@@ -21,9 +21,11 @@
 struct vector
 {
 	unsigned int tag_len;
+	unsigned int key_len;
 	unsigned int message_len;
 	unsigned int message_repeat;
 	unsigned int rounds;
+	const char *key;
 	const char *message;
 	const char *tag;
 };
@@ -54,6 +56,7 @@ int test
 		kripto_mac *s = kripto_mac_create
 		(
 			desc, vectors[i].rounds,
+			vectors[i].key, vectors[i].key_len,
 			vectors[i].tag_len
 		);
 		if(!s) test_error(file, line, "Create vector %u", i);
@@ -66,9 +69,25 @@ int test
 		kripto_mac_tag(s, t, vectors[i].tag_len);
 		test_cmp(t, vectors[i].tag, vectors[i].tag_len, file, line, "Tag vector %u", i);
 
+		s = kripto_mac_recreate
+		(
+			s, vectors[i].rounds,
+			vectors[i].key, vectors[i].key_len,
+			vectors[i].tag_len
+		);
+
+		for(unsigned int r = 0; r < vectors[i].message_repeat; r++)
+		{
+			kripto_mac_input(s, vectors[i].message, vectors[i].message_len);
+		}
+
 		if(kripto_mac_verify(s, vectors[i].tag, vectors[i].tag_len))
 		{
-			test_error(file, line, "Verify vector %u", i);
+			test_pass(file, line, "Verify vector %u", i);
+		}
+		else
+		{
+			test_fail(file, line, "Verify vector %u", i);
 		}
 
 		kripto_mac_destroy(s);
@@ -78,6 +97,7 @@ int test
 			if(kripto_mac_all
 			(
 				desc, vectors[i].rounds,
+				vectors[i].key, vectors[i].key_len,
 				vectors[i].message, vectors[i].message_len,
 				t, vectors[i].tag_len
 			)) test_error(file, line, "MAC vector %u", i);

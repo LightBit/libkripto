@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -13,55 +13,92 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-
 #include <kripto/mac.h>
+#include <kripto/block.h>
 #include <kripto/mac/xcbc.h>
-#include <kripto/block/rijndael128.h>
+#include <kripto/block/aes.h>
 
-static const uint8_t key[16] =
-{
-	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
-};
-
-static const uint8_t msg[34] =
-{
-	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-	0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
-	0x20, 0x21
-};
-
-static const uint8_t tag[16] =
-{
-	0xBE, 0xCB, 0xB3, 0xBC, 0xCD, 0xB5, 0x18, 0xA3,
-	0x06, 0x77, 0xD5, 0x48, 0x1F, 0xB6, 0xB4, 0xD8
-};
+#include "test.h"
 
 int main(void)
 {
-	kripto_desc_mac *desc;
-	uint8_t t[16];
+	const struct vector aes_vectors[7] =
+	{
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.key_len = 16,
+			.tag = "\x75\xF0\x25\x1D\x52\x8A\xC0\x1C\x45\x73\xDF\xD5\x84\xD7\x9F\x29",
+			.tag_len = 16
+		},
+		{
+			.message = "\x00\x01\x02",
+			.message_len = 3,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.key_len = 16,
+			.tag = "\x5B\x37\x65\x80\xAE\x2F\x19\xAF\xE7\x21\x9C\xEE",
+			.tag_len = 12
+		},
+		{
+			.message = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.message_len = 16,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.key_len = 16,
+			.tag = "\xD2\xA2\x46\xFA\x34\x9B\x68\xA7\x99\x98\xA4\x39\x4F\xF7\xA2\x63",
+			.tag_len = 16
+		},
+		{
+			.message = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13",
+			.message_len = 20,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.key_len = 16,
+			.tag = "\x47\xF5\x1B\x45\x64\x96\x62\x15\xB8\x98\x5C\x63\x05\x5E\xD3\x08",
+			.tag_len = 16
+		},
+		{
+			.message = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F",
+			.message_len = 32,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.key_len = 16,
+			.tag = "\xF5\x4F\x0E\xC8\xD2\xB9\xF3\xD3\x68\x07\x73\x4B\xD5\x28\x3F\xD4",
+			.tag_len = 16
+		},
+		{
+			.message = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\x20\x21",
+			.message_len = 34,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.key_len = 16,
+			.tag = "\xBE\xCB\xB3\xBC\xCD\xB5\x18\xA3\x06\x77\xD5\x48\x1F\xB6\xB4\xD8",
+			.tag_len = 16
+		},
+		{
+			.message = "\x00",
+			.message_len = 1,
+			.message_repeat = 1000,
+			.rounds = 0,
+			.key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F",
+			.key_len = 16,
+			.tag = "\xF0\xDA\xFE\xE8\x95\xDB\x30\x25\x37\x61\x10\x3B\x5D\x84\x52\x8F",
+			.tag_len = 16
+		}
+	};
 
-	desc = kripto_mac_xcbc(kripto_block_rijndael128);
-	if(!desc) return -1;
+	kripto_desc_mac *xcbc_aes = kripto_mac_xcbc(kripto_block_aes);
+	TEST(xcbc_aes, aes_vectors, 7);
+	free(xcbc_aes);
 
-	kripto_mac_all(
-		desc, 0,
-		key, 16,
-		msg, 34,
-		t, 16
-	);
-
-	if(memcmp(tag, t, 16)) puts("xcbc rijndael128: FAIL");
-	else puts("xcbc rijndael128: OK");
-
-	free(desc);
-
-	return 0;
+	return test_result;
 }

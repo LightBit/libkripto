@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -13,85 +13,91 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-
 #include <kripto/mac.h>
+#include <kripto/block.h>
 #include <kripto/mac/omac.h>
-#include <kripto/block/rijndael128.h>
+#include <kripto/block/aes.h>
+#include <kripto/block/des.h>
 
-static const uint8_t key[16] =
-{
-	0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
-	0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
-};
-
-static const uint8_t msg[64] =
-{
-	0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96,
-	0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A,
-	0xAE, 0x2D, 0x8A, 0x57, 0x1E, 0x03, 0xAC, 0x9C,
-	0x9E, 0xB7, 0x6F, 0xAC, 0x45, 0xAF, 0x8E, 0x51,
-	0x30, 0xC8, 0x1C, 0x46, 0xA3, 0x5C, 0xE4, 0x11,
-	0xE5, 0xFB, 0xC1, 0x19, 0x1A, 0x0A, 0x52, 0xEF,
-	0xF6, 0x9F, 0x24, 0x45, 0xDF, 0x4F, 0x9B, 0x17,
-	0xAD, 0x2B, 0x41, 0x7B, 0xE6, 0x6C, 0x37, 0x10
-};
-
-static const uint8_t tag40[16] =
-{
-	0xDF, 0xA6, 0x67, 0x47, 0xDE, 0x9A, 0xE6, 0x30,
-	0x30, 0xCA, 0x32, 0x61, 0x14, 0x97, 0xC8, 0x27
-};
-
-static const uint8_t tag64[16] =
-{
-	0x51, 0xF0, 0xBE, 0xBF, 0x7E, 0x3B, 0x9D, 0x92,
-	0xFC, 0x49, 0x74, 0x17, 0x79, 0x36, 0x3C, 0xFE
-};
+#include "test.h"
 
 int main(void)
 {
-	kripto_desc_mac *desc;
-	uint8_t t[16];
-	unsigned int i;
-
-	desc = kripto_mac_omac(kripto_block_rijndael128);
-	if(!desc) return -1;
-
-	/* 64 */
-	kripto_mac_all(
-		desc, 0,
-		key, 16,
-		msg, 64,
-		t, 16
-	);
-
-	for(i = 0; i < 16; i++) if(t[i] != tag64[i])
+	const struct vector aes_vectors[4] =
 	{
-		puts("omac rijndael128 64: FAIL");
-		break;
-	}
-	if(i == 16) puts("omac rijndael128 64: OK");
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C",
+			.key_len = 16,
+			.tag = "\xBB\x1D\x69\x29\xE9\x59\x37\x28\x7F\xA3\x7D\x12\x9B\x75\x67\x46",
+			.tag_len = 16
+		},
+		{
+			.message = "\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A",
+			.message_len = 16,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C",
+			.key_len = 16,
+			.tag = "\x07\x0A\x16\xB4\x6B\x4D\x41\x44\xF7\x9B\xDD\x9D\xD0\x4A\x28\x7C",
+			.tag_len = 16
+		},
+		{
+			.message = "\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A\xAE\x2D\x8A\x57\x1E\x03\xAC\x9C\x9E\xB7\x6F\xAC\x45\xAF\x8E\x51\x30\xC8\x1C\x46\xA3\x5C\xE4\x11",
+			.message_len = 40,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C",
+			.key_len = 16,
+			.tag = "\xDF\xA6\x67\x47\xDE\x9A\xE6\x30\x30\xCA\x32\x61\x14\x97\xC8\x27",
+			.tag_len = 16
+		},
+		{
+			.message = "\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A\xAE\x2D\x8A\x57\x1E\x03\xAC\x9C\x9E\xB7\x6F\xAC\x45\xAF\x8E\x51\x30\xC8\x1C\x46\xA3\x5C\xE4\x11\xE5\xFB\xC1\x19\x1A\x0A\x52\xEF\xF6\x9F\x24\x45\xDF\x4F\x9B\x17\xAD\x2B\x41\x7B\xE6\x6C\x37\x10",
+			.message_len = 64,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C",
+			.key_len = 16,
+			.tag = "\x51\xF0\xBE\xBF\x7E\x3B\x9D\x92\xFC\x49\x74\x17\x79\x36\x3C\xFE",
+			.tag_len = 16
+		}
+	};
 
-	/* 40 */
-	kripto_mac_all(
-		desc, 0,
-		key, 16,
-		msg, 40,
-		t, 16
-	);
-
-	for(i = 0; i < 16; i++) if(t[i] != tag40[i])
+	const struct vector des_vectors[2] =
 	{
-		puts("omac rijndael128 40: FAIL");
-		break;
-	}
-	if(i == 16) puts("omac rijndael128 40: OK");
+		{
+			.message = "\xAD\xAF\x4B\xFF\xFA\xB7\x9F\xFB\x60\xB9\x46\x47\xFA\xAC\x63\x49\x29\xC5\x6E\x69\x40\x52\x88\x18\x81\xE6\x0B\x11\x49\xB6",
+			.message_len = 30,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\x62\x23\x25\x01\xB9\xE9\xC1\xB5\x54\x20\x9D\x7C\x07\x5D\x2C\x31\x73\xA2\xF2\x89\xA8\x4C\x49\xCE",
+			.key_len = 24,
+			.tag = "\xA0\x56\x74\xF2\xC9\x05\xD1\x53",
+			.tag_len = 8
+		},
+		{
+			.message = "",
+			.message_len = 0,
+			.message_repeat = 1,
+			.rounds = 0,
+			.key = "\xF8\xFB\xA7\xB9\xB3\xE9\xD6\x8A\x2F\x70\xBF\xD3\x04\xD3\x2A\x15\x9E\x13\x45\x3E\x0D\x16\x92\x8A",
+			.key_len = 24,
+			.tag = "\xEB\x61\x51\x5B",
+			.tag_len = 4
+		}
+	};
 
-	free(desc);
+	kripto_desc_mac *omac_aes = kripto_mac_omac(kripto_block_aes);
+	TEST(omac_aes, aes_vectors, 4);
+	free(omac_aes);
 
-	return 0;
+	kripto_desc_mac *omac_des = kripto_mac_omac(kripto_block_des);
+	TEST(omac_des, des_vectors, 2);
+	free(omac_des);
+
+	return test_result;
 }
