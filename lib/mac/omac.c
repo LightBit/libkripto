@@ -366,14 +366,14 @@ static void omac_input(kripto_mac *s, const void *in, size_t len)
 
 	for(i = 0; i < len; i++)
 	{
-		s->buf[s->i] = s->prev[s->i] ^ CU8(in)[i];
-		s->i++;
-
 		if(s->i == s->len)
 		{
 			kripto_block_encrypt(s->block, s->buf, s->prev);
 			s->i = 0;
 		}
+
+		s->buf[s->i] = s->prev[s->i] ^ CU8(in)[i];
+		s->i++;
 	}
 }
 
@@ -384,7 +384,13 @@ static void omac_tag(kripto_mac *s, void *tag, unsigned int len)
 	if(!s->f)
 	{
 		/* finish */
-		if(s->i)
+		if(s->i == s->len)
+		{
+			/* Lu */
+			for(i = 0; i < s->len; i++)
+				s->buf[i] ^= s->lu[i];
+		}
+		else
 		{
 			/* pad */
 			s->buf[s->i] = 0x80 ^ s->prev[s->i];
@@ -399,12 +405,6 @@ static void omac_tag(kripto_mac *s, void *tag, unsigned int len)
 			for(i = 0; i < s->len; i++)
 				s->buf[i] ^= s->lu2[i];
 		}
-		else
-		{
-			/* Lu */
-			for(i = 0; i < s->len; i++)
-				s->buf[i] ^= s->lu[i];
-		}
 
 		kripto_block_encrypt(s->block, s->buf, s->buf);
 		s->i = 0;
@@ -412,9 +412,9 @@ static void omac_tag(kripto_mac *s, void *tag, unsigned int len)
 	}
 
 	/* output */
+	assert(s->i + len <= s->len);
 	for(i = 0; i < len; i++)
 	{
-		assert(s->i < s->len);
 		U8(tag)[i] = s->buf[s->i++];
 	}
 }
