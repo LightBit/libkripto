@@ -99,3 +99,7 @@ if [ -z $debug ]; then
 	$PREFIX$STRIP -S libkripto.so
 fi
 
+# run tests
+cd ../
+find test/ -name "*.c" -exec $CC {} lib/libkripto.a $CFLAGS -o t \; -exec ./t \; -exec rm t \;
+#find test/ -name "*.c" -exec $CC {} lib/libkripto.a $CFLAGS -DVERBOSE -o t \; -exec valgrind -q ./t \; -exec rm t \;

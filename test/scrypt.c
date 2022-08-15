@@ -13,15 +13,20 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
-#include <stdio.h>
 
+#include <kripto/mac.h>
+#include <kripto/hash.h>
 #include <kripto/mac/hmac.h>
 #include <kripto/hash/sha2_256.h>
 #include <kripto/scrypt.h>
 
+#include "test.h"
+
 int main(void)
 {
+	/* https://www.rfc-editor.org/rfc/rfc7914 */
 	const uint8_t out[64] =
 	{
 		0x21, 0x01, 0xCB, 0x9B, 0x6A, 0x51, 0x1A, 0xAE,
@@ -34,12 +39,12 @@ int main(void)
 		0xCB, 0xF4, 0x5C, 0x6F, 0xA7, 0x7A, 0x41, 0xA4
 	};
 	uint8_t buf[64];
-	unsigned int i;
+
+	kripto_desc_mac *mac = kripto_mac_hmac(kripto_hash_sha2_256);
 
 	if(kripto_scrypt
 	(
-		kripto_mac_hmac,
-		kripto_hash_sha2_256,
+		mac,
 		0,
 		1048576,
 		8,
@@ -50,18 +55,11 @@ int main(void)
 		14,
 		buf,
 		64
-	))
-	{
-		perror("kripto_scrypt() returned error");
-		return -1;
-	}
+	)) TEST_ERROR("kripto_scrypt() returned error");
 
-	for(i = 0; i < 64; i++) if(buf[i] != out[i])
-	{
-		fputs("kripto_scrypt: FAIL\n", stderr);
-		return -1;
-	}
+	free(mac);
 
-	puts("kripto_scrypt: OK");
-	return 0;
+	TEST_CMP(buf, out, 64, "scrypt");
+
+	return test_result;
 }

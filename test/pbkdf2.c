@@ -14,14 +14,19 @@
  */
 
 #include <stdint.h>
-#include <stdio.h>
+#include <stdlib.h>
 
+#include <kripto/mac.h>
+#include <kripto/hash.h>
 #include <kripto/mac/hmac.h>
 #include <kripto/hash/sha1.h>
 #include <kripto/pbkdf2.h>
 
+#include "test.h"
+
 int main(void)
 {
+	/* https://www.rfc-editor.org/rfc/rfc6070.txt */
 	const uint8_t out[20] =
 	{
 		0x4B, 0x00, 0x79, 0x01,
@@ -31,12 +36,12 @@ int main(void)
 		0x65, 0xA4, 0x29, 0xC1
 	};
 	uint8_t buf[20];
-	unsigned int i;
+
+	kripto_desc_mac *mac = kripto_mac_hmac(kripto_hash_sha1);
 
 	if(kripto_pbkdf2
 	(
-		kripto_mac_hmac,
-		kripto_hash_sha1,
+		mac,
 		0,
 		4096,
 		"password",
@@ -45,18 +50,11 @@ int main(void)
 		4,
 		buf,
 		20
-	))
-	{
-		perror("kripto_pbkdf2() returned error");
-		return -1;
-	}
+	)) TEST_ERROR("kripto_pbkdf2() returned error");
 
-	for(i = 0; i < 20; i++) if(buf[i] != out[i])
-	{
-		fputs("kripto_pbkdf2: FAIL\n", stderr);
-		return -1;
-	}
+	free(mac);
 
-	puts("kripto_pbkdf2: OK");
-	return 0;
+	TEST_CMP(buf, out, 20, "PBKDF2");
+
+	return test_result;
 }
