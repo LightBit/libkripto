@@ -23,7 +23,8 @@ struct vector
 	unsigned int key_len;
 	unsigned int iv_len;
 	unsigned int rounds;
-	unsigned int len;
+	unsigned int pt_len;
+	unsigned int ct_len;
 	const char *key;
 	const char *iv;
 	const char *pt;
@@ -44,14 +45,14 @@ int test
 (
 	const char *file,
 	unsigned int line,
-	const kripto_desc_block *desc,
+	const kripto_desc_stream *desc,
 	const struct vector *vectors,
 	unsigned int vectors_len
 )
 {
 	for(unsigned int i = 0; i < vectors_len; i++)
 	{
-		char t[vectors[i].len];
+		char t[vectors[i].ct_len];
 
 		kripto_stream *s = kripto_stream_create
 		(
@@ -61,11 +62,19 @@ int test
 		);
 		if(!s) test_error(file, line, "Create vector %u", i);
 
-		kripto_stream_encrypt(s, vectors[i].pt, t, vectors[i].len);
-		test_cmp(t, vectors[i].ct, block_size, file, line, "Encrypt vector %u", i);
+		kripto_stream_encrypt(s, vectors[i].pt, t, vectors[i].pt_len);
+		test_cmp(t, vectors[i].ct, vectors[i].ct_len, file, line, "Encrypt vector %u", i);
 
-		kripto_stream_decrypt(s, vectors[i].ct, t, vectors[i].len);
-		test_cmp(t, vectors[i].pt, block_size, file, line, "Decrypt vector %u", i);
+		s = kripto_stream_recreate
+		(
+			s, vectors[i].rounds,
+			vectors[i].key, vectors[i].key_len,
+			vectors[i].iv, vectors[i].iv_len
+		);
+		if(!s) test_error(file, line, "Recreate vector %u", i);
+
+		kripto_stream_decrypt(s, vectors[i].ct, t, vectors[i].ct_len);
+		test_cmp(t, vectors[i].pt, vectors[i].pt_len, file, line, "Decrypt vector %u", i);
 
 		kripto_stream_destroy(s);
 	}

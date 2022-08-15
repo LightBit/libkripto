@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Gregor Pintar <grpintar@gmail.com>
+ * Copyright (C) 2022 by Gregor Pintar <grpintar@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted.
@@ -13,75 +13,45 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include <kripto/macros.h>
 #include <kripto/block.h>
-#include <kripto/block_desc.h>
-#include <kripto/mode.h>
-#include <kripto/mode_ctr.h>
+#include <kripto/block/aes.h>
 #include <kripto/stream.h>
+#include <kripto/stream/ctr.h>
 
-struct kripto_block
-{
-	kripto_desc_block *desc;
-};
-
-kripto_desc_block *const kripto_block_dummy;
-
-void dummy_crypt(const kripto_block *s, const void *pt, void *ct)
-{
-	printf("%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x\n", U8(pt)[0], U8(pt)[1], U8(pt)[2], U8(pt)[3], U8(pt)[4], U8(pt)[5], U8(pt)[6], U8(pt)[7],U8(pt)[8], U8(pt)[9], U8(pt)[10], U8(pt)[11],U8(pt)[12], U8(pt)[13], U8(pt)[14], U8(pt)[15]);
-	memcpy(ct, pt, 16);
-}
-
-kripto_block *dummy_create
-(
-	const void *key,
-	unsigned int key_len,
-	unsigned int r
-)
-{
-	kripto_block *s;
-
-	s = malloc(sizeof(struct kripto_block));
-	s->desc = kripto_block_dummy;
-
-	return s;
-}
-
-void dummy_destroy(kripto_block *s)
-{
-	free(s);
-}
-
-const struct kripto_desc_block dummy =
-{
-	&dummy_crypt,
-	&dummy_crypt,
-	&dummy_create,
-	&dummy_destroy,
-	16,
-	0,
-	0,
-	0
-};
-
-kripto_desc_block *const kripto_block_dummy = &dummy;
+#include "test.h"
 
 int main(void)
 {
-	kripto_stream *s;
-	kripto_block *b;
-	char buf[640];
+	/* https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf */
+	const struct vector aes_vectors[2] =
+	{
+		{
+			.rounds = 0,
+			.key = "\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C",
+			.key_len = 16,
+			.iv = "\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF",
+			.iv_len = 16,
+			.pt = "\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A",
+			.pt_len = 16,
+			.ct = "\x87\x4D\x61\x91\xB6\x20\xE3\x26\x1B\xEF\x68\x64\x99\x0D\xB6\xCE",
+			.ct_len = 16
+		},
+		{
+			.rounds = 0,
+			.key = "\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C",
+			.key_len = 16,
+			.iv = "\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF",
+			.iv_len = 16,
+			.pt = "\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A\xAE\x2D\x8A\x57\x1E\x03\xAC\x9C\x9E\xB7\x6F\xAC\x45\xAF\x8E\x51\x30\xC8\x1C\x46\xA3\x5C\xE4\x11\xE5\xFB\xC1\x19\x1A\x0A\x52\xEF\xF6\x9F\x24\x45\xDF\x4F\x9B\x17\xAD\x2B\x41\x7B\xE6\x6C",
+			.pt_len = 62,
+			.ct = "\x87\x4D\x61\x91\xB6\x20\xE3\x26\x1B\xEF\x68\x64\x99\x0D\xB6\xCE\x98\x06\xF6\x6B\x79\x70\xFD\xFF\x86\x17\x18\x7B\xB9\xFF\xFD\xFF\x5A\xE4\xDF\x3E\xDB\xD5\xD3\x5E\x5B\x4F\x09\x02\x0D\xB0\x3E\xAB\x1E\x03\x1D\xDA\x2F\xBE\x03\xD1\x79\x21\x70\xA0\xF3\x00",
+			.ct_len = 62
+		}
+	};
 
-	b = kripto_block_create(kripto_block_dummy, "987654321", 8, 0);
-	if(b) puts("BLOCK CREATED");
-	s = kripto_mode_create(kripto_mode_ctr, b, "123456789", 8);
-	if(s) puts("MODE CREATED");
-	kripto_stream_prng(s, buf, 640);
+	kripto_desc_stream *ctr_aes = kripto_stream_ctr(kripto_block_aes);
+	TEST(ctr_aes, aes_vectors, 2);
+	free(ctr_aes);
 
-	return 0;
+	return test_result;
 }

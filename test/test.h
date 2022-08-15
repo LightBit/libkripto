@@ -97,6 +97,12 @@ void test_cmp(const void *s1, const void *s2, size_t bytes, const char *file, un
 	if(memcmp(s1, s2, bytes))
 	{
 		test_vfail(file, line, msg, args);
+
+		/*for(unsigned int i = 0; i < bytes; i++)
+		{
+			printf("\\x%.2X", ((const unsigned char *)s1)[i]);
+		}
+		putchar('\n');*/
 	}
 	else
 	{
