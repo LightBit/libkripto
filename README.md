@@ -90,7 +90,7 @@ Run "sh build.sh" to compile.
 * HMAC
 * Keccak800
 * Keccak1600
-* OMAC (CMAC1)
+* OMAC1 (CMAC)
 * Skein256
 * Skein512
 * Skein1024
