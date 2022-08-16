@@ -119,9 +119,7 @@ static kripto_stream *cbc_create
 	if(!s) return 0;
 
 	s->desc = desc;
-	s->multof = s->blocksize;
-
-	s->blocksize = desc->maxiv;
+	s->multof = s->blocksize = desc->maxiv;
 
 	s->iv = (uint8_t *)s + sizeof(kripto_stream);
 	s->buf = s->iv + s->blocksize;
