@@ -153,10 +153,9 @@ static int seed(kripto_random *s, uint8_t *out, unsigned int len)
 
 static kripto_random *create(void)
 {
-	kripto_random *s;
 	uint8_t buf[32];
 
-	s = (kripto_random *)malloc(sizeof(kripto_random));
+	kripto_random *s = (kripto_random *)malloc(sizeof(kripto_random));
 	if(!s) return 0;
 
 	if(seed(s, buf, 32)) goto err;
@@ -201,9 +200,7 @@ kripto_random *kripto_random_create(void)
 
 	#elif defined(KRIPTO_RTLGENRANDOM)
 
-	kripto_random *s;
-
-	s = malloc(sizeof(kripto_random));
+	kripto_random *s = (kripto_random *)malloc(sizeof(kripto_random));
 	if(!s) return 0;
 
 	s->lib = LoadLibrary("advapi32.dll");
