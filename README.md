@@ -1,8 +1,6 @@
 # libkripto
 *Symmetric cryptography library written in ISO C99.*
 
-**IT IS MOSTLY UNTESTED!**
-
 Run "sh build.sh" to compile.
 
 ### Supported features:
