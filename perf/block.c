@@ -97,7 +97,7 @@ int main(void)
 		{"GOST 28147-89", kripto_block_gost_r34_12_2015()},
 		{"IDEA", kripto_block_idea},
 		{"KHAZAD", kripto_block_khazad},
-		{"LEA", kripto_block_khazad},
+		{"LEA", kripto_block_lea},
 		{"Noekeon", kripto_block_noekeon},
 		{"RC2", kripto_block_rc2},
 		{"RC5", kripto_block_rc5},
