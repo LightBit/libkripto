@@ -16,10 +16,11 @@ Run "sh build.sh" to compile.
 * IDEA
 * KHAZAD
 * LEA
-* Noekeon
+* NOEKEON
 * RC2
 * RC5
 * RC6
+* RECTANGLE
 * Rijndael128 (AES)
 * Rijndael256
 * SAFER
