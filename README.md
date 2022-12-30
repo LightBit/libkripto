@@ -10,6 +10,7 @@ Run "sh build.sh" to compile.
 * Anubis
 * Blowfish
 * CAST5
+* CRAX-S
 * Camellia
 * DES
 * GOST 28147-89 (Magma)

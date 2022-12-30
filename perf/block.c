@@ -29,6 +29,7 @@
 #include <kripto/block/blowfish.h>
 #include <kripto/block/camellia.h>
 #include <kripto/block/cast5.h>
+#include <kripto/block/crax_s.h>
 #include <kripto/block/des.h>
 #include <kripto/block/gost.h>
 #include <kripto/block/idea.h>
@@ -86,7 +87,7 @@ int main(void)
 	{
 		const char *name;
 		const kripto_desc_block *desc;
-	} ciphers[38] =
+	} ciphers[39] =
 	{
 		{"3-Way", kripto_block_3way},
 		{"Anubis", kripto_block_anubis},
@@ -94,6 +95,7 @@ int main(void)
 		{"Blowfish", kripto_block_blowfish},
 		{"Camellia", kripto_block_camellia},
 		{"CAST5", kripto_block_cast5},
+		{"CRAX-S", kripto_block_crax_s},
 		{"DES", kripto_block_des},
 		{"GOST 28147-89", kripto_block_gost_r34_12_2015()},
 		{"IDEA", kripto_block_idea},
@@ -134,7 +136,7 @@ int main(void)
 	uint8_t k[MAXKEY];
 	memset(k, 0x5A, MAXKEY);
 
-	for(unsigned int i = 0; i < 38; i++)
+	for(unsigned int i = 0; i < 39; i++)
 	{
 		puts(ciphers[i].name);
 
