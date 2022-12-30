@@ -90,6 +90,7 @@ static void crax_s_setup
 	unsigned int key_len
 )
 {
+	s->k[3] = s->k[2] = s->k[1] = s->k[0] = 0;
 	LOAD32L_ARRAY(key, s->k, key_len);
 }
 
