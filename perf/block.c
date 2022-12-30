@@ -88,7 +88,7 @@ int main(void)
 	{
 		const char *name;
 		const kripto_desc_block *desc;
-	} ciphers[40] =
+	} ciphers[41] =
 	{
 		{"3-Way", kripto_block_3way},
 		{"Anubis", kripto_block_anubis},
@@ -127,6 +127,7 @@ int main(void)
 		{"Threefish-256", kripto_block_threefish256},
 		{"Threefish-512", kripto_block_threefish512},
 		{"Threefish-1024", kripto_block_threefish1024},
+		{"TRAX-M", kripto_block_trax_m},
 		{"TRAX-L", kripto_block_trax_l},
 		{"Twofish", kripto_block_twofish},
 		{"XTEA", kripto_block_xtea}
@@ -138,7 +139,7 @@ int main(void)
 	uint8_t k[MAXKEY];
 	memset(k, 0x5A, MAXKEY);
 
-	for(unsigned int i = 0; i < 40; i++)
+	for(unsigned int i = 0; i < 41; i++)
 	{
 		puts(ciphers[i].name);
 

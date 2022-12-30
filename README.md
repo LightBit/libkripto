@@ -41,6 +41,7 @@ Run "sh build.sh" to compile.
 * Threefish256
 * Threefish512
 * Threefish1024
+* TRAX-M
 * TRAX-L
 * TripleDES
 * Twofish
