@@ -60,6 +60,7 @@
 #include <kripto/block/threefish256.h>
 #include <kripto/block/threefish512.h>
 #include <kripto/block/threefish1024.h>
+#include <kripto/block/trax_m.h>
 #include <kripto/block/trax_l.h>
 #include <kripto/block/twofish.h>
 #include <kripto/block/xtea.h>
