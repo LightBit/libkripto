@@ -60,6 +60,7 @@
 #include <kripto/block/threefish256.h>
 #include <kripto/block/threefish512.h>
 #include <kripto/block/threefish1024.h>
+#include <kripto/block/trax_l.h>
 #include <kripto/block/twofish.h>
 #include <kripto/block/xtea.h>
 
@@ -87,7 +88,7 @@ int main(void)
 	{
 		const char *name;
 		const kripto_desc_block *desc;
-	} ciphers[39] =
+	} ciphers[40] =
 	{
 		{"3-Way", kripto_block_3way},
 		{"Anubis", kripto_block_anubis},
@@ -126,6 +127,7 @@ int main(void)
 		{"Threefish-256", kripto_block_threefish256},
 		{"Threefish-512", kripto_block_threefish512},
 		{"Threefish-1024", kripto_block_threefish1024},
+		{"TRAX-L", kripto_block_trax_l},
 		{"Twofish", kripto_block_twofish},
 		{"XTEA", kripto_block_xtea}
 	};
@@ -136,7 +138,7 @@ int main(void)
 	uint8_t k[MAXKEY];
 	memset(k, 0x5A, MAXKEY);
 
-	for(unsigned int i = 0; i < 39; i++)
+	for(unsigned int i = 0; i < 40; i++)
 	{
 		puts(ciphers[i].name);
 
