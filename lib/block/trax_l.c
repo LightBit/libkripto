@@ -285,9 +285,15 @@ static kripto_block *trax_l_recreate
 {
 	if(!r) r = 17;
 
-	s->steps = r;
-
-	trax_l_setup(s, key, key_len);
+	if(r != s->steps)
+	{
+		trax_l_destroy(s);
+		s = trax_l_create(s->desc, r, key, key_len);
+	}
+	else
+	{
+		trax_l_setup(s, key, key_len);
+	}
 
 	return s;
 }
