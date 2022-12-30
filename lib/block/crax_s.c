@@ -101,9 +101,10 @@ static void crax_s_encrypt(const kripto_block *s, const void *pt, void *ct)
 
 	for(unsigned int i = 0; i < s->steps; i++)
 	{
+		uint32_t c = rcon[i % 5];
 		x ^= i;
 		KEY(x, y, s->k, i);
-		ALZETTE(x, y, rcon[i % 5]);
+		ALZETTE(x, y, c);
 	}
 
 	KEY(x, y, s->k, s->steps);
@@ -121,7 +122,8 @@ static void crax_s_decrypt(const kripto_block *s, const void *ct, void *pt)
 
 	for(unsigned int i = s->steps; i-- > 0;)
 	{
-		ALZETTE_INV(x, y, rcon[i % 5]);
+		uint32_t c = rcon[i % 5];
+		ALZETTE_INV(x, y, c);
 		KEY(x, y, s->k, i);
 		x ^= i;
 	}
