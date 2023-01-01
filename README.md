@@ -3,16 +3,15 @@
 
 Run "sh build.sh" to compile.
 
-### Supported features:
 #### Block ciphers
 * 3-Way
 * ARIA
 * Anubis
 * Blowfish
 * CAST5
-* CRAX-S
 * Camellia
-* DES
+* CRAX-S
+* DES (TripleDES)
 * GOST 28147-89 (Magma)
 * IDEA
 * KHAZAD
@@ -22,8 +21,8 @@ Run "sh build.sh" to compile.
 * RC5
 * RC6
 * RECTANGLE
-* Rijndael128 (AES)
-* Rijndael256
+* Rijndael-128 (AES)
+* Rijndael-256
 * SAFER
 * SAFER++
 * SEED
@@ -38,12 +37,11 @@ Run "sh build.sh" to compile.
 * Speck64
 * Speck128
 * TEA
-* Threefish256
-* Threefish512
-* Threefish1024
+* Threefish-256
+* Threefish-512
+* Threefish-1024
 * TRAX-M
 * TRAX-L
-* TripleDES
 * Twofish
 * XTEA
 
@@ -59,43 +57,41 @@ Run "sh build.sh" to compile.
 * EAX2
 
 #### Stream ciphers
-* ChaCha
-* Keccak800
-* Keccak1600
+* ChaCha (XChaCha)
+* Keccak-800
+* Keccak-1600
 * RC4
-* Salsa20
-* Skein256
-* Skein512
-* Skein1024
-* XChaCha
-* XSalsa20
+* Salsa20 (XSalsa20)
+* Skein-256
+* Skein-512
+* Skein-1024
 
 #### Hash functions
 * BLAKE-256
 * BLAKE-512
 * BLAKE2b
 * BLAKE2s
-* Keccak800
-* Keccak1600
+* Keccak-800
+* Keccak-1600
 * MD5
 * SHA1
 * SHA2-256
 * SHA2-512
 * SHA3
-* Skein256
-* Skein512
-* Skein1024
+* Skein-256
+* Skein-512
+* Skein-1024
 * Tiger
 * WHIRLPOOL
 
 #### Message authentication codes
 * HMAC
-* Keccak800
-* Keccak1600
+* Keccak-800
+* Keccak-1600
 * OMAC1 (CMAC)
-* Skein256
-* Skein512
-* Skein1024
+* Skein-256
+* Skein-512
+* Skein-1024
 * XCBC
 
 #### Other
