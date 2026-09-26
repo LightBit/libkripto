@@ -76,7 +76,7 @@ static kripto_stream *skein256_recreate
 	unsigned int i;
 
 	s->r = r;
-	s->i = 0;
+	s->i = 32;
 	memset(k, 0, 32);
 	memset(s->ctr, 0, 32);
 
@@ -90,11 +90,12 @@ static kripto_stream *skein256_recreate
 		else block = key_len;
 
 		memcpy(s->buf, key, block);
-		memset(s->buf, 0, 32 - block);
+		memset(s->buf + block, 0, 32 - block);
 
 		POS_ADD(tweak, block);
 
 		key_len -= block;
+		key = CU8(key) + block;
 
 		if(!key_len) tweak[15] |= 0x80; /* add final */
 
@@ -138,11 +139,12 @@ static kripto_stream *skein256_recreate
 		else block = iv_len;
 
 		memcpy(s->buf, iv, block);
-		memset(s->buf, 0, 32 - block);
+		memset(s->buf + block, 0, 32 - block);
 
 		POS_ADD(tweak, block);
 
 		iv_len -= block;
+		iv = CU8(iv) + block;
 
 		if(!iv_len) tweak[15] |= 0x80; /* add final */
 
@@ -154,6 +156,16 @@ static kripto_stream *skein256_recreate
 
 		tweak[15] &= 0xBF; /* remove first */
 	}
+
+	/* MSG (empty) */
+	memset(tweak, 0, 12);
+	tweak[15] = 0xF0; /* type MSG, first, final */
+	memset(s->buf, 0, 32);
+
+	(void)kripto_block_recreate(s->block, s->r, k, 32);
+	kripto_block_tweak(s->block, tweak, 16);
+	kripto_block_encrypt(s->block, s->buf, k);
+	for(i = 0; i < 32; i++) k[i] ^= s->buf[i];
 
 	/* final setup */
 	(void)kripto_block_recreate(s->block, s->r, k, 32);

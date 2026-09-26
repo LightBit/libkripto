@@ -121,6 +121,7 @@ static kripto_hash *skein1024_recreate
 
 		POS_ADD(s->tweak, len);
 		salt_len -= len;
+		salt = CU8(salt) + len;
 
 		if(!salt_len) s->tweak[15] |= 0x80; /* add final */
 

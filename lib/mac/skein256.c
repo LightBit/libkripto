@@ -101,11 +101,12 @@ static kripto_mac *skein256_recreate
 		else block = key_len;
 
 		memcpy(s->buf, key, block);
-		memset(s->buf, 0, 32 - block);
+		memset(s->buf + block, 0, 32 - block);
 
 		POS_ADD(s->tweak, block);
 
 		key_len -= block;
+		key = CU8(key) + block;
 
 		if(!key_len) s->tweak[15] |= 0x80; /* add final */
 
@@ -147,8 +148,6 @@ static void skein256_input
 
 	for(i = 0; i < len; i++)
 	{
-		s->buf[s->i++] = CU8(in)[i];
-
 		if(s->i == 32)
 		{
 			POS_ADD(s->tweak, 32);
@@ -156,6 +155,8 @@ static void skein256_input
 			s->tweak[15] = 0x30; /* type MSG */
 			s->i = 0;
 		}
+
+		s->buf[s->i++] = CU8(in)[i];
 	}
 }
 
