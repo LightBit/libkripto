@@ -157,7 +157,7 @@ static kripto_block *rc5_recreate
 	if(r != s->r)
 	{
 		rc5_destroy(s);
-		s = rc5_create(s->desc, r, key, key_len);
+		s = rc5_create(kripto_block_rc5, r, key, key_len);
 	}
 	else
 	{

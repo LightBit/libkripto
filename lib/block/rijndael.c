@@ -935,7 +935,7 @@ static kripto_block *rijndael128_recreate
 	if(r != s->rounds)
 	{
 		rijndael128_destroy(s);
-		s = rijndael128_create(s->desc, r, key, key_len);
+		s = rijndael128_create(kripto_block_rijndael128, r, key, key_len);
 	}
 	else
 	{
@@ -1168,7 +1168,7 @@ static kripto_block *rijndael256_recreate
 	if(r != s->rounds)
 	{
 		rijndael256_destroy(s);
-		s = rijndael256_create(s->desc, r, key, key_len);
+		s = rijndael256_create(kripto_block_rijndael256, r, key, key_len);
 	}
 	else
 	{

@@ -166,7 +166,7 @@ static kripto_block *simon64_recreate
 	if(r != s->rounds)
 	{
 		simon64_destroy(s);
-		s = simon64_create(s->desc, r, key, key_len);
+		s = simon64_create(kripto_block_simon64, r, key, key_len);
 	}
 	else
 	{

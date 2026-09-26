@@ -198,7 +198,7 @@ static kripto_block *rc6_recreate
 	if(r != s->rounds)
 	{
 		rc6_destroy(s);
-		s = rc6_create(s->desc, r, key, key_len);
+		s = rc6_create(kripto_block_rc6, r, key, key_len);
 	}
 	else
 	{

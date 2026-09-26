@@ -349,7 +349,7 @@ static kripto_block *safer_recreate
 	if(r != s->rounds)
 	{
 		safer_destroy(s);
-		s = safer_create(s->desc, r, key, key_len);
+		s = safer_create(kripto_block_safer, r, key, key_len);
 	}
 	else
 	{
@@ -402,7 +402,7 @@ static kripto_block *safer_sk_recreate
 	if(r != s->rounds)
 	{
 		safer_destroy(s);
-		s = safer_sk_create(s->desc, r, key, key_len);
+		s = safer_sk_create(kripto_block_safer_sk, r, key, key_len);
 	}
 	else
 	{

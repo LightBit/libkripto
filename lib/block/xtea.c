@@ -143,7 +143,7 @@ static kripto_block *xtea_recreate
 	if(r != s->rounds)
 	{
 		xtea_destroy(s);
-		s = xtea_create(s->desc, r, key, key_len);
+		s = xtea_create(kripto_block_xtea, r, key, key_len);
 	}
 	else
 	{

@@ -190,8 +190,9 @@ static kripto_block *gost_recreate
 
 	if(r != s->r)
 	{
+		const kripto_desc_block *desc = s->desc;
 		gost_destroy(s);
-		s = gost_create(s->desc, r, key, key_len);
+		s = gost_create(desc, r, key, key_len);
 	}
 	else
 	{

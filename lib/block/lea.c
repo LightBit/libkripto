@@ -250,7 +250,7 @@ static kripto_block *lea_recreate
 	if(r != s->r)
 	{
 		lea_destroy(s);
-		s = lea_create(s->desc, r, key, key_len);
+		s = lea_create(kripto_block_lea, r, key, key_len);
 	}
 	else
 	{

@@ -145,7 +145,7 @@ static kripto_block *speck128_recreate
 	if(r != s->rounds)
 	{
 		speck128_destroy(s);
-		s = speck128_create(s->desc, r, key, key_len);
+		s = speck128_create(kripto_block_speck128, r, key, key_len);
 	}
 	else
 	{

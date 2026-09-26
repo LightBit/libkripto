@@ -213,7 +213,7 @@ static kripto_block *idea_recreate
 	if(r != s->r)
 	{
 		idea_destroy(s);
-		s = idea_create(s->desc, r, key, key_len);
+		s = idea_create(kripto_block_idea, r, key, key_len);
 	}
 	else
 	{

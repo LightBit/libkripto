@@ -183,7 +183,7 @@ static kripto_block *simon128_recreate
 	if(r != s->rounds)
 	{
 		simon128_destroy(s);
-		s = simon128_create(s->desc, r, key, key_len);
+		s = simon128_create(kripto_block_simon128, r, key, key_len);
 	}
 	else
 	{

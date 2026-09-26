@@ -288,7 +288,7 @@ static kripto_block *trax_l_recreate
 	if(r != s->steps)
 	{
 		trax_l_destroy(s);
-		s = trax_l_create(s->desc, r, key, key_len);
+		s = trax_l_create(kripto_block_trax_l, r, key, key_len);
 	}
 	else
 	{

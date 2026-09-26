@@ -708,7 +708,7 @@ static kripto_block *serpent_recreate
 	if(r != s->rounds)
 	{
 		serpent_destroy(s);
-		s = serpent_create(s->desc, r, key, key_len);
+		s = serpent_create(kripto_block_serpent, r, key, key_len);
 	}
 	else
 	{

@@ -220,7 +220,7 @@ static kripto_block *trax_m_recreate
 	if(r != s->steps)
 	{
 		trax_m_destroy(s);
-		s = trax_m_create(s->desc, r, key, key_len);
+		s = trax_m_create(kripto_block_trax_m, r, key, key_len);
 	}
 	else
 	{

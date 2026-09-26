@@ -411,7 +411,7 @@ static kripto_block *saferpp_recreate
 	if(r != s->rounds)
 	{
 		saferpp_destroy(s);
-		s = saferpp_create(s->desc, r, key, key_len);
+		s = saferpp_create(kripto_block_saferpp, r, key, key_len);
 	}
 	else
 	{

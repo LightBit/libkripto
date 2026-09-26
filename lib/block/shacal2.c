@@ -235,7 +235,7 @@ static kripto_block *shacal2_recreate
 	if(r != s->r)
 	{
 		shacal2_destroy(s);
-		s = shacal2_create(s->desc, r, key, key_len);
+		s = shacal2_create(kripto_block_shacal2, r, key, key_len);
 	}
 	else
 	{

@@ -1225,7 +1225,7 @@ static kripto_block *twofish_recreate
 	if(r != s->rounds)
 	{
 		twofish_destroy(s);
-		s = twofish_create(s->desc, r, key, key_len);
+		s = twofish_create(kripto_block_twofish, r, key, key_len);
 	}
 	else
 	{

@@ -458,7 +458,7 @@ static kripto_block *seed_recreate
 	if(r != s->rounds)
 	{
 		seed_destroy(s);
-		s = seed_create(s->desc, r, key, key_len);
+		s = seed_create(kripto_block_seed, r, key, key_len);
 	}
 	else
 	{

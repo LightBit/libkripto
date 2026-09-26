@@ -706,7 +706,7 @@ static kripto_block *aria_recreate
 	if(r != s->rounds)
 	{
 		aria_destroy(s);
-		s = aria_create(s->desc, r, key, key_len);
+		s = aria_create(kripto_block_aria, r, key, key_len);
 	}
 	else
 	{

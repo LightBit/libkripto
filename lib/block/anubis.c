@@ -771,7 +771,7 @@ static kripto_block *anubis_recreate
 	if(r != s->rounds)
 	{
 		anubis_destroy(s);
-		s = anubis_create(s->desc, r, key, key_len);
+		s = anubis_create(kripto_block_anubis, r, key, key_len);
 	}
 	else
 	{

@@ -287,7 +287,7 @@ static kripto_block *rectangle_recreate
 	if(r != s->rounds)
 	{
 		rectangle_destroy(s);
-		s = rectangle_create(s->desc, r, key, key_len);
+		s = rectangle_create(kripto_block_rectangle, r, key, key_len);
 	}
 	else
 	{

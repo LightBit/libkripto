@@ -520,7 +520,7 @@ static kripto_block *blowfish_recreate
 	if(r != s->rounds)
 	{
 		blowfish_destroy(s);
-		s = blowfish_create(s->desc, r, key, key_len);
+		s = blowfish_create(kripto_block_blowfish, r, key, key_len);
 	}
 	else
 	{

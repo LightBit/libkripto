@@ -223,7 +223,7 @@ static kripto_block *sm4_recreate
 	if(r != s->r)
 	{
 		sm4_destroy(s);
-		s = sm4_create(s->desc, r, key, key_len);
+		s = sm4_create(kripto_block_sm4, r, key, key_len);
 	}
 	else
 	{

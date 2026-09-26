@@ -155,7 +155,7 @@ static kripto_block *simon32_recreate
 	if(r != s->rounds)
 	{
 		simon32_destroy(s);
-		s = simon32_create(s->desc, r, key, key_len);
+		s = simon32_create(kripto_block_simon32, r, key, key_len);
 	}
 	else
 	{

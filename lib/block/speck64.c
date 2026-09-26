@@ -145,7 +145,7 @@ static kripto_block *speck64_recreate
 	if(r != s->rounds)
 	{
 		speck64_destroy(s);
-		s = speck64_create(s->desc, r, key, key_len);
+		s = speck64_create(kripto_block_speck64, r, key, key_len);
 	}
 	else
 	{

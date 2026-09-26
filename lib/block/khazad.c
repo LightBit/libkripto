@@ -748,7 +748,7 @@ static kripto_block *khazad_recreate
 	if(r != s->r)
 	{
 		khazad_destroy(s);
-		s = khazad_create(s->desc, r, key, key_len);
+		s = khazad_create(kripto_block_khazad, r, key, key_len);
 	}
 	else
 	{
