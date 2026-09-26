@@ -117,7 +117,7 @@ static kripto_hash *skein1024_recreate
 		unsigned int len = salt_len > 128 ? 128 : salt_len;
 
 		memcpy(s->buf, salt, len);
-		memset(s->buf, 0, 128 - len);
+		memset(s->buf + len, 0, 128 - len);
 
 		POS_ADD(s->tweak, len);
 		salt_len -= len;
@@ -145,8 +145,6 @@ static void skein1024_input
 {
 	for(size_t i = 0; i < len; i++)
 	{
-		s->buf[s->i++] = CU8(in)[i];
-
 		if(s->i == 128)
 		{
 			POS_ADD(s->tweak, 128);
@@ -154,6 +152,8 @@ static void skein1024_input
 			s->tweak[15] = 0x30; /* type MSG */
 			s->i = 0;
 		}
+
+		s->buf[s->i++] = CU8(in)[i];
 	}
 }
 
@@ -179,8 +179,12 @@ static void skein1024_output(kripto_hash *s, void *out, size_t len)
 	{
 		if(s->i == 128)
 		{
-			s->out_len -= 128;
-			if(!s->out_len) s->tweak[15] |= 0x80; /* add final */
+			if(s->out_len <= 128)
+			{
+				s->tweak[15] |= 0x80; /* add final */
+				s->out_len = 0;
+			}
+			else s->out_len -= 128;
 			skein1024_process(s);
 			s->tweak[15] &= 0xBF; /* remove first */
 			POS_ADD(s->tweak, 128);
