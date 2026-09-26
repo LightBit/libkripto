@@ -66,17 +66,19 @@ static void cfb_decrypt
 )
 {
 	size_t i;
+	uint8_t t;
 
 	for(i = 0; i < len; i++)
 	{
 		if(s->used == s->blocksize)
 		{
-			kripto_block_encrypt(s->block, s->prev, pt);
+			kripto_block_encrypt(s->block, s->prev, s->prev);
 			s->used = 0;
 		}
 
-		U8(pt)[i] ^= CU8(ct)[i];
-		s->prev[s->used++] = CU8(ct)[i];
+		t = CU8(ct)[i];
+		U8(pt)[i] = s->prev[s->used] ^ t;
+		s->prev[s->used++] = t;
 	}
 }
 
