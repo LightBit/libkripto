@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -201,7 +201,7 @@ static void blake256_input
 			if(s->len[0] < 512)
 			{
 				s->len[1]++;
-				assert(s->len[1]);
+				kripto_assert(s->len[1]);
 			}
 
 			blake256_process(s, s->buf);
@@ -216,7 +216,7 @@ static void blake256_finish(kripto_hash *s)
 	if(s->len[0] < (s->i << 3))
 	{
 		s->len[1]++;
-		assert(s->len[1]);
+		kripto_assert(s->len[1]);
 	}
 
 	/* pad */
@@ -248,7 +248,7 @@ static void blake256_output(kripto_hash *s, void *out, size_t len)
 {
 	if(s->o) blake256_finish(s);
 
-	assert(s->i + len <= 32);
+	kripto_assert(s->i + len <= 32);
 	STORE32B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

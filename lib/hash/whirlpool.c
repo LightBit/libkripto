@@ -27,8 +27,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/memory.h>
@@ -897,7 +897,7 @@ static kripto_hash *whirlpool_recreate
 	unsigned int out_len
 )
 {
-	assert(r < 10);
+	kripto_assert(r < 10);
 	(void)salt;
 	(void)salt_len;
 	(void)out_len;
@@ -923,7 +923,7 @@ static void len_add(kripto_hash *s, unsigned int len)
 			if(!++s->len[1])
 			{
 				s->len[0]++;
-				assert(s->len[0]);
+				kripto_assert(s->len[0]);
 			}
 		}
 	}
@@ -981,7 +981,7 @@ static void whirlpool_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) whirlpool_finish(s);
 
-	assert(s->i + len <= 64);
+	kripto_assert(s->i + len <= 64);
 	STORE64B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -193,7 +193,7 @@ static void md5_input
 		if(s->i == 64)
 		{
 			s->len += 512;
-			assert(s->len >= 512);
+			kripto_assert(s->len >= 512);
 
 			md5_process(s, s->buf);
 			s->i = 0;
@@ -204,7 +204,7 @@ static void md5_input
 static void md5_finish(kripto_hash *s)
 {
 	s->len += s->i << 3;
-	assert(s->len >= (s->i << 3));
+	kripto_assert(s->len >= (s->i << 3));
 
 	s->buf[s->i++] = 0x80; /* pad */
 
@@ -229,7 +229,7 @@ static void md5_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) md5_finish(s);
 
-	assert(s->i + len <= 16);
+	kripto_assert(s->i + len <= 16);
 	STORE32L_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

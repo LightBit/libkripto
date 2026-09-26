@@ -13,8 +13,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <assert.h>
-
+#include <kripto/assert.h>
 #include <kripto/memory.h>
 #include <kripto/mac.h>
 #include <kripto/desc/mac.h>
@@ -33,11 +32,12 @@ kripto_mac *kripto_mac_create
 	unsigned int tag_len
 )
 {
-	assert(desc);
-	assert(desc->create);
+	kripto_assert(desc);
+	kripto_assert(desc->create);
 
-	assert(key);
-	assert(key_len);
+	kripto_assert(key);
+	kripto_assert(key_len);
+	kripto_assert(!desc->maxkey || key_len <= desc->maxkey);
 
 	return desc->create(desc, rounds, key, key_len, tag_len);
 }
@@ -51,39 +51,44 @@ kripto_mac *kripto_mac_recreate
 	unsigned int tag_len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->recreate);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->recreate);
 
-	assert(key);
-	assert(key_len);
+	kripto_assert(key);
+	kripto_assert(key_len);
+	kripto_assert(!s->desc->maxkey || key_len <= s->desc->maxkey);
 
 	return s->desc->recreate(s, rounds, key, key_len, tag_len);
 }
 
 void kripto_mac_input(kripto_mac *s, const void *in, size_t len)
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->input);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->input);
 
 	s->desc->input(s, in, len);
 }
 
 void kripto_mac_tag(kripto_mac *s, void *tag, unsigned int len)
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->tag);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->tag);
+
+	kripto_assert(!s->desc->maxtag || len <= s->desc->maxtag);
 
 	s->desc->tag(s, tag, len);
 }
 
 int kripto_mac_verify(kripto_mac *s, const void *tag, unsigned int len)
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->tag);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->tag);
+
+	kripto_assert(!s->desc->maxtag || len <= s->desc->maxtag);
 
 	char t[len];
 	s->desc->tag(s, t, len);
@@ -92,9 +97,9 @@ int kripto_mac_verify(kripto_mac *s, const void *tag, unsigned int len)
 
 void kripto_mac_destroy(kripto_mac *s)
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->destroy);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->destroy);
 
 	s->desc->destroy(s);
 }
@@ -113,8 +118,6 @@ int kripto_mac_all
 {
 	kripto_mac *s;
 
-	assert(desc);
-
 	s = kripto_mac_create(desc, rounds, key, key_len, tag_len);
 	if(!s) return -1;
 
@@ -128,22 +131,22 @@ int kripto_mac_all
 
 const kripto_desc_mac *kripto_mac_getdesc(const kripto_mac *s)
 {
-	assert(s);
-	assert(s->desc);
+	kripto_assert(s);
+	kripto_assert(s->desc);
 
 	return s->desc;
 }
 
 unsigned int kripto_mac_maxtag(const kripto_desc_mac *desc)
 {
-	assert(desc);
+	kripto_assert(desc);
 
 	return desc->maxtag;
 }
 
 unsigned int kripto_mac_maxkey(const kripto_desc_mac *desc)
 {
-	assert(desc);
+	kripto_assert(desc);
 
 	return desc->maxkey;
 }

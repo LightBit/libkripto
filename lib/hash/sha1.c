@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -74,7 +74,7 @@ static kripto_hash *sha1_recreate
 	unsigned int out_len
 )
 {
-	assert(!r);
+	kripto_assert(!r);
 	(void)r;
 	(void)salt;
 	(void)salt_len;
@@ -179,7 +179,7 @@ static void sha1_input
 		if(s->i == 64)
 		{
 			s->len += 512;
-			assert(s->len >= 512);
+			kripto_assert(s->len >= 512);
 
 			sha1_process(s, s->buf);
 			s->i = 0;
@@ -190,7 +190,7 @@ static void sha1_input
 static void sha1_finish(kripto_hash *s)
 {
 	s->len += s->i << 3;
-	assert(s->len >= (s->i << 3));
+	kripto_assert(s->len >= (s->i << 3));
 
 	s->buf[s->i++] = 0x80; /* pad */
 
@@ -215,7 +215,7 @@ static void sha1_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->o) sha1_finish(s);
 
-	assert(s->i + len <= 20);
+	kripto_assert(s->i + len <= 20);
 	STORE32B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

@@ -17,8 +17,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -641,7 +641,7 @@ static kripto_block *camellia_recreate
 	unsigned int key_len
 )
 {
-	assert(!r);
+	kripto_assert(!r);
 	(void)r;
 
 	if(key_len > 16) s->rounds = 24;

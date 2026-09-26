@@ -13,9 +13,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <assert.h>
 #include <stdint.h>
 
+#include <kripto/assert.h>
 #include <kripto/stream.h>
 #include <kripto/desc/stream.h>
 
@@ -35,14 +35,14 @@ kripto_stream *kripto_stream_create
 	unsigned int iv_len
 )
 {
-	assert(desc);
-	assert(desc->create);
+	kripto_assert(desc);
+	kripto_assert(desc->create);
 
-	assert(key);
-	assert(key_len);
-	assert(key_len <= kripto_stream_maxkey(desc));
-	assert(iv_len <= kripto_stream_maxiv(desc));
-	if(iv_len) assert(iv);
+	kripto_assert(key);
+	kripto_assert(key_len);
+	kripto_assert(key_len <= desc->maxkey);
+	kripto_assert(iv_len <= desc->maxiv);
+	kripto_assert(!iv_len || iv);
 
 	return desc->create(desc, rounds, key, key_len, iv, iv_len);
 }
@@ -57,15 +57,15 @@ kripto_stream *kripto_stream_recreate
 	unsigned int iv_len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->recreate);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->recreate);
 
-	assert(key);
-	assert(key_len);
-	assert(key_len <= kripto_stream_maxkey(s->desc));
-	assert(iv_len <= kripto_stream_maxiv(s->desc));
-	if(iv_len) assert(iv);
+	kripto_assert(key);
+	kripto_assert(key_len);
+	kripto_assert(key_len <= s->desc->maxkey);
+	kripto_assert(iv_len <= s->desc->maxiv);
+	kripto_assert(!iv_len || iv);
 
 	return s->desc->recreate(s, rounds, key, key_len, iv, iv_len);
 }
@@ -78,10 +78,10 @@ void kripto_stream_encrypt
 	size_t len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->encrypt);
-	assert(len % kripto_stream_multof(s) == 0);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->encrypt);
+	kripto_assert(len % s->multof == 0);
 
 	s->desc->encrypt(s, pt, ct, len);
 }
@@ -94,10 +94,10 @@ void kripto_stream_decrypt
 	size_t len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->decrypt);
-	assert(len % kripto_stream_multof(s) == 0);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->decrypt);
+	kripto_assert(len % s->multof == 0);
 
 	s->desc->decrypt(s, ct, pt, len);
 }
@@ -109,49 +109,49 @@ void kripto_stream_prng
 	size_t len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->prng);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->prng);
 
 	s->desc->prng(s, out, len);
 }
 
 void kripto_stream_destroy(kripto_stream *s)
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->destroy);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->destroy);
 
 	s->desc->destroy(s);
 }
 
 unsigned int kripto_stream_multof(const kripto_stream *s)
 {
-	assert(s);
-	assert(s->multof);
+	kripto_assert(s);
+	kripto_assert(s->multof);
 
 	return s->multof;
 }
 
 const kripto_desc_stream *kripto_stream_getdesc(const kripto_stream *s)
 {
-	assert(s);
-	assert(s->desc);
+	kripto_assert(s);
+	kripto_assert(s->desc);
 
 	return s->desc;
 }
 
 unsigned int kripto_stream_maxkey(const kripto_desc_stream *desc)
 {
-	assert(desc);
-	assert(desc->maxkey);
+	kripto_assert(desc);
+	kripto_assert(desc->maxkey);
 
 	return desc->maxkey;
 }
 
 unsigned int kripto_stream_maxiv(const kripto_desc_stream *desc)
 {
-	assert(desc);
+	kripto_assert(desc);
 
 	return desc->maxiv;
 }

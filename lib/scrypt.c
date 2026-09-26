@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include <kripto/memory.h>
 #include <kripto/cast.h>

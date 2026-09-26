@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/memory.h>
@@ -707,7 +707,7 @@ static void tiger_input
 		if(s->i == 64)
 		{
 			s->len += 512;
-			assert(s->len >= 512);
+			kripto_assert(s->len >= 512);
 
 			tiger_process(s, s->buf);
 			s->i = 0;
@@ -718,7 +718,7 @@ static void tiger_input
 static void tiger_finish(kripto_hash *s)
 {
 	s->len += s->i << 3;
-	assert(s->len >= (s->i << 3));
+	kripto_assert(s->len >= (s->i << 3));
 
 	/* pad */
 	s->buf[s->i++] = 0x01;
@@ -745,7 +745,7 @@ static void tiger_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) tiger_finish(s);
 
-	assert(s->i + len <= 24);
+	kripto_assert(s->i + len <= 24);
 	STORE64L_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

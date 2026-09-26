@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/memory.h>
@@ -198,7 +198,7 @@ static kripto_block *skipjack_recreate
 	unsigned int key_len
 )
 {
-	assert(!r || r == 32);
+	kripto_assert(!r || r == 32);
 	(void)r;
 
 	for(unsigned int i = 0; i < key_len; i++)

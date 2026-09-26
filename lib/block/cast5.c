@@ -17,8 +17,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -696,7 +696,7 @@ static kripto_block *cast5_recreate
 	unsigned int key_len
 )
 {
-	assert(!r);
+	kripto_assert(!r);
 
 	uint32_t x[4] = {0, 0, 0, 0};
 	uint32_t z[4];

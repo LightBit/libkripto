@@ -17,8 +17,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/memory.h>
@@ -56,7 +56,7 @@ struct kripto_stream
 	if(!++TWEAK[10])		\
 	{				\
 		TWEAK[11]++;		\
-		assert(TWEAK[11]);	\
+		kripto_assert(TWEAK[11]);	\
 	}				\
 }
 
@@ -194,7 +194,7 @@ static void skein256_crypt
 			if(!++s->ctr[6])
 			{
 				s->ctr[7]++;
-				assert(s->ctr[7]);
+				kripto_assert(s->ctr[7]);
 			}
 
 			s->i = 0;
@@ -225,7 +225,7 @@ static void skein256_prng(kripto_stream *s, void *out, size_t len)
 			if(!++s->ctr[6])
 			{
 				s->ctr[7]++;
-				assert(s->ctr[7]);
+				kripto_assert(s->ctr[7]);
 			}
 
 			s->i = 0;

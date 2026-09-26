@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include <kripto/cast.h>
 #include <kripto/memory.h>
@@ -45,8 +44,7 @@ int kripto_pbkdf2
 	uint8_t *buf1;
 	kripto_mac *m;
 
-	assert(mac);
-	assert(iter);
+	if(!iter) return -1;
 
 	x = kripto_mac_maxtag(mac);
 	if(out_len < x) x = out_len;
@@ -62,12 +60,10 @@ int kripto_pbkdf2
 	for(;;)
 	{
 		for(i = 3; !++ctr[i]; i--)
-			assert(i);
+			if(!i) goto err;
 
 		kripto_mac_input(m, salt, salt_len);
-
 		kripto_mac_input(m, ctr, 4);
-
 		kripto_mac_tag(m, buf0, x);
 
 		memcpy(buf1, buf0, x);

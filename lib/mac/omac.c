@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/loadstore.h>
 #include <kripto/memory.h>
 #include <kripto/block.h>
@@ -412,7 +412,7 @@ static void omac_tag(kripto_mac *s, void *tag, unsigned int len)
 	}
 
 	/* output */
-	assert(s->i + len <= s->len);
+	kripto_assert(s->i + len <= s->len);
 	for(i = 0; i < len; i++)
 	{
 		U8(tag)[i] = s->buf[s->i++];
@@ -506,7 +506,7 @@ kripto_desc_mac *kripto_mac_omac(const kripto_desc_block *block)
 	s->desc.maxtag = kripto_block_size(block);
 	s->desc.maxkey = kripto_block_maxkey(block);
 
-	assert(s->desc.maxtag <= 255);
+	kripto_assert(s->desc.maxtag <= 255);
 
 	return (kripto_desc_mac *)s;
 }

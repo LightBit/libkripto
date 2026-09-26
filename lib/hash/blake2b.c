@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -185,7 +185,7 @@ static void blake2b_input
 			if(s->len[0] < 128)
 			{
 				s->len[1]++;
-				assert(s->len[1]);
+				kripto_assert(s->len[1]);
 			}
 
 			blake2b_process(s, s->buf);
@@ -200,7 +200,7 @@ static void blake2b_finish(kripto_hash *s)
 	if(s->len[0] < s->i)
 	{
 		s->len[1]++;
-		assert(s->len[1]);
+		kripto_assert(s->len[1]);
 	}
 
 	while(s->i < 128) s->buf[s->i++] = 0;
@@ -216,7 +216,7 @@ static void blake2b_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->f) blake2b_finish(s);
 
-	assert(s->i + len <= 64);
+	kripto_assert(s->i + len <= 64);
 	STORE64L_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

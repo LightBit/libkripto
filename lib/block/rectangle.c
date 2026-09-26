@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/rotate.h>
 #include <kripto/loadstore.h>
@@ -250,7 +250,7 @@ static kripto_block *rectangle_create
 	unsigned int key_len
 )
 {
-	assert(r <= 25);
+	kripto_assert(r <= 25);
 
 	if(!r) r = 25;
 
@@ -280,7 +280,7 @@ static kripto_block *rectangle_recreate
 	unsigned int key_len
 )
 {
-	assert(r <= 25);
+	kripto_assert(r <= 25);
 
 	if(!r) r = 25;
 

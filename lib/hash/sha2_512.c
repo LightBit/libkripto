@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -277,7 +277,7 @@ static void sha2_512_input
 			if(s->len[0] < 1024)
 			{
 				s->len[1]++;
-				assert(s->len[1]);
+				kripto_assert(s->len[1]);
 			}
 
 			sha2_512_process(s, s->buf);
@@ -292,7 +292,7 @@ static void sha2_512_finish(kripto_hash *s)
 	if(s->len[0] < (s->i << 3))
 	{
 		s->len[1]++;
-		assert(s->len[1]);
+		kripto_assert(s->len[1]);
 	}
 
 	s->buf[s->i++] = 0x80; /* pad */
@@ -319,7 +319,7 @@ static void sha2_512_output(kripto_hash *s, void *out, size_t len)
 {
 	if(!s->o) sha2_512_finish(s);
 
-	assert(s->i + len <= 64);
+	kripto_assert(s->i + len <= 64);
 	STORE64B_ARRAY(s->h, s->i, out, len);
 	s->i += len;
 }

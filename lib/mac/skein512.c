@@ -17,8 +17,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/memory.h>
@@ -57,7 +57,7 @@ struct kripto_mac
 	if(!++TWEAK[10])		\
 	{				\
 		TWEAK[11]++;		\
-		assert(TWEAK[11]);	\
+		kripto_assert(TWEAK[11]);	\
 	}				\
 }
 
@@ -181,7 +181,7 @@ static void skein512_tag(kripto_mac *s, void *tag, unsigned int len)
 {
 	if(!s->f) skein512_finish(s);
 
-	assert(s->i + len <= 64);
+	kripto_assert(s->i + len <= 64);
 
 	memcpy(tag, s->h + s->i, len);
 	s->i += len;

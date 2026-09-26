@@ -13,8 +13,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <assert.h>
-
+#include <kripto/assert.h>
 #include <kripto/memory.h>
 #include <kripto/ae.h>
 #include <kripto/desc/ae.h>
@@ -36,15 +35,15 @@ kripto_ae *kripto_ae_create
 	unsigned int tag_len
 )
 {
-	assert(desc);
-	assert(desc->create);
+	kripto_assert(desc);
+	kripto_assert(desc->create);
 
-	assert(key);
-	assert(key_len);
-	assert(key_len <= kripto_ae_maxkey(desc));
-	assert(iv_len <= kripto_ae_maxiv(desc));
-	if(iv_len) assert(iv);
-	assert(tag_len <= kripto_ae_maxtag(desc));
+	kripto_assert(key);
+	kripto_assert(key_len);
+	kripto_assert(key_len <= desc->maxkey);
+	kripto_assert(iv_len <= desc->maxiv);
+	kripto_assert(!iv_len || iv);
+	kripto_assert(tag_len <= desc->maxtag);
 
 	return desc->create(desc, rounds, key, key_len, iv, iv_len, tag_len);
 }
@@ -60,16 +59,16 @@ kripto_ae *kripto_ae_recreate
 	unsigned int tag_len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->recreate);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->recreate);
 
-	assert(key);
-	assert(key_len);
-	assert(key_len <= kripto_ae_maxkey(s->desc));
-	assert(iv_len <= kripto_ae_maxiv(s->desc));
-	if(iv_len) assert(iv);
-	assert(tag_len <= kripto_ae_maxtag(s->desc));
+	kripto_assert(key);
+	kripto_assert(key_len);
+	kripto_assert(key_len <= s->desc->maxkey);
+	kripto_assert(iv_len <= s->desc->maxiv);
+	kripto_assert(!iv_len || iv);
+	kripto_assert(tag_len <= s->desc->maxtag);
 
 	return s->desc->recreate(s, rounds, key, key_len, iv, iv_len, tag_len);
 }
@@ -82,10 +81,10 @@ void kripto_ae_encrypt
 	size_t len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->encrypt);
-	assert(len % kripto_ae_multof(s) == 0);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->encrypt);
+	kripto_assert(len % s->multof == 0);
 
 	s->desc->encrypt(s, pt, ct, len);
 }
@@ -98,10 +97,10 @@ void kripto_ae_decrypt
 	size_t len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->decrypt);
-	assert(len % kripto_ae_multof(s) == 0);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->decrypt);
+	kripto_assert(len % s->multof == 0);
 
 	s->desc->decrypt(s, ct, pt, len);
 }
@@ -113,9 +112,9 @@ void kripto_ae_header
 	size_t len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->header);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->header);
 
 	s->desc->header(s, header, len);
 }
@@ -127,9 +126,11 @@ void kripto_ae_tag
 	unsigned int len
 )
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->tag);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->tag);
+
+	kripto_assert(!s->desc->maxtag || len <= s->desc->maxtag);
 
 	s->desc->tag(s, tag, len);
 }
@@ -141,6 +142,12 @@ int kripto_ae_verify
 	unsigned int len
 )
 {
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->tag);
+
+	kripto_assert(!s->desc->maxtag || len <= s->desc->maxtag);
+
 	char t[len];
 	s->desc->tag(s, t, len);
 	return kripto_memory_equals(t, tag, len);
@@ -148,47 +155,47 @@ int kripto_ae_verify
 
 void kripto_ae_destroy(kripto_ae *s)
 {
-	assert(s);
-	assert(s->desc);
-	assert(s->desc->destroy);
+	kripto_assert(s);
+	kripto_assert(s->desc);
+	kripto_assert(s->desc->destroy);
 
 	s->desc->destroy(s);
 }
 
 unsigned int kripto_ae_multof(const kripto_ae *s)
 {
-	assert(s);
-	assert(s->multof);
+	kripto_assert(s);
+	kripto_assert(s->multof);
 
 	return s->multof;
 }
 
 const kripto_desc_ae *kripto_ae_getdesc(const kripto_ae *s)
 {
-	assert(s);
-	assert(s->desc);
+	kripto_assert(s);
+	kripto_assert(s->desc);
 
 	return s->desc;
 }
 
 unsigned int kripto_ae_maxkey(const kripto_desc_ae *desc)
 {
-	assert(desc);
-	assert(desc->maxkey);
+	kripto_assert(desc);
+	kripto_assert(desc->maxkey);
 
 	return desc->maxkey;
 }
 
 unsigned int kripto_ae_maxiv(const kripto_desc_ae *desc)
 {
-	assert(desc);
+	kripto_assert(desc);
 
 	return desc->maxiv;
 }
 
 unsigned int kripto_ae_maxtag(const kripto_desc_ae *desc)
 {
-	assert(desc);
+	kripto_assert(desc);
 
 	return desc->maxtag;
 }

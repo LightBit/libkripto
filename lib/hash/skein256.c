@@ -17,8 +17,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/memory.h>
@@ -58,7 +58,7 @@ struct kripto_hash
 	if(!++TWEAK[10])		\
 	{				\
 		TWEAK[11]++;		\
-		assert(TWEAK[11]);	\
+		kripto_assert(TWEAK[11]);	\
 	}				\
 }
 
@@ -173,7 +173,7 @@ static void skein256_output(kripto_hash *s, void *out, size_t len)
 		s->tweak[15] = 0x7F; /* type OUT, first */
 	}
 
-	assert(s->out_len >= len);
+	kripto_assert(s->out_len >= len);
 
 	for(size_t i = 0; i < len; i++)
 	{

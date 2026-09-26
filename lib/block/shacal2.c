@@ -17,8 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/cast.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
@@ -199,7 +199,7 @@ static kripto_block *shacal2_create
 	unsigned int key_len
 )
 {
-	assert(r < 128);
+	kripto_assert(r < 128);
 
 	if(!r) r = 64;
 
@@ -228,7 +228,7 @@ static kripto_block *shacal2_recreate
 	unsigned int key_len
 )
 {
-	assert(r < 128);
+	kripto_assert(r < 128);
 
 	if(!r) r = 64;
 

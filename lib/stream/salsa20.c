@@ -15,8 +15,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <assert.h>
 
+#include <kripto/assert.h>
 #include <kripto/loadstore.h>
 #include <kripto/rotate.h>
 #include <kripto/memory.h>
@@ -135,7 +135,7 @@ static void salsa20_crypt
 			if(!++s->x[8])
 			{
 				s->x[9]++;
-				assert(s->x[9]);
+				kripto_assert(s->x[9]);
 			}
 		}
 
@@ -160,7 +160,7 @@ static void salsa20_prng
 			if(!++s->x[8])
 			{
 				s->x[9]++;
-				assert(s->x[9]);
+				kripto_assert(s->x[9]);
 			}
 		}
 

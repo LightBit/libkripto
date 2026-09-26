@@ -13,7 +13,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <assert.h>
+#include <kripto/assert.h>
 #include <stdint.h>
 
 #if defined(KRIPTO_UNIX)
@@ -247,7 +247,7 @@ kripto_random *kripto_random_create(void)
 
 size_t kripto_random_gen(kripto_random *s, void *out, size_t len)
 {
-	assert(s);
+	kripto_assert(s);
 
 	#if defined(KRIPTO_DEV_RANDOM)
 
@@ -255,7 +255,7 @@ size_t kripto_random_gen(kripto_random *s, void *out, size_t len)
 
 	#elif defined(KRIPTO_RTLGENRANDOM)
 
-	assert(s->rtlgenrandom);
+	kripto_assert(s->rtlgenrandom);
 	if(s->rtlgenrandom(out, len) == TRUE) return len;
 	return 0;
 	
@@ -304,7 +304,7 @@ err:
 
 void kripto_random_destroy(kripto_random *s)
 {
-	assert(s);
+	kripto_assert(s);
 
 	#if defined(KRIPTO_DEV_RANDOM)
 
@@ -312,7 +312,7 @@ void kripto_random_destroy(kripto_random *s)
 
 	#elif defined(KRIPTO_RTLGENRANDOM)
 
-	assert(s->lib);
+	kripto_assert(s->lib);
 	FreeLibrary(s->lib);
 
 	#elif defined(KRIPTO_CRYPTGENRANDOM)
