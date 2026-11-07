@@ -71,7 +71,7 @@ int kripto_pbkdf2
 		for(i = 1; i < iter; i++)
 		{
 			m = kripto_mac_recreate(m, mac_rounds, pass, pass_len, x);
-			if(!mac) goto err;
+			if(!m) goto err;
 
 			kripto_mac_input(m, buf0, x);
 			kripto_mac_tag(m, buf0, x);
